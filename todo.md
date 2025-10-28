@@ -130,3 +130,10 @@
 - [x] Implementar paginação correta no método getAllWonDeals()
 - [x] Corrigir método getDeals para passar start e limit corretamente
 - [x] Corrigir fetchData para usar start na URL
+
+
+## Bugs - Conversão de Valores
+- [x] Faturamento está mostrando R$ 8941.5K ao invés de R$ 89.414,61
+- [x] Valores do Pipedrive vêm em centavos, precisa DIVIDIR por 100 (não multiplicar)
+- [x] Mudar gráfico de faturamento mensal de barras para linhas (já estava usando LineChart)
+- [x] Corrigido: Todas as multiplicações por 100 alteradas para divisões por 100
