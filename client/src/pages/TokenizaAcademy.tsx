@@ -211,7 +211,7 @@ interface KpiCardProps {
   kpi: {
     value: number | string;
     label: string;
-    change?: number;
+    change?: number | string;
     trend?: "up" | "down" | "stable";
   };
 }
@@ -227,7 +227,7 @@ function KpiCard({ kpi }: KpiCardProps) {
         {kpi.change !== undefined && (
           <div className="flex items-center gap-1 text-sm mt-2 text-green-600">
             <TrendingUp className="w-4 h-4" />
-            <span>{Math.abs(kpi.change)}%</span>
+            <span>{typeof kpi.change === 'number' ? Math.abs(kpi.change) : kpi.change}</span>
             <span className="text-muted-foreground text-xs">vs período anterior</span>
           </div>
         )}

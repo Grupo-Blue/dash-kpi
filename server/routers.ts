@@ -5,6 +5,8 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
+import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from "./services/kpiCalculatorReal";
+import { ENV } from "./_core/env";
 
 export const appRouter = router({
   system: systemRouter,
@@ -63,19 +65,41 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('blue-consult');
       if (!company) throw new Error('Company not found');
 
-      // Generate mock KPIs
+      // Use real API if token is available
+      const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
+      
+      if (pipedriveToken) {
+        const calculator = new BlueConsultKpiCalculatorReal(pipedriveToken);
+        const kpis = {
+          summary: await Promise.all([
+            calculator.calculateMonthlyRevenue(),
+            calculator.calculateActiveClients(),
+            calculator.calculateConversionRate(),
+            calculator.calculateAverageTicket(),
+          ]),
+          monthlyRevenue: await calculator.getMonthlyRevenue(),
+          pipeline: await calculator.getPipelineData(),
+        };
+        return kpis;
+      }
+      
+      // Fallback to mock data
+      const mockData = BlueConsultKpiCalculator.generateMockData();
       const kpis = {
         summary: [
-          BlueConsultKpiCalculator.calculateMonthlyRevenue([]),
-          BlueConsultKpiCalculator.calculateAnnualRevenue([]),
-          BlueConsultKpiCalculator.calculateActiveClients([]),
-          BlueConsultKpiCalculator.calculateNewClients([]),
-          BlueConsultKpiCalculator.calculateChurnRate([]),
-          BlueConsultKpiCalculator.calculateSalesVelocity([]),
+          { label: 'Faturamento Mensal', value: 'R$ 180K', change: '+12%' },
+          { label: 'Clientes Ativos', value: '287', change: '+8%' },
+          { label: 'Taxa de Conversão', value: '16%', change: '+2.3%' },
+          { label: 'Ticket Médio', value: 'R$ 4.2K', change: '+5%' },
         ],
-        revenueTimeSeries: BlueConsultKpiCalculator.getRevenueTimeSeries(),
-        salesFunnel: BlueConsultKpiCalculator.getSalesFunnel(),
-        clientMetrics: BlueConsultKpiCalculator.getClientMetrics(),
+        monthlyRevenue: mockData.monthlyRevenue.map((item: any) => ({
+          month: item.label || item.date,
+          revenue: item.value / 1000,
+        })),
+        pipeline: mockData.funnelData.map((item: any) => ({
+          stage: item.stage,
+          count: item.value,
+        })),
       };
 
       return kpis;
@@ -102,6 +126,23 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('tokeniza-academy');
       if (!company) throw new Error('Company not found');
 
+      // Use real API if tokens are available
+      const discordToken = process.env.DISCORD_BOT_TOKEN;
+      const guildId = process.env.DISCORD_GUILD_ID;
+      
+      if (discordToken && guildId) {
+        const calculator = new TokenizaAcademyKpiCalculatorReal(discordToken, guildId);
+        const kpis = {
+          summary: await Promise.all([
+            calculator.calculateTotalMembers(),
+            calculator.calculateEngagementRate(),
+          ]),
+          activeMembers: await calculator.getActiveMembers(),
+        };
+        return kpis;
+      }
+      
+      // Fallback to mock data
       const kpis = {
         summary: [
           TokenizaAcademyKpiCalculator.calculateTotalMembers(),

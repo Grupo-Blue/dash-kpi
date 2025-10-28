@@ -49,3 +49,10 @@
 
 ## Mudanças Solicitadas
 - [x] Atualizar todas as referências de "BitClass" para "Tokeniza Academy" (rebranding)
+
+
+## Integrações em Implementação
+- [x] Implementar integração real com Pipedrive API (Blue Consult)
+- [x] Implementar integração real com Discord API (Tokeniza Academy)
+- [x] Criar sistema de configuração de credenciais via UI
+- [x] Substituir dados mockados por dados reais das APIs

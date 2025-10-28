@@ -66,7 +66,7 @@ export default function BlueConsult() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={kpis?.revenueTimeSeries}>
+                <LineChart data={kpis?.monthlyRevenue || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     dataKey="label" 
@@ -106,7 +106,7 @@ export default function BlueConsult() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={kpis?.salesFunnel} layout="vertical">
+                <BarChart data={kpis?.pipeline || []} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     type="number"
@@ -128,11 +128,7 @@ export default function BlueConsult() {
                       borderRadius: '8px',
                     }}
                   />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]}>
-                    {kpis?.salesFunnel.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
+                  <Bar dataKey="count" radius={[0, 8, 8, 0]} fill="#3b82f6" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -147,32 +143,33 @@ export default function BlueConsult() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-              <MetricItem
+              {/* <MetricItem
                 label="Novos Clientes"
-                value={kpis?.clientMetrics.newClientsThisMonth}
+                value={kpis?.clientMetrics?.newClientsThisMonth || 0}
                 icon={Users}
-              />
-              <MetricItem
+              /> */}
+              {/* Temporarily disabled until clientMetrics is implemented */}
+              {/* <MetricItem
                 label="Churn"
-                value={kpis?.clientMetrics.churnThisMonth}
+                value={kpis?.clientMetrics?.churnThisMonth || 0}
                 icon={TrendingDown}
                 variant="danger"
               />
               <MetricItem
                 label="Renovações Gold"
-                value={kpis?.clientMetrics.goldRenewals}
+                value={kpis?.clientMetrics?.goldRenewals || 0}
                 icon={TrendingUp}
               />
               <MetricItem
                 label="Renovações Diamond"
-                value={kpis?.clientMetrics.diamondRenewals}
+                value={kpis?.clientMetrics?.diamondRenewals || 0}
                 icon={TrendingUp}
               />
               <MetricItem
                 label="Upgrades"
-                value={kpis?.clientMetrics.upgrades}
+                value={kpis?.clientMetrics?.upgrades || 0}
                 icon={TrendingUp}
-              />
+              /> */}
               <MetricItem
                 label="Negócios Criados"
                 value={45}
@@ -190,7 +187,7 @@ interface KpiCardProps {
   kpi: {
     value: number | string;
     label: string;
-    change?: number;
+    change?: number | string;
     trend?: "up" | "down" | "stable";
     metadata?: Record<string, any>;
   };
@@ -226,7 +223,7 @@ function KpiCard({ kpi }: KpiCardProps) {
         {kpi.change !== undefined && (
           <div className={`flex items-center gap-1 text-sm mt-2 ${getTrendColor()}`}>
             {getTrendIcon()}
-            <span>{Math.abs(kpi.change)}%</span>
+            <span>{typeof kpi.change === 'number' ? Math.abs(kpi.change) : kpi.change}</span>
             <span className="text-muted-foreground text-xs">vs mês anterior</span>
           </div>
         )}
