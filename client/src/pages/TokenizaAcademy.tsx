@@ -59,29 +59,27 @@ export default function TokenizaAcademy() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Membros Ativos - Discord</CardTitle>
-              <CardDescription>Atividade da comunidade por período</CardDescription>
+              <CardTitle>Estatísticas da Comunidade</CardTitle>
+              <CardDescription>Métricas adicionais do Discord</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <MetricRow
-                  label="Membros Ativos Diários"
-                  value={kpis?.activeMembers.daily ?? 0}
-                  total={kpis?.summary[0]?.value ?? 0}
-                  icon={Users}
-                />
-                <MetricRow
-                  label="Membros Ativos Semanais"
-                  value={kpis?.activeMembers.weekly ?? 0}
-                  total={kpis?.summary[0]?.value ?? 0}
-                  icon={Users}
-                />
-                <MetricRow
-                  label="Membros Ativos Mensais"
-                  value={kpis?.activeMembers.monthly ?? 0}
-                  total={kpis?.summary[0]?.value ?? 0}
-                  icon={Users}
-                />
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Taxa de Atividade</span>
+                  <span className="font-semibold">{kpis?.additionalMetrics?.activityRate?.value || '0%'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Total de Canais</span>
+                  <span className="font-semibold">{kpis?.additionalMetrics?.totalChannels?.value || '0'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Humanos</span>
+                  <span className="font-semibold">{kpis?.additionalMetrics?.memberDistribution?.humans?.toLocaleString('pt-BR') || '0'}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Bots</span>
+                  <span className="font-semibold">{kpis?.additionalMetrics?.memberDistribution?.bots?.toLocaleString('pt-BR') || '0'}</span>
+                </div>
               </div>
             </CardContent>
           </Card>

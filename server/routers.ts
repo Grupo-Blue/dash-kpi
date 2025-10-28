@@ -7,6 +7,7 @@ import * as db from "./db";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
+import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDiscordRefined';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -109,13 +110,20 @@ export const appRouter = router({
         throw new Error('Discord API não configurada. Configure a integração para visualizar dados reais.');
       }
 
-      const calculator = new TokenizaAcademyKpiCalculatorReal(discordToken, guildId);
+      const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
       const kpis = {
         summary: await Promise.all([
           calculator.calculateTotalMembers(),
-          calculator.calculateEngagementRate(),
+          calculator.calculateOnlineMembers(),
+          calculator.calculateNewMembers7Days(),
+          calculator.calculateNewMembers30Days(),
         ]),
-        activeMembers: await calculator.getActiveMembers(),
+        memberTypeDistribution: await calculator.getMemberTypeDistribution(),
+        additionalMetrics: {
+          activityRate: await calculator.calculateActivityRate(),
+          totalChannels: await calculator.calculateTotalChannels(),
+          memberDistribution: await calculator.calculateMemberDistribution(),
+        },
       };
       
       return kpis;

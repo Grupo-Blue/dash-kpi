@@ -78,3 +78,14 @@
 - [x] Verificar se API do Pipedrive está retornando dados corretos
 - [x] Corrigir nome da Pipeline de Implantação (era "Blue - Pipeline Implantação", correto é "Blue - Implantação")
 - [x] Corrigir método getStages para usar filtros corretamente
+
+
+## Investigação Discord API
+- [x] Testar API do Discord para verificar quais dados estão disponíveis
+- [x] Identificar endpoints úteis para KPIs da Tokeniza Academy
+- [x] Validar quais métricas podem ser extraídas (membros, mensagens, canais, engajamento)
+- [x] Implementar KPIs refinados baseados nos dados reais disponíveis
+- [x] Atualizar DiscordService com métodos refinados
+- [x] Atualizar TokenizaAcademyKpiCalculator com dados reais
+- [x] Atualizar frontend da Tokeniza Academy com novos KPIs
+- [x] Atualizar token do Discord e configurar permissões SERVER_MEMBERS

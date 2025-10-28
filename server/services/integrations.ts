@@ -180,6 +180,65 @@ export class DiscordService implements IntegrationService {
     return this.fetchData({ endpoint: `channels/${channelId}/messages?limit=${limit}` });
   }
 
+  async getGuildRoles(): Promise<any[]> {
+    return this.fetchData({ endpoint: `guilds/${this.guildId}/roles` });
+  }
+
+  async getNewMembers(days: number): Promise<number> {
+    try {
+      const members = await this.getGuildMembers(1000);
+      const now = Date.now();
+      const cutoffTime = now - (days * 24 * 60 * 60 * 1000);
+      
+      const newMembers = members.filter((m: any) => {
+        const joinedAt = new Date(m.joined_at).getTime();
+        return joinedAt > cutoffTime;
+      });
+      
+      return newMembers.length;
+    } catch (error) {
+      console.error(`[Discord] Error getting new members (${days} days):`, error);
+      return 0;
+    }
+  }
+
+  async getMemberStats(): Promise<{ total: number; online: number; humans: number; bots: number }> {
+    try {
+      const guildInfo = await this.getGuildInfo();
+      const members = await this.getGuildMembers(1000);
+      
+      const bots = members.filter((m: any) => m.user?.bot);
+      const humans = members.filter((m: any) => !m.user?.bot);
+      
+      return {
+        total: guildInfo.approximate_member_count || members.length,
+        online: guildInfo.approximate_presence_count || 0,
+        humans: humans.length,
+        bots: bots.length,
+      };
+    } catch (error) {
+      console.error('[Discord] Error getting member stats:', error);
+      return { total: 0, online: 0, humans: 0, bots: 0 };
+    }
+  }
+
+  async getChannelStats(): Promise<{ total: number; text: number; voice: number }> {
+    try {
+      const channels = await this.getGuildChannels();
+      const textChannels = channels.filter((c: any) => c.type === 0);
+      const voiceChannels = channels.filter((c: any) => c.type === 2);
+      
+      return {
+        total: channels.length,
+        text: textChannels.length,
+        voice: voiceChannels.length,
+      };
+    } catch (error) {
+      console.error('[Discord] Error getting channel stats:', error);
+      return { total: 0, text: 0, voice: 0 };
+    }
+  }
+
   async calculateActiveMembers(days: number): Promise<{ daily: number; weekly: number; monthly: number }> {
     try {
       const channels = await this.getGuildChannels();
