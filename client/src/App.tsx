@@ -7,7 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import BlueConsult from "./pages/BlueConsult";
 import Tokeniza from "./pages/Tokeniza";
-import BitClass from "./pages/BitClass";
+import TokenizaAcademy from "./pages/TokenizaAcademy";
 
 function Router() {
   return (
@@ -15,7 +15,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/blue-consult"} component={BlueConsult} />
       <Route path={"/tokeniza"} component={Tokeniza} />
-      <Route path={"/bitclass"} component={BitClass} />
+      <Route path={"/tokeniza-academy"} component={TokenizaAcademy} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

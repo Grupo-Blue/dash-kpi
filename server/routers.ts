@@ -4,7 +4,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
-import { BlueConsultKpiCalculator, TokenizaKpiCalculator, BitClassKpiCalculator } from "./services/kpiCalculator";
+import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 
 export const appRouter = router({
   system: systemRouter,
@@ -97,17 +97,17 @@ export const appRouter = router({
       return kpis;
     }),
 
-    // BitClass KPIs
-    bitclass: protectedProcedure.query(async () => {
-      const company = await db.getCompanyBySlug('bitclass');
+    // Tokeniza Academy KPIs
+    tokenizaAcademy: protectedProcedure.query(async () => {
+      const company = await db.getCompanyBySlug('tokeniza-academy');
       if (!company) throw new Error('Company not found');
 
       const kpis = {
         summary: [
-          BitClassKpiCalculator.calculateTotalMembers(),
-          BitClassKpiCalculator.calculateEngagementRate(),
+          TokenizaAcademyKpiCalculator.calculateTotalMembers(),
+          TokenizaAcademyKpiCalculator.calculateEngagementRate(),
         ],
-        activeMembers: BitClassKpiCalculator.getActiveMembers(),
+        activeMembers: TokenizaAcademyKpiCalculator.getActiveMembers(),
       };
 
       return kpis;

@@ -45,3 +45,7 @@
 - [x] Criar calculadores de KPIs para Blue Consult, Tokeniza e BitClass
 - [x] Adicionar gráficos de linha e barra para visualização de dados
 - [x] Implementar navegação entre empresas no sidebar
+
+
+## Mudanças Solicitadas
+- [x] Atualizar todas as referências de "BitClass" para "Tokeniza Academy" (rebranding)

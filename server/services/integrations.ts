@@ -148,18 +148,18 @@ export class TokenizaService implements IntegrationService {
   }
 }
 
-// BitClass Service (Course platform)
-export class BitClassService implements IntegrationService {
+// Tokeniza Academy Service (Course platform)
+export class TokenizaAcademyService implements IntegrationService {
   constructor(private apiKey: string, private config?: Record<string, any>) {}
 
   async testConnection(): Promise<boolean> {
-    // TODO: Implement BitClass connection test
+    // TODO: Implement Tokeniza Academy connection test
     return true;
   }
 
   async fetchData(params?: any): Promise<any> {
-    // TODO: Implement BitClass data fetching
-    return { mock: true, service: 'bitclass' };
+    // TODO: Implement Tokeniza Academy data fetching
+    return { mock: true, service: 'tokeniza-academy' };
   }
 }
 
@@ -182,8 +182,8 @@ export function createIntegrationService(
       return new DiscordService(apiKey, config);
     case 'tokeniza':
       return new TokenizaService(apiKey, config);
-    case 'bitclass':
-      return new BitClassService(apiKey, config);
+    case 'tokeniza-academy':
+      return new TokenizaAcademyService(apiKey, config);
     default:
       throw new Error(`Unknown service: ${serviceName}`);
   }

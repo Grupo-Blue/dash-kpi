@@ -200,8 +200,8 @@ export class TokenizaKpiCalculator {
   }
 }
 
-// BitClass/Discord KPIs
-export class BitClassKpiCalculator {
+// Tokeniza Academy/Discord KPIs
+export class TokenizaAcademyKpiCalculator {
   static generateMockData() {
     return {
       totalMembers: 1847,

@@ -5,8 +5,8 @@ import { trpc } from "@/lib/trpc";
 import { RefreshCw, Users, MessageSquare, TrendingUp, Hash } from "lucide-react";
 import { toast } from "sonner";
 
-export default function BitClass() {
-  const { data: kpis, isLoading, refetch } = trpc.kpis.bitclass.useQuery();
+export default function TokenizaAcademy() {
+  const { data: kpis, isLoading, refetch } = trpc.kpis.tokenizaAcademy.useQuery();
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
       toast.success("KPIs atualizados com sucesso!");
@@ -18,7 +18,7 @@ export default function BitClass() {
   });
 
   const handleRefresh = () => {
-    refreshMutation.mutate({ companySlug: "bitclass" });
+    refreshMutation.mutate({ companySlug: "tokeniza-academy" });
   };
 
   if (isLoading) {
@@ -37,7 +37,7 @@ export default function BitClass() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">BitClass</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Tokeniza Academy</h1>
             <p className="text-muted-foreground mt-2">
               Tokeniza Academy - KPIs de cursos e comunidade Discord
             </p>
@@ -143,7 +143,7 @@ export default function BitClass() {
         <Card>
           <CardHeader>
             <CardTitle>Plataforma de Cursos</CardTitle>
-            <CardDescription>Métricas da BitClass</CardDescription>
+            <CardDescription>Métricas da Tokeniza Academy</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 md:grid-cols-3">
@@ -196,7 +196,7 @@ export default function BitClass() {
               description="Configure o bot do Discord para métricas da comunidade"
             />
             <IntegrationStatus
-              name="BitClass API"
+              name="Tokeniza Academy API"
               status="pending"
               description="Dados de cursos e alunos"
             />

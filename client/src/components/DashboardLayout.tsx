@@ -31,7 +31,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Visão Geral", path: "/" },
   { icon: Building2, label: "Blue Consult", path: "/blue-consult" },
   { icon: TrendingUp, label: "Tokeniza", path: "/tokeniza" },
-  { icon: GraduationCap, label: "BitClass", path: "/bitclass" },
+  { icon: GraduationCap, label: "Tokeniza Academy", path: "/tokeniza-academy" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

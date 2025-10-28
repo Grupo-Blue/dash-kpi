@@ -85,10 +85,10 @@ export default function Home() {
           />
 
           <CompanyCard
-            title="BitClass"
+            title="Tokeniza Academy"
             description="Academy & Discord"
             icon={GraduationCap}
-            href="/bitclass"
+            href="/tokeniza-academy"
             stats={[
               { label: "Membros Discord", value: "1,847" },
               { label: "Engajamento", value: "66.8%" },
@@ -116,7 +116,7 @@ export default function Home() {
             <div className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
               <div>
                 <p className="font-medium">Configurar Discord</p>
-                <p className="text-sm text-muted-foreground">BitClass - Métricas de comunidade</p>
+                <p className="text-sm text-muted-foreground">Tokeniza Academy - Métricas de comunidade</p>
               </div>
               <Button variant="ghost" size="sm">
                 Configurar

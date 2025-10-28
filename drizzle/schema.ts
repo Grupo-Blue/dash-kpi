@@ -40,7 +40,7 @@ export type InsertCompany = typeof companies.$inferInsert;
 export const integrations = mysqlTable("integrations", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, nibo, mautic, metricool, discord, tokeniza, bitclass
+  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, nibo, mautic, metricool, discord, tokeniza, tokeniza-academy
   apiKey: text("apiKey"), // encrypted API key
   config: json("config").$type<Record<string, any>>(), // additional configuration as JSON
   lastSync: timestamp("lastSync"),
