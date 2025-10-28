@@ -130,9 +130,9 @@ export class BlueConsultKpiCalculatorRefined {
       const thisMonthDeals = this.filterDealsByWonTime(salesPipelineDeals, firstDayThisMonth, lastDayThisMonth);
       const lastMonthDeals = this.filterDealsByWonTime(salesPipelineDeals, firstDayLastMonth, lastDayLastMonth);
 
-      // Valores vêm em centavos, dividir por 100
-      const thisMonthRevenue = thisMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) / 100;
-      const lastMonthRevenue = lastMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) / 100;
+      // Valores já vêm no formato correto da API (não são centavos)
+      const thisMonthRevenue = thisMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
+      const lastMonthRevenue = lastMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
 
       const change = lastMonthRevenue > 0 
         ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
@@ -267,7 +267,7 @@ export class BlueConsultKpiCalculatorRefined {
         const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59);
 
         const monthDeals = this.filterDealsByWonTime(salesPipelineDeals, firstDay, lastDay);
-        const revenue = monthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) / 100;
+        const revenue = monthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
 
         result.push({
           month: monthDate.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }),
@@ -312,7 +312,7 @@ export class BlueConsultKpiCalculatorRefined {
           };
         }
         byStage[stageId].count++;
-        byStage[stageId].total += (deal.value || 0) / 100; // Dividir por 100
+        byStage[stageId].total += (deal.value || 0); // Valores já vêm corretos da API
       });
 
       return Object.values(byStage).map(data => ({
@@ -356,7 +356,7 @@ export class BlueConsultKpiCalculatorRefined {
           };
         }
         byStage[stageId].count++;
-        byStage[stageId].total += (deal.value || 0) / 100; // Dividir por 100
+        byStage[stageId].total += (deal.value || 0); // Valores já vêm corretos da API
       });
 
       return Object.values(byStage).map(data => ({

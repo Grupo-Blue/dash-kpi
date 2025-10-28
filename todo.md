@@ -154,3 +154,18 @@
 - [x] Aplicado correção na pipeline de implantação (calculateImplementationPipeline)
 - [x] Testado e validado: gráficos exibindo estágios corretamente (Lead, Contato Iniciado, Negociação, Aguardando pagamento)
 - [x] Pipeline de Implantação exibindo corretamente (Aberto (comercial), Aguard. Retorno do cliente, Atendimento Agendado, Docs recebidos Parcial)
+
+
+## Bug CRÍTICO - Valores da API do Pipedrive (CORREÇÃO DEFINITIVA)
+- [x] Faturamento mostrando R$ 894,15 ao invés de R$ 89.414,61 (erro de 100x)
+- [x] DESCOBERTA: API do Pipedrive NÃO retorna valores em centavos - valores já vêm corretos!
+- [x] Evidência: Deal com valor RAW = 997 é R$ 997,00 (não R$ 9,97)
+- [x] Evidência: Deal com valor RAW = 3597.6 é R$ 3.597,60 (não R$ 35,98)
+- [x] CAUSA RAIZ: Estávamos dividindo por 100 incorretamente (achando que eram centavos)
+- [x] SOLUÇÃO: Remover TODAS as divisões por 100 nos cálculos
+- [x] Corrigido: calculateMonthlyRevenue() - removida divisão por 100
+- [x] Corrigido: calculateMonthlyRevenueChart() - removida divisão por 100
+- [x] Corrigido: calculateSalesFunnel() - removida divisão por 100
+- [x] Corrigido: calculateImplementationPipeline() - removida divisão por 100
+- [x] VALIDADO: Faturamento agora mostra R$ 89.4K (correto, equivalente a R$ 89.414,61)
+- [x] VALIDADO: Script de debug confirma Total RAW = 89.414,61 (38 deals em outubro/2025)
