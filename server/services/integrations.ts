@@ -103,8 +103,8 @@ export class PipedriveService implements IntegrationService {
   }
 
   async getStages(pipelineId?: number): Promise<any> {
-    const endpoint = pipelineId ? `stages?pipeline_id=${pipelineId}` : 'stages';
-    return this.fetchData({ endpoint });
+    const filters = pipelineId ? { pipeline_id: pipelineId } : {};
+    return this.fetchData({ endpoint: 'stages', filters });
   }
 }
 

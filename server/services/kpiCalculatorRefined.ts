@@ -17,7 +17,7 @@ export class BlueConsultKpiCalculatorRefined {
   private pipedriveService: PipedriveService;
   private config: PipelineConfig = {
     salesPipelineName: 'Blue - Pipeline de Vendas',
-    implementationPipelineName: 'Blue - Pipeline Implantação',
+    implementationPipelineName: 'Blue - Implantação',
   };
 
   constructor(pipedriveApiKey: string) {

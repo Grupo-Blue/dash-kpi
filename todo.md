@@ -71,3 +71,10 @@
 - [x] Mapear corretamente os estágios de cada pipeline
 - [x] Ajustar cálculos de faturamento, conversão e funil por pipeline
 - [x] Adicionar gráfico de Pipeline de Implantação (CS)
+
+
+## Bugs Reportados
+- [x] Investigar dados inconsistentes nos KPIs da Blue Consult
+- [x] Verificar se API do Pipedrive está retornando dados corretos
+- [x] Corrigir nome da Pipeline de Implantação (era "Blue - Pipeline Implantação", correto é "Blue - Implantação")
+- [x] Corrigir método getStages para usar filtros corretamente
