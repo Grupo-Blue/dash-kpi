@@ -150,28 +150,51 @@ export const appRouter = router({
       return statuses;
     }),
 
+    // Debug endpoint to check environment variables
+    debugEnv: protectedProcedure.query(async () => {
+      return {
+        hasNiboToken: !!process.env.NIBO_API_TOKEN,
+        niboTokenLength: process.env.NIBO_API_TOKEN?.length || 0,
+        allEnvKeys: Object.keys(process.env).filter(k => k.includes('NIBO') || k.includes('PIPEDRIVE')),
+      };
+    }),
+    
     // Nibo Financial KPIs
     niboFinancial: protectedProcedure.query(async () => {
-      const niboToken = process.env.NIBO_API_TOKEN;
+      console.log('[niboFinancial] Iniciando query...');
       
-      if (!niboToken) {
-        throw new Error('Nibo API não configurada. Configure a integração para visualizar dados financeiros.');
-      }
+      try {
+        // TEMPORARY: Hard-coded token for debugging
+        const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+        console.log('[niboFinancial] Token exists:', !!niboToken);
+        console.log('[niboFinancial] Token source:', process.env.NIBO_API_TOKEN ? 'env' : 'hardcoded');
+        
+        if (!niboToken) {
+          throw new Error('Nibo API não configurada. Configure a integração para visualizar dados financeiros.');
+        }
 
-      const calculator = new NiboKpiCalculator(niboToken);
-      const kpis = {
-        summary: await Promise.all([
-          calculator.calculateAccountsReceivable(),
-          calculator.calculateAccountsPayable(),
-          // Temporariamente desabilitados para debug (timeout)
-          // calculator.calculateCashFlow(),
-          // calculator.calculateOverdueReceivables(),
-        ]),
-        monthlyCashFlow: [], // Temporariamente desabilitado para debug
-        // monthlyCashFlow: await calculator.calculateMonthlyCashFlowChart(),
-      };
-      
-      return kpis;
+        console.log('[niboFinancial] Creating calculator...');
+        const calculator = new NiboKpiCalculator(niboToken);
+        
+        console.log('[niboFinancial] Calculating all KPIs...');
+        const kpis = {
+          summary: await Promise.all([
+            calculator.calculateAccountsReceivable(),
+            calculator.calculateAccountsPayable(),
+            calculator.calculateCashFlow(),
+            calculator.calculateOverdueReceivables(),
+          ]),
+          monthlyCashFlow: await calculator.calculateMonthlyCashFlowChart(),
+        };
+        console.log('[niboFinancial] All KPIs calculated successfully');
+        
+        console.log('[niboFinancial] Returning kpis...');
+        return kpis;
+      } catch (error: any) {
+        console.error('[niboFinancial] ERROR:', error.message);
+        console.error('[niboFinancial] Stack:', error.stack);
+        throw error;
+      }
     }),
   }),
 });

@@ -10,7 +10,9 @@ import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function BlueConsult() {
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
-  const { data: niboKpis, isLoading: niboLoading } = trpc.kpis.niboFinancial.useQuery();
+  const { data: niboKpis, isLoading: niboLoading, error: niboError } = trpc.kpis.niboFinancial.useQuery(undefined, {
+    retry: false,
+  });
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
       toast.success("KPIs atualizados com sucesso!");
