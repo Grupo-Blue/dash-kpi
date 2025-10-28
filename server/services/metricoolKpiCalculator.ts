@@ -14,6 +14,26 @@ export interface SocialMediaKPIs {
     comments: number;
     shares: number;
   }>;
+  followers: {
+    instagram: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+    facebook: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+    tiktok: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+  };
   networkBreakdown: {
     instagram: {
       posts: number;
@@ -114,6 +134,40 @@ export class MetricoolKpiCalculator {
         0
       );
 
+      // Fetch followers data
+      const currentDate = to;
+      const previousDate = new Date(new Date(from).getTime() - 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0];
+
+      const [igFollowersCurrent, igFollowersPrevious, fbFollowersCurrent, fbFollowersPrevious, ttFollowersCurrent, ttFollowersPrevious] =
+        await Promise.all([
+          this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })),
+          this.metricoolService
+            .getFollowers(blogId, 'instagram', 'followers', previousDate, from)
+            .catch(() => ({ data: [] })),
+          this.metricoolService.getFollowers(blogId, 'facebook', 'likes', from, to).catch(() => ({ data: [] })),
+          this.metricoolService.getFollowers(blogId, 'facebook', 'likes', previousDate, from).catch(() => ({ data: [] })),
+          this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', from, to).catch(() => ({ data: [] })),
+          this.metricoolService
+            .getFollowers(blogId, 'tiktok', 'followers_count', previousDate, from)
+            .catch(() => ({ data: [] })),
+        ]);
+
+      // Extract latest follower counts
+      const extractLatestValue = (response: any) => {
+        if (!response.data || response.data.length === 0) return 0;
+        const values = response.data[0]?.values || [];
+        return values.length > 0 ? values[0].value : 0;
+      };
+
+      const igCurrent = extractLatestValue(igFollowersCurrent);
+      const igPrevious = extractLatestValue(igFollowersPrevious);
+      const fbCurrent = extractLatestValue(fbFollowersCurrent);
+      const fbPrevious = extractLatestValue(fbFollowersPrevious);
+      const ttCurrent = extractLatestValue(ttFollowersCurrent);
+      const ttPrevious = extractLatestValue(ttFollowersPrevious);
+
       return {
         totalPosts,
         totalInteractions,
@@ -121,6 +175,26 @@ export class MetricoolKpiCalculator {
         totalReach,
         totalImpressions,
         topPosts,
+        followers: {
+          instagram: {
+            current: igCurrent,
+            previous: igPrevious,
+            growth: igCurrent - igPrevious,
+            growthPercentage: igPrevious > 0 ? ((igCurrent - igPrevious) / igPrevious) * 100 : 0,
+          },
+          facebook: {
+            current: fbCurrent,
+            previous: fbPrevious,
+            growth: fbCurrent - fbPrevious,
+            growthPercentage: fbPrevious > 0 ? ((fbCurrent - fbPrevious) / fbPrevious) * 100 : 0,
+          },
+          tiktok: {
+            current: ttCurrent,
+            previous: ttPrevious,
+            growth: ttCurrent - ttPrevious,
+            growthPercentage: ttPrevious > 0 ? ((ttCurrent - ttPrevious) / ttPrevious) * 100 : 0,
+          },
+        },
         networkBreakdown: {
           instagram: {
             posts: (instagramPosts.data || []).length,

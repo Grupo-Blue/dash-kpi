@@ -376,6 +376,20 @@ export class MetricoolService implements IntegrationService {
       integrationSource: 'MCP',
     });
   }
+
+  // Get followers timeline for a specific network
+  async getFollowers(blogId: string, network: string, metric: string, from: string, to: string, timezone: string = 'America%2FSao_Paulo') {
+    return this.makeRequest('/v2/analytics/timelines', {
+      blogId,
+      userId: this.userId,
+      integrationSource: 'MCP',
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      timezone,
+      metric,
+      network,
+    });
+  }
 }
 
 // Discord Service (Community metrics)

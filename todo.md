@@ -249,3 +249,13 @@
 
 ## Melhorias Solicitadas - Metricool
 - [x] Adicionar link clicável nos Top 5 Posts para visualizar o criativo original - CONCLUÍDO
+
+- [x] Descobrir endpoint de seguidores na API do Metricool - SUCESSO! (/v2/analytics/timelines)
+- [x] Testar endpoint com dados reais - Instagram: 14.144 seguidores (+258 em 30 dias)
+- [x] Implementar método getFollowers no MetricoolService
+- [x] Adicionar interface followers no SocialMediaKPIs
+- [x] Implementar cálculo de crescimento de seguidores no backend
+- [x] Adicionar seção "Seguidores por Rede Social" no frontend
+- [x] Mostrar crescimento de seguidores em relação ao mês anterior (percentual)
+- [ ] **BUG**: Resolver erro 500 nas chamadas de getFollowers (endpoint funciona via curl mas não via MetricoolService)
+- [ ] **BUG**: Investigar por que dados de seguidores retornam 0 no frontend
