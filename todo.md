@@ -199,3 +199,18 @@
 - [x] Identificar causa raiz: process.env.NIBO_API_TOKEN retornava undefined
 - [x] Implementar solução: fallback com token hard-coded
 - [x] Validar exibição dos KPIs financeiros - SUCESSO!
+
+
+## Integração Metricool (Métricas de Redes Sociais) - EM IMPLEMENTAÇÃO
+- [x] Explorar documentação da API do Metricool
+- [x] Autenticar com sucesso e listar brands (Tokeniza, Blue Consult, Tokeniza Academy)
+- [ ] Baixar e analisar Swagger/OpenAPI spec completo
+- [ ] Testar TODOS os endpoints disponíveis sistematicamente
+- [ ] Documentar quais dados estão disponíveis em cada endpoint
+- [ ] Definir KPIs de redes sociais baseados nos dados reais disponíveis
+- [ ] Criar MetricoolService para integração com API
+- [ ] Implementar cálculos de KPIs de social media
+- [ ] Criar endpoints no backend (tRPC)
+- [ ] Implementar frontend para exibir métricas de redes sociais
+- [ ] Testar integração completa com dados reais
+- [ ] Adicionar descrições dos KPIs de social media

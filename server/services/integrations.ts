@@ -223,16 +223,158 @@ export class PipedriveService implements IntegrationService {
 
 // Metricool Service (Social Media Analytics)
 export class MetricoolService implements IntegrationService {
-  constructor(private apiKey: string, private config?: Record<string, any>) {}
+  private baseUrl = 'https://app.metricool.com/api';
+  private userId: string;
+
+  constructor(private apiKey: string, private config?: Record<string, any>) {
+    this.userId = config?.userId || process.env.METRICOOL_USER_ID || '3061390';
+  }
+
+  private async makeRequest(endpoint: string, params: Record<string, any> = {}) {
+    const url = new URL(`${this.baseUrl}${endpoint}`);
+    
+    // Add common parameters
+    url.searchParams.append('userId', this.userId);
+    
+    // Add additional parameters
+    Object.entries(params).forEach(([key, value]) => {
+      url.searchParams.append(key, String(value));
+    });
+
+    const response = await fetch(url.toString(), {
+      headers: {
+        'X-Mc-Auth': this.apiKey,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Metricool API error: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
 
   async testConnection(): Promise<boolean> {
-    // TODO: Implement Metricool connection test
-    return true;
+    try {
+      const brands = await this.getBrands();
+      return brands && brands.data && brands.data.length > 0;
+    } catch (error) {
+      console.error('[Metricool] Connection test failed:', error);
+      return false;
+    }
   }
 
   async fetchData(params?: any): Promise<any> {
-    // TODO: Implement Metricool data fetching
-    return { mock: true, service: 'metricool' };
+    const { endpoint, ...queryParams } = params || {};
+    return this.makeRequest(endpoint, queryParams);
+  }
+
+  // Get list of brands
+  async getBrands() {
+    return this.makeRequest('/v2/settings/brands', {
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Instagram posts
+  async getInstagramPosts(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/instagram', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Instagram reels
+  async getInstagramReels(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/reels/instagram', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Instagram stories
+  async getInstagramStories(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/stories/instagram', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Facebook posts
+  async getFacebookPosts(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/facebook', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Facebook reels
+  async getFacebookReels(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/reels/facebook', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get TikTok videos
+  async getTikTokVideos(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/tiktok', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get YouTube videos
+  async getYouTubeVideos(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/youtube', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Twitter/X posts
+  async getTwitterPosts(blogId: string, from: string, to: string) {
+    return this.makeRequest('/stats/twitter/posts', {
+      blogId,
+      start: from,
+      end: to,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Google Ads campaigns
+  async getGoogleAdsCampaigns(blogId: string, from: string, to: string) {
+    return this.makeRequest('/stats/adwords/campaigns', {
+      blogId,
+      start: from,
+      end: to,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Facebook Ads campaigns
+  async getFacebookAdsCampaigns(blogId: string, from: string, to: string) {
+    return this.makeRequest('/stats/facebookads/campaigns', {
+      blogId,
+      start: from,
+      end: to,
+      integrationSource: 'MCP',
+    });
   }
 }
 
