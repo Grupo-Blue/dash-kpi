@@ -245,3 +245,7 @@
 - Tokeniza (blogId: 3890487) - ✅ Implementado
 - Blue Consult (blogId: 3893423) - Pendente
 - Tokeniza Academy (blogId: 3893327) - Pendente
+
+
+## Melhorias Solicitadas - Metricool
+- [x] Adicionar link clicável nos Top 5 Posts para visualizar o criativo original - CONCLUÍDO
