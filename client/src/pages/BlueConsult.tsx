@@ -106,7 +106,7 @@ export default function BlueConsult() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={kpis?.pipeline || []} layout="vertical">
+                <BarChart data={kpis?.salesFunnel || []} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
                     type="number"
@@ -134,6 +134,42 @@ export default function BlueConsult() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Implementation Pipeline */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Pipeline de Implantação</CardTitle>
+            <CardDescription>Clientes em onboarding (CS)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={kpis?.implementationPipeline || []} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis 
+                  type="number"
+                  className="text-xs"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis 
+                  type="category" 
+                  dataKey="stage"
+                  className="text-xs"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  width={180}
+                />
+                <Tooltip 
+                  formatter={(value: number) => [value, 'Clientes']}
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                />
+                <Bar dataKey="count" radius={[0, 8, 8, 0]} fill="#10b981" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         {/* Client Metrics */}
         <Card>

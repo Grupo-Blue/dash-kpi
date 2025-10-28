@@ -78,7 +78,7 @@ export class PipedriveService implements IntegrationService {
     }
   }
 
-  async getDeals(filters?: { status?: string; start?: number; limit?: number }): Promise<any> {
+  async getDeals(filters?: { pipeline_id?: number; status?: string; start_date?: string; end_date?: string; start?: number; limit?: number }): Promise<any> {
     return this.fetchData({ endpoint: 'deals', filters });
   }
 
@@ -88,6 +88,23 @@ export class PipedriveService implements IntegrationService {
 
   async getDealsTimeline(filters?: any): Promise<any> {
     return this.fetchData({ endpoint: 'deals/timeline', filters });
+  }
+
+  async getAllPipelines(): Promise<any> {
+    return this.fetchData({ endpoint: 'pipelines' });
+  }
+
+  async getPipelineByName(name: string): Promise<any> {
+    const pipelines = await this.getAllPipelines();
+    if (pipelines.success && pipelines.data) {
+      return pipelines.data.find((p: any) => p.name === name);
+    }
+    return null;
+  }
+
+  async getStages(pipelineId?: number): Promise<any> {
+    const endpoint = pipelineId ? `stages?pipeline_id=${pipelineId}` : 'stages';
+    return this.fetchData({ endpoint });
   }
 }
 

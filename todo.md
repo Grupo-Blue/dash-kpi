@@ -63,3 +63,11 @@
 - [x] Exibir apenas dados reais das APIs configuradas
 - [x] Mostrar mensagem de "Configuração necessária" quando API não estiver configurada
 - [x] Limpar fallback de dados mockados nos routers
+
+
+## Refinamento de KPIs - Pipedrive (Blue Consult)
+- [x] Separar dados por pipeline: "Pipeline de Vendas (Comercial)" e "Pipeline de Implantação (CS)"
+- [x] Refazer KPIs considerando o fluxo: Vendas → Implantação
+- [x] Mapear corretamente os estágios de cada pipeline
+- [x] Ajustar cálculos de faturamento, conversão e funil por pipeline
+- [x] Adicionar gráfico de Pipeline de Implantação (CS)

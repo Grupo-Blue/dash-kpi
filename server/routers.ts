@@ -5,7 +5,8 @@ import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
-import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from "./services/kpiCalculatorReal";
+import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
+import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -71,16 +72,17 @@ export const appRouter = router({
         throw new Error('Pipedrive API não configurada. Configure a integração para visualizar dados reais.');
       }
 
-      const calculator = new BlueConsultKpiCalculatorReal(pipedriveToken);
+      const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
       const kpis = {
         summary: await Promise.all([
           calculator.calculateMonthlyRevenue(),
-          calculator.calculateActiveClients(),
+          calculator.calculateNewClients(),
+          calculator.calculateClientsInImplementation(),
           calculator.calculateConversionRate(),
-          calculator.calculateAverageTicket(),
         ]),
         monthlyRevenue: await calculator.getMonthlyRevenue(),
-        pipeline: await calculator.getPipelineData(),
+        salesFunnel: await calculator.getSalesFunnel(),
+        implementationPipeline: await calculator.getImplementationPipeline(),
       };
       
       return kpis;
