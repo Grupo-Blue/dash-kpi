@@ -101,3 +101,12 @@
 - [x] Detectar quando integração cai e marcar como Offline
 - [x] Criar componente IntegrationStatus no frontend
 - [x] Adicionar endpoint integrationStatus no backend
+
+
+## Bugs e Melhorias - Tokeniza Academy (Discord)
+- [x] Corrigir KPI "Novos Membros (Mês)" que está mostrando total de membros (127) ao invés de novos membros
+- [x] Adicionar ícone de informação (i) em todos os KPIs com tooltip explicativo
+- [x] Padronizar nomenclatura dos KPIs (usar "30 dias" consistentemente)
+- [x] Criar componente KpiCardWithTooltip reutilizável
+- [x] Criar arquivo kpiDescriptions.ts com descrições de todos os KPIs
+- [x] Atualizar todas as páginas (Blue Consult, Tokeniza, Tokeniza Academy) para usar tooltips

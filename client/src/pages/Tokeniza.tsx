@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { trpc } from "@/lib/trpc";
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Users, UserCheck, UserX, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
+import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function Tokeniza() {
   const { data: kpis, isLoading, error, refetch } = trpc.kpis.tokeniza.useQuery();
@@ -74,7 +76,11 @@ export default function Tokeniza() {
         {/* Summary KPIs */}
         <div className="grid gap-4 md:grid-cols-3">
           {(kpis as any)?.summary?.map((kpi: any, index: number) => (
-            <KpiCard key={index} kpi={kpi} />
+            <KpiCardWithTooltip 
+              key={index} 
+              kpi={kpi} 
+              description={getKpiDescription(kpi.label)}
+            />
           ))}
         </div>
 

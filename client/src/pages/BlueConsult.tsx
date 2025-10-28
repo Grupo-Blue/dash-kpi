@@ -5,6 +5,8 @@ import { trpc } from "@/lib/trpc";
 import { RefreshCw, TrendingUp, TrendingDown, Minus, DollarSign, Users, Clock } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { toast } from "sonner";
+import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
+import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function BlueConsult() {
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
@@ -52,7 +54,11 @@ export default function BlueConsult() {
         {/* Summary KPIs */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {kpis?.summary.map((kpi, index) => (
-            <KpiCard key={index} kpi={kpi} />
+            <KpiCardWithTooltip 
+              key={index} 
+              kpi={kpi} 
+              description={getKpiDescription(kpi.label)}
+            />
           ))}
         </div>
 

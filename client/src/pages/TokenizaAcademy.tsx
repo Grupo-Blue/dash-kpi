@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { trpc } from "@/lib/trpc";
 import { RefreshCw, Users, MessageSquare, TrendingUp, Hash } from "lucide-react";
 import { toast } from "sonner";
+import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
+import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function TokenizaAcademy() {
   const { data: kpis, isLoading, refetch } = trpc.kpis.tokenizaAcademy.useQuery();
@@ -51,7 +53,11 @@ export default function TokenizaAcademy() {
         {/* Summary KPIs */}
         <div className="grid gap-4 md:grid-cols-2">
           {kpis?.summary.map((kpi, index) => (
-            <KpiCard key={index} kpi={kpi} />
+            <KpiCardWithTooltip 
+              key={index} 
+              kpi={kpi} 
+              description={getKpiDescription(kpi.label)}
+            />
           ))}
         </div>
 
@@ -99,43 +105,7 @@ export default function TokenizaAcademy() {
           </Card>
         </div>
 
-        {/* Community Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Estatísticas da Comunidade</CardTitle>
-            <CardDescription>Métricas gerais do Discord</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-6 md:grid-cols-4">
-              <StatItem
-                label="Novos Membros (Mês)"
-                value={127}
-                icon={Users}
-                trend="up"
-                change={8.5}
-              />
-              <StatItem
-                label="Mensagens (Mês)"
-                value="5,643"
-                icon={MessageSquare}
-                trend="up"
-                change={12.3}
-              />
-              <StatItem
-                label="Canais Ativos"
-                value={24}
-                icon={Hash}
-              />
-              <StatItem
-                label="Taxa de Resposta"
-                value="94%"
-                icon={TrendingUp}
-                trend="up"
-                change={2.1}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        {/* Community Stats - Removido temporariamente (dados hardcoded) */}
 
         {/* Course Platform */}
         <Card>
