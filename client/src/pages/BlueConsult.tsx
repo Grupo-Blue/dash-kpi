@@ -10,6 +10,7 @@ import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function BlueConsult() {
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
+  const { data: niboKpis, isLoading: niboLoading } = trpc.kpis.niboFinancial.useQuery();
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
       toast.success("KPIs atualizados com sucesso!");
@@ -177,6 +178,93 @@ export default function BlueConsult() {
           </CardContent>
         </Card>
 
+        {/* Financial KPIs from Nibo */}
+        {niboKpis && (
+          <>
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold tracking-tight mb-4">Dados Financeiros</h2>
+              <p className="text-muted-foreground mb-6">
+                Informações financeiras integradas do Nibo
+              </p>
+            </div>
+
+            {/* Financial Summary KPIs */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {niboKpis.summary.map((kpi, index) => (
+                <KpiCardWithTooltip 
+                  key={index} 
+                  kpi={kpi} 
+                  description={getKpiDescription(kpi.label)}
+                />
+              ))}
+            </div>
+
+            {/* Monthly Cash Flow Chart */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Fluxo de Caixa Mensal</CardTitle>
+                <CardDescription>Últimos 12 meses - Recebimentos vs Pagamentos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <LineChart data={niboKpis.monthlyCashFlow}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="month" 
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                    />
+                    <YAxis 
+                      className="text-xs"
+                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                      tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}K`}
+                    />
+                    <Tooltip 
+                      formatter={(value: number, name: string) => {
+                        const labels: Record<string, string> = {
+                          receivables: 'Recebimentos',
+                          payables: 'Pagamentos',
+                          balance: 'Saldo'
+                        };
+                        return [`R$ ${value.toLocaleString('pt-BR')}`, labels[name] || name];
+                      }}
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="receivables" 
+                      stroke="#10b981" 
+                      strokeWidth={2}
+                      dot={{ fill: '#10b981' }}
+                      name="Recebimentos"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="payables" 
+                      stroke="#ef4444" 
+                      strokeWidth={2}
+                      dot={{ fill: '#ef4444' }}
+                      name="Pagamentos"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="balance" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2}
+                      dot={{ fill: '#3b82f6' }}
+                      name="Saldo"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
         {/* Client Metrics */}
         <Card>
           <CardHeader>
@@ -185,33 +273,6 @@ export default function BlueConsult() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
-              {/* <MetricItem
-                label="Novos Clientes"
-                value={kpis?.clientMetrics?.newClientsThisMonth || 0}
-                icon={Users}
-              /> */}
-              {/* Temporarily disabled until clientMetrics is implemented */}
-              {/* <MetricItem
-                label="Churn"
-                value={kpis?.clientMetrics?.churnThisMonth || 0}
-                icon={TrendingDown}
-                variant="danger"
-              />
-              <MetricItem
-                label="Renovações Gold"
-                value={kpis?.clientMetrics?.goldRenewals || 0}
-                icon={TrendingUp}
-              />
-              <MetricItem
-                label="Renovações Diamond"
-                value={kpis?.clientMetrics?.diamondRenewals || 0}
-                icon={TrendingUp}
-              />
-              <MetricItem
-                label="Upgrades"
-                value={kpis?.clientMetrics?.upgrades || 0}
-                icon={TrendingUp}
-              /> */}
               <MetricItem
                 label="Negócios Criados"
                 value={45}

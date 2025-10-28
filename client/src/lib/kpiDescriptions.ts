@@ -25,6 +25,12 @@ export const KPI_DESCRIPTIONS = {
   'Total de Canais': 'Número total de canais (texto e voz) no servidor Discord.',
   'Humanos': 'Número de membros humanos (excluindo bots) no servidor.',
   'Bots': 'Número de bots no servidor Discord.',
+  
+  // Nibo (Dados Financeiros)
+  'Contas a Receber': 'Total de recebimentos agendados (a receber) para o mês atual, incluindo todas as contas com vencimento no período.',
+  'Contas a Pagar': 'Total de pagamentos agendados (a pagar) para o mês atual, incluindo todas as contas com vencimento no período.',
+  'Fluxo de Caixa': 'Diferença entre recebimentos e pagamentos do mês atual. Valor positivo indica superavit, negativo indica déficit.',
+  'Contas Vencidas (Receber)': 'Número de contas a receber com vencimento anterior à data atual que ainda não foram quitadas.',
 };
 
 export function getKpiDescription(label: string): string | undefined {

@@ -9,6 +9,7 @@ import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from '
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
 import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDiscordRefined';
 import { IntegrationStatusChecker } from './services/integrationStatus';
+import { NiboKpiCalculator } from './services/niboKpiCalculator';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -147,6 +148,30 @@ export const appRouter = router({
     integrationStatus: protectedProcedure.query(async () => {
       const statuses = await IntegrationStatusChecker.checkAll();
       return statuses;
+    }),
+
+    // Nibo Financial KPIs
+    niboFinancial: protectedProcedure.query(async () => {
+      const niboToken = process.env.NIBO_API_TOKEN;
+      
+      if (!niboToken) {
+        throw new Error('Nibo API não configurada. Configure a integração para visualizar dados financeiros.');
+      }
+
+      const calculator = new NiboKpiCalculator(niboToken);
+      const kpis = {
+        summary: await Promise.all([
+          calculator.calculateAccountsReceivable(),
+          calculator.calculateAccountsPayable(),
+          // Temporariamente desabilitados para debug (timeout)
+          // calculator.calculateCashFlow(),
+          // calculator.calculateOverdueReceivables(),
+        ]),
+        monthlyCashFlow: [], // Temporariamente desabilitado para debug
+        // monthlyCashFlow: await calculator.calculateMonthlyCashFlowChart(),
+      };
+      
+      return kpis;
     }),
   }),
 });

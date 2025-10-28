@@ -11,16 +11,111 @@ export interface IntegrationService {
 
 // Nibo Service (Financial data)
 export class NiboService implements IntegrationService {
+  private baseUrl = 'https://api.nibo.com.br';
+
   constructor(private apiKey: string, private config?: Record<string, any>) {}
 
   async testConnection(): Promise<boolean> {
-    // TODO: Implement Nibo connection test
-    return true;
+    try {
+      // Testar com endpoint de agendamentos
+      const response = await fetch(
+        `${this.baseUrl}/empresas/v1/schedules?apitoken=${this.apiKey}&$top=1&$orderby=createDate desc`,
+        {
+          headers: {
+            'accept': 'application/json'
+          }
+        }
+      );
+      return response.ok;
+    } catch (error) {
+      console.error('Nibo connection test failed:', error);
+      return false;
+    }
   }
 
   async fetchData(params?: any): Promise<any> {
-    // TODO: Implement Nibo data fetching
-    return { mock: true, service: 'nibo' };
+    try {
+      const endpoint = params?.endpoint || 'schedules';
+      const queryParams: string[] = [`apitoken=${this.apiKey}`];
+      
+      // Adicionar parâmetros OData
+      if (params?.filter) queryParams.push(`$filter=${encodeURIComponent(params.filter)}`);
+      if (params?.orderby) queryParams.push(`$orderby=${params.orderby}`);
+      if (params?.skip !== undefined) queryParams.push(`$skip=${params.skip}`);
+      if (params?.top !== undefined) queryParams.push(`$top=${params.top}`);
+      
+      const queryString = queryParams.join('&');
+      const url = `${this.baseUrl}/empresas/v1/${endpoint}?${queryString}`;
+
+      const response = await fetch(url, {
+        headers: {
+          'accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Nibo API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Nibo data fetch failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Buscar agendamentos de recebimentos (credit)
+   */
+  async getReceivables(filters?: { filter?: string; orderby?: string; skip?: number; top?: number }): Promise<any> {
+    return this.fetchData({ 
+      endpoint: 'schedules/credit',
+      ...filters
+    });
+  }
+
+  /**
+   * Buscar agendamentos de pagamentos (debit)
+   */
+  async getPayables(filters?: { filter?: string; orderby?: string; skip?: number; top?: number }): Promise<any> {
+    return this.fetchData({ 
+      endpoint: 'schedules/debit',
+      ...filters
+    });
+  }
+
+  /**
+   * Buscar todos os agendamentos
+   */
+  async getSchedules(filters?: { filter?: string; orderby?: string; skip?: number; top?: number }): Promise<any> {
+    return this.fetchData({ 
+      endpoint: 'schedules',
+      ...filters
+    });
+  }
+
+  /**
+   * Buscar planejamento orçamentário por ano
+   */
+  async getBudget(year: number): Promise<any> {
+    try {
+      const url = `${this.baseUrl}/empresas/v1/budgets/${year}?apitoken=${this.apiKey}`;
+      const response = await fetch(url, {
+        headers: {
+          'accept': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Nibo API error: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Nibo budget fetch failed:', error);
+      throw error;
+    }
   }
 }
 

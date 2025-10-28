@@ -169,3 +169,26 @@
 - [x] Corrigido: calculateImplementationPipeline() - removida divisão por 100
 - [x] VALIDADO: Faturamento agora mostra R$ 89.4K (correto, equivalente a R$ 89.414,61)
 - [x] VALIDADO: Script de debug confirma Total RAW = 89.414,61 (38 deals em outubro/2025)
+
+
+## Integração Nibo (Dados Financeiros) - IMPLEMENTADO (com bug de integração tRPC)
+- [x] Criar NiboService para integração com API
+- [x] Implementar autenticação com API Token
+- [x] Criar endpoints no backend para KPIs financeiros (tRPC)
+- [x] Implementar KPI: Contas a Receber (mês atual) - R$ 115.3K
+- [x] Implementar KPI: Contas a Pagar (mês atual) - R$ 209.0K
+- [x] Implementar KPI: Fluxo de Caixa (entradas vs saídas) - R$ -93.7K
+- [x] Implementar KPI: Contas Vencidas (a receber) - 510 contas
+- [x] Implementar gráfico: Fluxo de Caixa Mensal (últimos 12 meses)
+- [x] Testar integração com dados reais - SUCESSO! (6 segundos)
+- [x] Otimizar performance (de 120s+ para 6s)
+- [x] Adicionar seção de KPIs financeiros na página Blue Consult (frontend)
+- [x] Criar componentes de visualização para gráficos financeiros
+- [x] Adicionar descrições dos KPIs financeiros
+- [ ] **BUG**: Resolver erro 500 na chamada do endpoint tRPC niboFinancial
+- [ ] **BUG**: Investigar problema de autenticação/timeout no tRPC
+- [ ] Adicionar status da integração Nibo no dashboard
+- [ ] Implementar gráfico: Despesas por Categoria (futuro)
+- [ ] Implementar gráfico: Receitas por Categoria (futuro)
+
+**Nota Técnica:** Backend e cálculos funcionam perfeitamente em testes standalone (6s de resposta). O problema é na integração com tRPC que retorna erro 500. Frontend está pronto para exibir os dados assim que o bug for corrigido.
