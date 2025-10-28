@@ -110,3 +110,13 @@
 - [x] Criar componente KpiCardWithTooltip reutilizável
 - [x] Criar arquivo kpiDescriptions.ts com descrições de todos os KPIs
 - [x] Atualizar todas as páginas (Blue Consult, Tokeniza, Tokeniza Academy) para usar tooltips
+
+
+## Bugs - Pipedrive (Dados Incorretos)
+- [x] Dados dos KPIs não batem com os valores reais do Pipedrive
+- [x] Descoberto que filtro pipeline_id da API não funciona - implementado filtro manual
+- [x] Descoberto que valores vêm em centavos/100 - multiplicar por 100 para obter valor real
+- [x] Corrigir faturamento por estágio (está zerado mas deveria mostrar valores)
+- [x] Corrigir contagem de deals por estágio
+- [x] Buscar todos os deals e filtrar manualmente por pipeline_id
+- [x] Corrigir cálculo de valores (multiplicar por 100, não dividir)

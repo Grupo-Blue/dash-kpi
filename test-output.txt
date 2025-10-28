@@ -1,0 +1,17 @@
+Total de deals abertos: 1038
+
+Deals na Pipeline 5 (Blue - Pipeline de Vendas): 98
+
+Pipeline de Vendas - Por Estágio:
+  Stage 24 (Unknown): R$ 0.00 - 22 deals
+  Stage 25 (Unknown): R$ 146.45 - 37 deals
+  Stage 26 (Unknown): R$ 1267.34 - 38 deals
+  Stage 28 (Unknown): R$ 33.73 - 1 deals
+
+Deals na Pipeline 8 (Blue - Implantação): 56
+
+Pipeline de Implantação - Por Estágio:
+  Stage 43 (Unknown): R$ 392.76 - 19 deals
+  Stage 45 (Unknown): R$ 504.06 - 16 deals
+  Stage 47 (Unknown): R$ 474.05 - 15 deals
+  Stage 79 (Unknown): R$ 260.67 - 6 deals

@@ -82,9 +82,9 @@ export const appRouter = router({
           calculator.calculateClientsInImplementation(),
           calculator.calculateConversionRate(),
         ]),
-        revenueTimeSeries: await calculator.getMonthlyRevenueTimeSeries(),
-        salesFunnel: await calculator.getSalesFunnel(),
-        implementationPipeline: await calculator.getImplementationPipeline(),
+        revenueTimeSeries: await calculator.calculateRevenueTimeSeries(),
+        salesFunnel: await calculator.calculateSalesFunnel(),
+        implementationPipeline: await calculator.calculateImplementationPipeline(),
       };
       
       return kpis;
