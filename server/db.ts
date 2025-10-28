@@ -1,11 +1,24 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  companies, 
+  Company,
+  integrations,
+  Integration,
+  InsertIntegration,
+  kpiCache,
+  KpiCache,
+  InsertKpiCache,
+  kpiDefinitions,
+  KpiDefinition,
+  InsertKpiDefinition
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-// Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
@@ -89,4 +102,92 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Companies
+export async function getAllCompanies(): Promise<Company[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(companies).where(eq(companies.active, true));
+}
+
+export async function getCompanyBySlug(slug: string): Promise<Company | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(companies).where(eq(companies.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Integrations
+export async function getUserIntegrations(userId: number): Promise<Integration[]> {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(integrations).where(eq(integrations.userId, userId));
+}
+
+export async function getIntegrationByService(userId: number, serviceName: string): Promise<Integration | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(integrations)
+    .where(and(
+      eq(integrations.userId, userId),
+      eq(integrations.serviceName, serviceName)
+    ))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function upsertIntegration(integration: InsertIntegration): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.insert(integrations).values(integration).onDuplicateKeyUpdate({
+    set: {
+      apiKey: integration.apiKey,
+      config: integration.config,
+      active: integration.active,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+// KPI Cache
+export async function getKpiCache(companyId: number, kpiType: string): Promise<KpiCache | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(kpiCache)
+    .where(and(
+      eq(kpiCache.companyId, companyId),
+      eq(kpiCache.kpiType, kpiType)
+    ))
+    .orderBy(desc(kpiCache.cachedAt))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function saveKpiCache(cache: InsertKpiCache): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(kpiCache).values(cache);
+}
+
+export async function getCompanyKpis(companyId: number): Promise<KpiCache[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(kpiCache)
+    .where(eq(kpiCache.companyId, companyId))
+    .orderBy(desc(kpiCache.cachedAt));
+}
+
+// KPI Definitions
+export async function getKpiDefinitions(companyId: number): Promise<KpiDefinition[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(kpiDefinitions)
+    .where(and(
+      eq(kpiDefinitions.companyId, companyId),
+      eq(kpiDefinitions.active, true)
+    ));
+}
