@@ -89,3 +89,15 @@
 - [x] Atualizar TokenizaAcademyKpiCalculator com dados reais
 - [x] Atualizar frontend da Tokeniza Academy com novos KPIs
 - [x] Atualizar token do Discord e configurar permissões SERVER_MEMBERS
+
+
+## Bugs e Melhorias - Pipedrive
+- [x] Corrigir cálculo de faturamento mensal (filtragem manual por won_time)
+- [x] Corrigir número de Novos Clientes (apenas deals ganhos no mês)
+- [x] Corrigir número de Clientes em Implantação (apenas deals abertos)
+- [x] Atualizar gráfico de faturamento para mostrar últimos 12 meses
+- [x] Corrigir mapeamento de estágios nos gráficos (sem "Desconhecido")
+- [x] Implementar status das integrações (Online/Offline)
+- [x] Detectar quando integração cai e marcar como Offline
+- [x] Criar componente IntegrationStatus no frontend
+- [x] Adicionar endpoint integrationStatus no backend

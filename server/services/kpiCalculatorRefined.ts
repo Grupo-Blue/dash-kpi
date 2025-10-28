@@ -5,7 +5,7 @@ import { PipedriveService } from './integrations';
  * 
  * Pipelines:
  * 1. Blue - Pipeline de Vendas (Comercial)
- * 2. Blue - Pipeline Implantação (CS)
+ * 2. Blue - Implantação (CS)
  */
 
 interface PipelineConfig {
@@ -43,6 +43,20 @@ export class BlueConsultKpiCalculatorRefined {
   }
 
   /**
+   * Filter deals by won_time within a date range
+   */
+  private filterDealsByWonTime(deals: any[], startDate: Date, endDate?: Date): any[] {
+    return deals.filter((deal: any) => {
+      if (!deal.won_time) return false;
+      const wonDate = new Date(deal.won_time);
+      if (endDate) {
+        return wonDate >= startDate && wonDate <= endDate;
+      }
+      return wonDate >= startDate;
+    });
+  }
+
+  /**
    * KPI 1: Faturamento Mensal (MRR)
    * Deals ganhos na Pipeline de Vendas no mês atual
    */
@@ -55,26 +69,23 @@ export class BlueConsultKpiCalculatorRefined {
 
       const now = new Date();
       const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDayThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
       const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-      // Deals ganhos este mês
-      const thisMonthDeals = await this.pipedriveService.getDeals({
+      // Buscar TODOS os deals ganhos da pipeline
+      const allDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: salesPipelineId,
         status: 'won',
-        start_date: firstDayThisMonth.toISOString().split('T')[0],
       });
+      const allWonDeals = allDealsResponse.data || [];
 
-      // Deals ganhos mês passado
-      const lastMonthDeals = await this.pipedriveService.getDeals({
-        pipeline_id: salesPipelineId,
-        status: 'won',
-        start_date: firstDayLastMonth.toISOString().split('T')[0],
-        end_date: lastDayLastMonth.toISOString().split('T')[0],
-      });
+      // Filtrar manualmente por data
+      const thisMonthDeals = this.filterDealsByWonTime(allWonDeals, firstDayThisMonth, lastDayThisMonth);
+      const lastMonthDeals = this.filterDealsByWonTime(allWonDeals, firstDayLastMonth, lastDayLastMonth);
 
-      const thisMonthRevenue = thisMonthDeals.data?.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) || 0;
-      const lastMonthRevenue = lastMonthDeals.data?.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) || 0;
+      const thisMonthRevenue = thisMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
+      const lastMonthRevenue = lastMonthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
 
       const change = lastMonthRevenue > 0 
         ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
@@ -83,7 +94,7 @@ export class BlueConsultKpiCalculatorRefined {
       return {
         label: 'Faturamento Mensal',
         value: `R$ ${(thisMonthRevenue / 1000).toFixed(1)}K`,
-        change: `${change > '0' ? '+' : ''}${change}%`,
+        change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
       console.error('[BlueConsult] Error calculating monthly revenue:', error);
@@ -104,24 +115,23 @@ export class BlueConsultKpiCalculatorRefined {
 
       const now = new Date();
       const firstDayThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDayThisMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
       const firstDayLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+      const lastDayLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
 
-      const thisMonthDeals = await this.pipedriveService.getDeals({
+      // Buscar TODOS os deals ganhos
+      const allDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: salesPipelineId,
         status: 'won',
-        start_date: firstDayThisMonth.toISOString().split('T')[0],
       });
+      const allWonDeals = allDealsResponse.data || [];
 
-      const lastMonthDeals = await this.pipedriveService.getDeals({
-        pipeline_id: salesPipelineId,
-        status: 'won',
-        start_date: firstDayLastMonth.toISOString().split('T')[0],
-        end_date: lastDayLastMonth.toISOString().split('T')[0],
-      });
+      // Filtrar manualmente por data
+      const thisMonthDeals = this.filterDealsByWonTime(allWonDeals, firstDayThisMonth, lastDayThisMonth);
+      const lastMonthDeals = this.filterDealsByWonTime(allWonDeals, firstDayLastMonth, lastDayLastMonth);
 
-      const thisMonthCount = thisMonthDeals.data?.length || 0;
-      const lastMonthCount = lastMonthDeals.data?.length || 0;
+      const thisMonthCount = thisMonthDeals.length;
+      const lastMonthCount = lastMonthDeals.length;
 
       const change = lastMonthCount > 0
         ? ((thisMonthCount - lastMonthCount) / lastMonthCount * 100).toFixed(1)
@@ -130,7 +140,7 @@ export class BlueConsultKpiCalculatorRefined {
       return {
         label: 'Novos Clientes',
         value: String(thisMonthCount),
-        change: `${change > '0' ? '+' : ''}${change}%`,
+        change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
       console.error('[BlueConsult] Error calculating new clients:', error);
@@ -149,17 +159,17 @@ export class BlueConsultKpiCalculatorRefined {
         throw new Error('Pipeline de Implantação não encontrada');
       }
 
-      const activeDeals = await this.pipedriveService.getDeals({
+      const activeDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: implementationPipelineId,
         status: 'open',
       });
 
-      const count = activeDeals.data?.length || 0;
+      const count = activeDealsResponse.data?.length || 0;
 
       return {
         label: 'Clientes em Implantação',
         value: String(count),
-        change: '', // Não tem comparação temporal para este KPI
+        change: '',
       };
     } catch (error) {
       console.error('[BlueConsult] Error calculating clients in implementation:', error);
@@ -168,8 +178,8 @@ export class BlueConsultKpiCalculatorRefined {
   }
 
   /**
-   * KPI 4: Taxa de Conversão (Vendas)
-   * % de deals ganhos vs total na Pipeline de Vendas
+   * KPI 4: Taxa de Conversão
+   * % de deals ganhos vs total de deals na Pipeline de Vendas
    */
   async calculateConversionRate(): Promise<{ label: string; value: string; change: string }> {
     try {
@@ -178,19 +188,20 @@ export class BlueConsultKpiCalculatorRefined {
         throw new Error('Pipeline de Vendas não encontrada');
       }
 
-      const allDeals = await this.pipedriveService.getDeals({
+      const allDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: salesPipelineId,
       });
+      const allDeals = allDealsResponse.data || [];
 
-      const wonDeals = allDeals.data?.filter((deal: any) => deal.status === 'won') || [];
-      const totalDeals = allDeals.data?.length || 0;
+      const wonDeals = allDeals.filter((d: any) => d.status === 'won');
+      const totalDeals = allDeals.length;
 
       const rate = totalDeals > 0 ? (wonDeals.length / totalDeals * 100).toFixed(1) : '0';
 
       return {
         label: 'Taxa de Conversão',
         value: `${rate}%`,
-        change: '', // Pode adicionar comparação temporal se necessário
+        change: '',
       };
     } catch (error) {
       console.error('[BlueConsult] Error calculating conversion rate:', error);
@@ -199,51 +210,52 @@ export class BlueConsultKpiCalculatorRefined {
   }
 
   /**
-   * Gráfico: Faturamento Mensal (Evolução)
-   * Últimos 6 meses de deals fechados na Pipeline de Vendas
+   * Gráfico: Faturamento Mensal (últimos 12 meses)
    */
-  async getMonthlyRevenue(): Promise<Array<{ month: string; revenue: number }>> {
+  async getMonthlyRevenueTimeSeries(): Promise<Array<{ month: string; revenue: number }>> {
     try {
       const { salesPipelineId } = await this.getPipelineIds();
       if (!salesPipelineId) {
         return [];
       }
 
+      // Buscar TODOS os deals ganhos
+      const allDealsResponse = await this.pipedriveService.getDeals({
+        pipeline_id: salesPipelineId,
+        status: 'won',
+      });
+      const allWonDeals = allDealsResponse.data || [];
+
       const now = new Date();
-      const months = [];
-      
-      for (let i = 5; i >= 0; i--) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const monthName = date.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' });
-        
-        const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-        const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const result: Array<{ month: string; revenue: number }> = [];
 
-        const deals = await this.pipedriveService.getDeals({
-          pipeline_id: salesPipelineId,
-          status: 'won',
-          start_date: firstDay.toISOString().split('T')[0],
-          end_date: lastDay.toISOString().split('T')[0],
-        });
+      // Últimos 12 meses
+      for (let i = 11; i >= 0; i--) {
+        const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+        const lastDay = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0, 23, 59, 59);
 
-        const revenue = deals.data?.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0) || 0;
+        const monthDeals = this.filterDealsByWonTime(allWonDeals, firstDay, lastDay);
+        const revenue = monthDeals.reduce((sum: number, deal: any) => sum + (deal.value || 0), 0);
 
-        months.push({
+        const monthName = monthDate.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+
+        result.push({
           month: monthName,
-          revenue: revenue / 1000, // Em milhares
+          revenue: revenue,
         });
       }
 
-      return months;
+      return result;
     } catch (error) {
-      console.error('[BlueConsult] Error getting monthly revenue:', error);
+      console.error('[BlueConsult] Error getting monthly revenue time series:', error);
       return [];
     }
   }
 
   /**
-   * Gráfico: Funil de Vendas
-   * Distribuição de deals por estágio na Pipeline de Vendas (abertos)
+   * Gráfico: Funil de Vendas (Pipeline de Vendas)
+   * Distribuição de deals abertos por estágio
    */
   async getSalesFunnel(): Promise<Array<{ stage: string; count: number }>> {
     try {
@@ -252,27 +264,27 @@ export class BlueConsultKpiCalculatorRefined {
         return [];
       }
 
-      const openDeals = await this.pipedriveService.getDeals({
+      // Buscar estágios da pipeline
+      const stagesResponse = await this.pipedriveService.getStages(salesPipelineId);
+      const stages = stagesResponse.data || [];
+
+      // Buscar deals abertos
+      const openDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: salesPipelineId,
         status: 'open',
       });
+      const openDeals = openDealsResponse.data || [];
 
-      const stages = await this.pipedriveService.getStages(salesPipelineId);
-
-      // Mapear estágios
-      const stageMap = new Map<number, string>();
-      stages.data?.forEach((stage: any) => {
-        stageMap.set(stage.id, stage.name);
+      // Mapear deals por estágio
+      const result = stages.map((stage: any) => {
+        const dealsInStage = openDeals.filter((deal: any) => deal.stage_id === stage.id);
+        return {
+          stage: stage.name,
+          count: dealsInStage.length,
+        };
       });
 
-      // Contar deals por estágio
-      const stageCounts = new Map<string, number>();
-      openDeals.data?.forEach((deal: any) => {
-        const stageName = stageMap.get(deal.stage_id) || 'Desconhecido';
-        stageCounts.set(stageName, (stageCounts.get(stageName) || 0) + 1);
-      });
-
-      return Array.from(stageCounts.entries()).map(([stage, count]) => ({ stage, count }));
+      return result;
     } catch (error) {
       console.error('[BlueConsult] Error getting sales funnel:', error);
       return [];
@@ -290,27 +302,27 @@ export class BlueConsultKpiCalculatorRefined {
         return [];
       }
 
-      const activeDeals = await this.pipedriveService.getDeals({
+      // Buscar estágios da pipeline
+      const stagesResponse = await this.pipedriveService.getStages(implementationPipelineId);
+      const stages = stagesResponse.data || [];
+
+      // Buscar deals abertos
+      const openDealsResponse = await this.pipedriveService.getDeals({
         pipeline_id: implementationPipelineId,
         status: 'open',
       });
+      const openDeals = openDealsResponse.data || [];
 
-      const stages = await this.pipedriveService.getStages(implementationPipelineId);
-
-      // Mapear estágios
-      const stageMap = new Map<number, string>();
-      stages.data?.forEach((stage: any) => {
-        stageMap.set(stage.id, stage.name);
+      // Mapear deals por estágio
+      const result = stages.map((stage: any) => {
+        const dealsInStage = openDeals.filter((deal: any) => deal.stage_id === stage.id);
+        return {
+          stage: stage.name,
+          count: dealsInStage.length,
+        };
       });
 
-      // Contar deals por estágio
-      const stageCounts = new Map<string, number>();
-      activeDeals.data?.forEach((deal: any) => {
-        const stageName = stageMap.get(deal.stage_id) || 'Desconhecido';
-        stageCounts.set(stageName, (stageCounts.get(stageName) || 0) + 1);
-      });
-
-      return Array.from(stageCounts.entries()).map(([stage, count]) => ({ stage, count }));
+      return result;
     } catch (error) {
       console.error('[BlueConsult] Error getting implementation pipeline:', error);
       return [];

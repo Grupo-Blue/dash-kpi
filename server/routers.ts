@@ -8,6 +8,7 @@ import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalc
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
 import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDiscordRefined';
+import { IntegrationStatusChecker } from './services/integrationStatus';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -81,7 +82,7 @@ export const appRouter = router({
           calculator.calculateClientsInImplementation(),
           calculator.calculateConversionRate(),
         ]),
-        monthlyRevenue: await calculator.getMonthlyRevenue(),
+        revenueTimeSeries: await calculator.getMonthlyRevenueTimeSeries(),
         salesFunnel: await calculator.getSalesFunnel(),
         implementationPipeline: await calculator.getImplementationPipeline(),
       };
@@ -141,6 +142,12 @@ export const appRouter = router({
           timestamp: new Date().toISOString(),
         };
       }),
+
+    // Get integration status
+    integrationStatus: protectedProcedure.query(async () => {
+      const statuses = await IntegrationStatusChecker.checkAll();
+      return statuses;
+    }),
   }),
 });
 

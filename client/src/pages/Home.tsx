@@ -6,6 +6,7 @@ import { APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Building2, TrendingUp, GraduationCap, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
+import { IntegrationStatus } from "@/components/IntegrationStatus";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -83,6 +84,8 @@ export default function Home() {
             href="/tokeniza-academy"
           />
         </div>
+
+        <IntegrationStatus />
 
         <Card>
           <CardHeader>

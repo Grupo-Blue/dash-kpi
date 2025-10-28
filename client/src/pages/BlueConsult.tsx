@@ -66,10 +66,10 @@ export default function BlueConsult() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={kpis?.monthlyRevenue || []}>
+                <LineChart data={kpis?.revenueTimeSeries || []}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis 
-                    dataKey="label" 
+                    dataKey="month" 
                     className="text-xs"
                     tick={{ fill: 'hsl(var(--muted-foreground))' }}
                   />
@@ -88,7 +88,7 @@ export default function BlueConsult() {
                   />
                   <Line 
                     type="monotone" 
-                    dataKey="value" 
+                    dataKey="revenue" 
                     stroke="hsl(var(--primary))" 
                     strokeWidth={2}
                     dot={{ fill: 'hsl(var(--primary))' }}
