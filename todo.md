@@ -56,3 +56,10 @@
 - [x] Implementar integração real com Discord API (Tokeniza Academy)
 - [x] Criar sistema de configuração de credenciais via UI
 - [x] Substituir dados mockados por dados reais das APIs
+
+
+## Mudanças Solicitadas - Dados Reais Apenas
+- [x] Remover todos os dados mockados/falsos do sistema
+- [x] Exibir apenas dados reais das APIs configuradas
+- [x] Mostrar mensagem de "Configuração necessária" quando API não estiver configurada
+- [x] Limpar fallback de dados mockados nos routers

@@ -6,7 +6,7 @@ import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Users, UserCheck, User
 import { toast } from "sonner";
 
 export default function Tokeniza() {
-  const { data: kpis, isLoading, refetch } = trpc.kpis.tokeniza.useQuery();
+  const { data: kpis, isLoading, error, refetch } = trpc.kpis.tokeniza.useQuery();
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
       toast.success("KPIs atualizados com sucesso!");
@@ -31,6 +31,29 @@ export default function Tokeniza() {
     );
   }
 
+  if (error) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Tokeniza</h1>
+            <p className="text-muted-foreground mt-2">
+              KPIs da plataforma e Tokeniza Private
+            </p>
+          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <p className="text-lg text-muted-foreground mb-4">{error.message}</p>
+                <Button onClick={() => window.location.href = '/'}>Configurar Integração</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -50,7 +73,7 @@ export default function Tokeniza() {
 
         {/* Summary KPIs */}
         <div className="grid gap-4 md:grid-cols-3">
-          {kpis?.summary.map((kpi, index) => (
+          {(kpis as any)?.summary?.map((kpi: any, index: number) => (
             <KpiCard key={index} kpi={kpi} />
           ))}
         </div>

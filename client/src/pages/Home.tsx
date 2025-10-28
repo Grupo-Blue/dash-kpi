@@ -67,10 +67,6 @@ export default function Home() {
             description="Consultoria em IR Cripto"
             icon={Building2}
             href="/blue-consult"
-            stats={[
-              { label: "Clientes Ativos", value: "287" },
-              { label: "Faturamento Mensal", value: "R$ 180K" },
-            ]}
           />
 
           <CompanyCard
@@ -78,10 +74,6 @@ export default function Home() {
             description="Plataforma & Private"
             icon={TrendingUp}
             href="/tokeniza"
-            stats={[
-              { label: "Investidores", value: "156" },
-              { label: "Total Investido", value: "R$ 7.0M" },
-            ]}
           />
 
           <CompanyCard
@@ -89,10 +81,6 @@ export default function Home() {
             description="Academy & Discord"
             icon={GraduationCap}
             href="/tokeniza-academy"
-            stats={[
-              { label: "Membros Discord", value: "1,847" },
-              { label: "Engajamento", value: "66.8%" },
-            ]}
           />
         </div>
 
@@ -143,7 +131,7 @@ interface CompanyCardProps {
   description: string;
   icon: React.ElementType;
   href: string;
-  stats: Array<{ label: string; value: string }>;
+  stats?: Array<{ label: string; value: string }>;
 }
 
 function CompanyCard({ title, description, icon: Icon, href, stats }: CompanyCardProps) {
@@ -161,14 +149,16 @@ function CompanyCard({ title, description, icon: Icon, href, stats }: CompanyCar
             <CardTitle className="mt-4">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">{stat.label}</span>
-                <span className="font-semibold">{stat.value}</span>
-              </div>
-            ))}
-          </CardContent>
+          {stats && stats.length > 0 && (
+            <CardContent className="space-y-3">
+              {stats.map((stat, index) => (
+                <div key={index} className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">{stat.label}</span>
+                  <span className="font-semibold">{stat.value}</span>
+                </div>
+              ))}
+            </CardContent>
+          )}
         </Card>
       </a>
     </Link>

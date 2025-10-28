@@ -65,43 +65,24 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('blue-consult');
       if (!company) throw new Error('Company not found');
 
-      // Use real API if token is available
       const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
       
-      if (pipedriveToken) {
-        const calculator = new BlueConsultKpiCalculatorReal(pipedriveToken);
-        const kpis = {
-          summary: await Promise.all([
-            calculator.calculateMonthlyRevenue(),
-            calculator.calculateActiveClients(),
-            calculator.calculateConversionRate(),
-            calculator.calculateAverageTicket(),
-          ]),
-          monthlyRevenue: await calculator.getMonthlyRevenue(),
-          pipeline: await calculator.getPipelineData(),
-        };
-        return kpis;
+      if (!pipedriveToken) {
+        throw new Error('Pipedrive API não configurada. Configure a integração para visualizar dados reais.');
       }
-      
-      // Fallback to mock data
-      const mockData = BlueConsultKpiCalculator.generateMockData();
-      const kpis = {
-        summary: [
-          { label: 'Faturamento Mensal', value: 'R$ 180K', change: '+12%' },
-          { label: 'Clientes Ativos', value: '287', change: '+8%' },
-          { label: 'Taxa de Conversão', value: '16%', change: '+2.3%' },
-          { label: 'Ticket Médio', value: 'R$ 4.2K', change: '+5%' },
-        ],
-        monthlyRevenue: mockData.monthlyRevenue.map((item: any) => ({
-          month: item.label || item.date,
-          revenue: item.value / 1000,
-        })),
-        pipeline: mockData.funnelData.map((item: any) => ({
-          stage: item.stage,
-          count: item.value,
-        })),
-      };
 
+      const calculator = new BlueConsultKpiCalculatorReal(pipedriveToken);
+      const kpis = {
+        summary: await Promise.all([
+          calculator.calculateMonthlyRevenue(),
+          calculator.calculateActiveClients(),
+          calculator.calculateConversionRate(),
+          calculator.calculateAverageTicket(),
+        ]),
+        monthlyRevenue: await calculator.getMonthlyRevenue(),
+        pipeline: await calculator.getPipelineData(),
+      };
+      
       return kpis;
     }),
 
@@ -110,15 +91,8 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('tokeniza');
       if (!company) throw new Error('Company not found');
 
-      const kpis = {
-        summary: [
-          TokenizaKpiCalculator.calculateAverageTicket(),
-          TokenizaKpiCalculator.calculateRetentionRate(),
-          TokenizaKpiCalculator.calculateTotalInvested(),
-        ],
-      };
-
-      return kpis;
+      // TODO: Implement Tokeniza API integration
+      throw new Error('Tokeniza API não configurada. Configure a integração para visualizar dados reais.');
     }),
 
     // Tokeniza Academy KPIs
@@ -126,31 +100,22 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('tokeniza-academy');
       if (!company) throw new Error('Company not found');
 
-      // Use real API if tokens are available
       const discordToken = process.env.DISCORD_BOT_TOKEN;
       const guildId = process.env.DISCORD_GUILD_ID;
       
-      if (discordToken && guildId) {
-        const calculator = new TokenizaAcademyKpiCalculatorReal(discordToken, guildId);
-        const kpis = {
-          summary: await Promise.all([
-            calculator.calculateTotalMembers(),
-            calculator.calculateEngagementRate(),
-          ]),
-          activeMembers: await calculator.getActiveMembers(),
-        };
-        return kpis;
+      if (!discordToken || !guildId) {
+        throw new Error('Discord API não configurada. Configure a integração para visualizar dados reais.');
       }
-      
-      // Fallback to mock data
-      const kpis = {
-        summary: [
-          TokenizaAcademyKpiCalculator.calculateTotalMembers(),
-          TokenizaAcademyKpiCalculator.calculateEngagementRate(),
-        ],
-        activeMembers: TokenizaAcademyKpiCalculator.getActiveMembers(),
-      };
 
+      const calculator = new TokenizaAcademyKpiCalculatorReal(discordToken, guildId);
+      const kpis = {
+        summary: await Promise.all([
+          calculator.calculateTotalMembers(),
+          calculator.calculateEngagementRate(),
+        ]),
+        activeMembers: await calculator.getActiveMembers(),
+      };
+      
       return kpis;
     }),
 
