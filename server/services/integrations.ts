@@ -58,14 +58,25 @@ export class PipedriveService implements IntegrationService {
   async fetchData(params?: any): Promise<any> {
     try {
       const endpoint = params?.endpoint || 'deals';
-      const queryParams = new URLSearchParams({
+      const queryParams: Record<string, string> = {
         api_token: this.apiKey,
-        limit: params?.limit || '500',
+        limit: String(params?.limit || 500),
         status: params?.status || 'all_not_deleted',
-        ...params?.filters
-      });
+      };
+      
+      // Adicionar start se fornecido
+      if (params?.start !== undefined) {
+        queryParams.start = String(params.start);
+      }
+      
+      // Adicionar outros filtros
+      if (params?.filters) {
+        Object.assign(queryParams, params.filters);
+      }
+      
+      const queryString = new URLSearchParams(queryParams);
 
-      const response = await fetch(`${this.baseUrl}/${endpoint}?${queryParams}`);
+      const response = await fetch(`${this.baseUrl}/${endpoint}?${queryString.toString()}`);
       if (!response.ok) {
         throw new Error(`Pipedrive API error: ${response.statusText}`);
       }
@@ -79,7 +90,14 @@ export class PipedriveService implements IntegrationService {
   }
 
   async getDeals(filters?: { pipeline_id?: number; status?: string; start_date?: string; end_date?: string; start?: number; limit?: number }): Promise<any> {
-    return this.fetchData({ endpoint: 'deals', filters });
+    const { start, limit, ...otherFilters } = filters || {};
+    return this.fetchData({ 
+      endpoint: 'deals', 
+      start,
+      limit,
+      status: filters?.status,
+      filters: otherFilters 
+    });
   }
 
   async getDealsSummary(filters?: { status?: string }): Promise<any> {

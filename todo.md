@@ -120,3 +120,13 @@
 - [x] Corrigir contagem de deals por estágio
 - [x] Buscar todos os deals e filtrar manualmente por pipeline_id
 - [x] Corrigir cálculo de valores (multiplicar por 100, não dividir)
+
+
+## Bug - Faturamento Mensal Incorreto
+- [x] Faturamento mensal está mostrando valor errado
+- [x] Descoberto: API só retorna primeiros 100 deals, precisa implementar paginação
+- [x] Confirmado: Há 536 deals ganhos em 2025 (won_time)
+- [x] Validar formato de data do campo won_time
+- [x] Implementar paginação correta no método getAllWonDeals()
+- [x] Corrigir método getDeals para passar start e limit corretamente
+- [x] Corrigir fetchData para usar start na URL
