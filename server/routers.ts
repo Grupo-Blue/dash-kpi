@@ -10,6 +10,7 @@ import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined
 import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDiscordRefined';
 import { IntegrationStatusChecker } from './services/integrationStatus';
 import { NiboKpiCalculator } from './services/niboKpiCalculator';
+import { MetricoolKpiCalculator } from './services/metricoolKpiCalculator';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -193,6 +194,70 @@ export const appRouter = router({
       } catch (error: any) {
         console.error('[niboFinancial] ERROR:', error.message);
         console.error('[niboFinancial] Stack:', error.stack);
+        throw error;
+      }
+    }),
+
+    // Metricool Social Media KPIs
+    metricoolSocialMedia: protectedProcedure
+      .input(z.object({ 
+        blogId: z.string(),
+        from: z.string().optional(),
+        to: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        console.log('[metricoolSocialMedia] Iniciando query...', input);
+        
+        try {
+          // Use token from env or hardcoded fallback
+          const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
+          const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
+          
+          console.log('[metricoolSocialMedia] Token exists:', !!metricoolToken);
+          console.log('[metricoolSocialMedia] User ID:', metricoolUserId);
+          
+          if (!metricoolToken) {
+            throw new Error('Metricool API não configurada. Configure a integração para visualizar métricas de redes sociais.');
+          }
+
+          console.log('[metricoolSocialMedia] Creating calculator...');
+          const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId);
+          
+          // Default to last 30 days if not specified
+          const to = input.to || new Date().toISOString().split('T')[0];
+          const from = input.from || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          
+          console.log('[metricoolSocialMedia] Calculating KPIs for period:', from, 'to', to);
+          const kpis = await calculator.calculateSocialMediaKPIs(input.blogId, from, to);
+          
+          console.log('[metricoolSocialMedia] KPIs calculated successfully');
+          return kpis;
+        } catch (error: any) {
+          console.error('[metricoolSocialMedia] ERROR:', error.message);
+          console.error('[metricoolSocialMedia] Stack:', error.stack);
+          throw error;
+        }
+      }),
+
+    // Get Metricool brands
+    metricoolBrands: protectedProcedure.query(async () => {
+      console.log('[metricoolBrands] Fetching brands...');
+      
+      try {
+        const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
+        const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
+        
+        if (!metricoolToken) {
+          throw new Error('Metricool API não configurada.');
+        }
+
+        const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId);
+        const brands = await calculator.getBrands();
+        
+        console.log('[metricoolBrands] Brands fetched:', brands.data?.length || 0);
+        return brands;
+      } catch (error: any) {
+        console.error('[metricoolBrands] ERROR:', error.message);
         throw error;
       }
     }),
