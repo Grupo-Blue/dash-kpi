@@ -137,3 +137,20 @@
 - [x] Valores do Pipedrive vêm em centavos, precisa DIVIDIR por 100 (não multiplicar)
 - [x] Mudar gráfico de faturamento mensal de barras para linhas (já estava usando LineChart)
 - [x] Corrigido: Todas as multiplicações por 100 alteradas para divisões por 100
+
+
+## Bug Crítico - Formatação de Valores
+- [x] Faturamento mostrando R$ 0.9K ao invés de R$ 89.414,61
+- [x] Problema: dividindo por 100 (centavos) e depois por 1000 (formato K)
+- [x] Solução: formatação inteligente (>= R$ 1.000 mostra K, < R$ 1.000 mostra valor completo)
+- [x] Testado e validado: R$ 894,15 exibindo corretamente
+- [x] SEMPRE testar resultado final antes de entregar ao usuário
+
+
+## Bug - stages.find is not a function
+- [x] Identificado erro no uso de getStages() - retorna objeto API com {success, data}
+- [x] Corrigido acesso a stages.data ao invés de stages diretamente
+- [x] Aplicado correção no funil de vendas (calculateSalesFunnel)
+- [x] Aplicado correção na pipeline de implantação (calculateImplementationPipeline)
+- [x] Testado e validado: gráficos exibindo estágios corretamente (Lead, Contato Iniciado, Negociação, Aguardando pagamento)
+- [x] Pipeline de Implantação exibindo corretamente (Aberto (comercial), Aguard. Retorno do cliente, Atendimento Agendado, Docs recebidos Parcial)

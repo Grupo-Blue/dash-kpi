@@ -138,9 +138,14 @@ export class BlueConsultKpiCalculatorRefined {
         ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100).toFixed(1)
         : '0';
 
+      // Formatação inteligente: >= R$ 1.000 mostra em K, < R$ 1.000 mostra valor completo
+      const formattedValue = thisMonthRevenue >= 1000
+        ? `R$ ${(thisMonthRevenue / 1000).toFixed(1)}K`
+        : `R$ ${thisMonthRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
       return {
         label: 'Faturamento Mensal',
-        value: `R$ ${(thisMonthRevenue / 1000).toFixed(1)}K`,
+        value: formattedValue,
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
@@ -290,7 +295,8 @@ export class BlueConsultKpiCalculatorRefined {
       const salesDeals = allOpenDeals.filter(d => d.pipeline_id === this.config.salesPipelineId);
 
       // Buscar estágios da pipeline
-      const stages = await this.pipedriveService.getStages(this.config.salesPipelineId);
+      const stagesResponse = await this.pipedriveService.getStages(this.config.salesPipelineId);
+      const stages = stagesResponse.success && stagesResponse.data ? stagesResponse.data : [];
 
       // Agrupar por estágio
       const byStage: Record<number, { count: number; total: number; name: string }> = {};
@@ -333,7 +339,8 @@ export class BlueConsultKpiCalculatorRefined {
       const implDeals = allOpenDeals.filter(d => d.pipeline_id === this.config.implementationPipelineId);
 
       // Buscar estágios da pipeline
-      const stages = await this.pipedriveService.getStages(this.config.implementationPipelineId);
+      const stagesResponse = await this.pipedriveService.getStages(this.config.implementationPipelineId);
+      const stages = stagesResponse.success && stagesResponse.data ? stagesResponse.data : [];
 
       // Agrupar por estágio
       const byStage: Record<number, { count: number; total: number; name: string }> = {};
