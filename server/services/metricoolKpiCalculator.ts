@@ -304,11 +304,13 @@ export class MetricoolKpiCalculator {
       // Try to get YouTube subscribers from YouTube API first (more reliable)
       let ytCurrent = 0;
       let ytPrevious = 0;
+      let youtubeChannelStats: any = null;
       
       if (this.youtubeService && company?.youtubeChannelId) {
         const ytStats = await this.youtubeService.getChannelStats(company.youtubeChannelId);
         if (ytStats) {
           ytCurrent = ytStats.subscriberCount;
+          youtubeChannelStats = ytStats; // Save for use in breakdown
           // For previous, we don't have historical data from YouTube API, so use Metricool if available
           ytPrevious = extractLatestValue(ytFollowersPrevious) || ytCurrent;
           console.log(`[MetricoolKPI] YouTube subscribers from YouTube API: ${ytCurrent}`);
@@ -415,7 +417,7 @@ export class MetricoolKpiCalculator {
             totalEngagement: tiktokEngagement,
           },
           youtube: {
-            videos: (youtubeVideos.data || []).filter((video: any) => {
+            videos: youtubeChannelStats?.videoCount || (youtubeVideos.data || []).filter((video: any) => {
               if (!video.publishedAt && !video.date) return false;
               const publishDate = new Date(video.publishedAt || video.date);
               const fromDate = new Date(from);

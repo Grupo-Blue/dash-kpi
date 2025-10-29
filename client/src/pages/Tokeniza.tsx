@@ -66,6 +66,13 @@ export default function Tokeniza() {
     return num.toString();
   };
 
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -317,6 +324,14 @@ export default function Tokeniza() {
                     <span className="font-bold">{formatNumber(socialKpis.networkBreakdown.youtube.totalViews)}</span>
                   </div>
                   <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Tempo de Exibição</span>
+                    <span className="font-bold">{formatNumber(socialKpis.networkBreakdown.youtube.totalWatchTime)} min</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Duração Média</span>
+                    <span className="font-bold">{formatDuration(socialKpis.networkBreakdown.youtube.averageViewDuration)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Likes</span>
                     <span className="font-bold">{formatNumber(socialKpis.networkBreakdown.youtube.totalLikes)}</span>
                   </div>
@@ -395,6 +410,63 @@ export default function Tokeniza() {
                     <div className="flex-shrink-0 text-right">
                       <div className="text-lg font-bold text-primary">{post.engagement.toFixed(2)}%</div>
                       <div className="text-xs text-muted-foreground">engagement</div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Top YouTube Videos */}
+        {socialKpis?.topYouTubeVideos && socialKpis.topYouTubeVideos.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 5 Vídeos do YouTube</CardTitle>
+              <CardDescription>Vídeos com melhor performance nos últimos 30 dias</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {socialKpis.topYouTubeVideos.map((video, index) => (
+                  <a 
+                    key={index} 
+                    href={video.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium truncate flex-1">{video.title}</p>
+                        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground flex-wrap">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {formatNumber(video.views)}
+                        </span>
+                        <span title="Tempo de Exibição">
+                          {formatNumber(video.watchTime)} min
+                        </span>
+                        <span title="Duração Média">
+                          {formatDuration(video.averageViewDuration)} avg
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Heart className="w-3 h-3" />
+                          {formatNumber(video.likes)}
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MessageCircle className="w-3 h-3" />
+                          {formatNumber(video.comments)}
+                        </div>
+                      </div>
                     </div>
                   </a>
                 ))}

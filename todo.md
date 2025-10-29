@@ -468,3 +468,9 @@
 - [x] Tokeniza - Adicionar breakdown do YouTube
 - [x] Tokeniza - Adicionar card e breakdown do Twitter/X
 - [ ] Testar todas as páginas após atualizações (Blue Consult, Tokeniza, Mychel Mendes)
+
+
+## Bugs Reportados - YouTube
+- [x] Duração Média do YouTube mostra muitas casas decimais - Criado formatDuration() que formata para minutos e segundos (ex: "2m 3s")
+- [x] Tokeniza falta seção Top 5 Vídeos do YouTube - Adicionado seção completa com links e métricas
+- [x] Quantidade de vídeos do YouTube está 0 - Usando videoCount da YouTube API em vez de contar por período

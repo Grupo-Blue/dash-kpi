@@ -66,6 +66,13 @@ export default function MychelMendes() {
     return num.toString();
   };
 
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -312,7 +319,7 @@ export default function MychelMendes() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Duração Média</span>
-                    <span className="font-bold">{(socialKpis?.networkBreakdown.youtube.averageViewDuration || 0).toFixed(0)}s</span>
+                    <span className="font-bold">{formatDuration(socialKpis?.networkBreakdown.youtube.averageViewDuration || 0)}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Likes</span>
@@ -450,7 +457,7 @@ export default function MychelMendes() {
                           {formatNumber(video.watchTime)} min
                         </span>
                         <span title="Duração Média">
-                          {video.averageViewDuration.toFixed(0)}s avg
+                          {formatDuration(video.averageViewDuration)} avg
                         </span>
                       </div>
                     </div>

@@ -31,6 +31,19 @@ export default function BlueConsult() {
     refreshMutation.mutate({ companySlug: "blue-consult" });
   };
 
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+    return num.toString();
+  };
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
+  };
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -473,7 +486,7 @@ export default function BlueConsult() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Duração Média</span>
-                        <span className="font-medium">{socialKpis.networkBreakdown.youtube.averageViewDuration}s</span>
+                        <span className="font-medium">{formatDuration(socialKpis.networkBreakdown.youtube.averageViewDuration)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">Likes</span>
