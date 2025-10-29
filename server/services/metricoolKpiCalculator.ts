@@ -1,4 +1,5 @@
 import { MetricoolService } from './integrations';
+import { YouTubeService } from './youtube.service';
 import { getCompanyByBlogId } from '../config/companies';
 
 export interface SocialMediaKPIs {
@@ -113,9 +114,11 @@ export interface SocialMediaKPIs {
 
 export class MetricoolKpiCalculator {
   private metricoolService: MetricoolService;
+  private youtubeService: YouTubeService | null;
 
-  constructor(apiToken: string, userId?: string) {
+  constructor(apiToken: string, userId?: string, youtubeApiKey?: string) {
     this.metricoolService = new MetricoolService(apiToken, { userId });
+    this.youtubeService = youtubeApiKey ? new YouTubeService(youtubeApiKey) : null;
   }
 
   /**
@@ -298,8 +301,27 @@ export class MetricoolKpiCalculator {
       const fbPrevious = extractLatestValue(fbFollowersPrevious);
       const ttCurrent = extractLatestValue(ttFollowersCurrent);
       const ttPrevious = extractLatestValue(ttFollowersPrevious);
-      const ytCurrent = extractLatestValue(ytFollowersCurrent);
-      const ytPrevious = extractLatestValue(ytFollowersPrevious);
+      // Try to get YouTube subscribers from YouTube API first (more reliable)
+      let ytCurrent = 0;
+      let ytPrevious = 0;
+      
+      if (this.youtubeService && company?.youtubeChannelId) {
+        const ytStats = await this.youtubeService.getChannelStats(company.youtubeChannelId);
+        if (ytStats) {
+          ytCurrent = ytStats.subscriberCount;
+          // For previous, we don't have historical data from YouTube API, so use Metricool if available
+          ytPrevious = extractLatestValue(ytFollowersPrevious) || ytCurrent;
+          console.log(`[MetricoolKPI] YouTube subscribers from YouTube API: ${ytCurrent}`);
+        } else {
+          // Fallback to Metricool
+          ytCurrent = extractLatestValue(ytFollowersCurrent);
+          ytPrevious = extractLatestValue(ytFollowersPrevious);
+        }
+      } else {
+        // No YouTube API available, use Metricool
+        ytCurrent = extractLatestValue(ytFollowersCurrent);
+        ytPrevious = extractLatestValue(ytFollowersPrevious);
+      }
       const twCurrent = extractLatestValue(twFollowersCurrent);
       const twPrevious = extractLatestValue(twFollowersPrevious);
       const liCurrent = extractLatestValue(liFollowersCurrent);

@@ -8,6 +8,7 @@ export interface CompanyConfig {
   name: string;
   blogId: string;
   userId: string;
+  youtubeChannelId?: string;
   connectedNetworks: string[];
   description: string;
 }
@@ -17,6 +18,7 @@ export const COMPANIES: Record<string, CompanyConfig> = {
     name: 'Mychel Mendes',
     blogId: '3893476',
     userId: '3061390',
+    youtubeChannelId: 'UCXpF7QiJoSANyg853iSYwjQ',
     connectedNetworks: ['site', 'facebook', 'instagram', 'threads', 'twitter', 'linkedin', 'tiktok', 'youtube'],
     description: 'Influenciador digital - 8 redes sociais conectadas'
   },
@@ -25,6 +27,7 @@ export const COMPANIES: Record<string, CompanyConfig> = {
     name: 'Blue Consult',
     blogId: '3893423',
     userId: '3061390',
+    youtubeChannelId: 'UCbVSA3qbIcvctG3zlDYiyyA',
     connectedNetworks: ['site', 'facebook', 'instagram', 'youtube', 'meta_ads', 'google_ads'],
     description: 'Consultoria em IR Cripto - 6 canais conectados'
   },
@@ -33,6 +36,7 @@ export const COMPANIES: Record<string, CompanyConfig> = {
     name: 'Tokeniza',
     blogId: '3890487',
     userId: '3061390',
+    youtubeChannelId: 'UCbYNvRYtwKa2vHIQwcAGg9A',
     connectedNetworks: ['facebook', 'instagram', 'twitter', 'youtube', 'meta_ads', 'google_ads'],
     description: 'Plataforma & Private - 6 canais conectados'
   },

@@ -221,7 +221,8 @@ export const appRouter = router({
           }
 
           console.log('[metricoolSocialMedia] Creating calculator...');
-          const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId);
+          const youtubeApiKey = process.env.YOUTUBE_API_KEY || 'AIzaSyAeOpm5YOcN0REDj5AFXf_a-ZxLhuuSDXA';
+          const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
           
           // Default to last 30 days if not specified
           const to = input.to || new Date().toISOString().split('T')[0];
