@@ -245,18 +245,20 @@ export class MetricoolKpiCalculator {
       ] = await Promise.all([
         this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'instagram', 'followers', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'facebook', 'likes', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'facebook', 'likes', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'facebook', 'count', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'facebook', 'count', previousDate, from).catch(() => ({ data: [] })),
+        // TikTok doesn't support followers API, return empty
+        Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] }),
         this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', previousDate, from).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'twitter', 'followers', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'twitter', 'followers', previousDate, from).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'threads', 'followers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'threads', 'followers', previousDate, from).catch(() => ({ data: [] })),
+        // Threads doesn't support followers API, return empty
+        Promise.resolve({ data: [] }),
+        Promise.resolve({ data: [] }),
       ]);
 
       // Extract latest follower counts

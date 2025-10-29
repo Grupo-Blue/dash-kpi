@@ -337,3 +337,15 @@
 - [ ] Adicionar cards de seguidores para cada rede conectada
 - [ ] Adicionar breakdown de performance por rede
 - [ ] Testar integração completa com dados reais
+
+
+## Bugs Reportados pelo Usuário - DIAGNÓSTICO COMPLETO
+- [x] Tokeniza Academy não mostra dados de redes sociais - **CAUSA:** Nenhuma rede social conectada no Metricool para blogId 3893327
+- [x] Inscritos do YouTube do Mychel Mendes = 0 - **CAUSA:** API retorna 403 Forbidden "Unauthenticated blog" - Canal do YouTube não está conectado/autenticado no Metricool
+- [x] Corrigido campo Facebook de 'likes' para 'count'
+- [x] Removido busca de followers para TikTok e Threads (não suportado pela API)
+
+**AÇÕES NECESSÁRIAS NO METRICOOL (pelo usuário):**
+1. Conectar/autenticar canal do YouTube do Mychel Mendes no Metricool
+2. Conectar redes sociais da Tokeniza Academy no Metricool (ou verificar blogId correto)
+3. Após conexões, os dados aparecerão automaticamente no dashboard
