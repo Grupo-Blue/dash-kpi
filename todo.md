@@ -312,3 +312,28 @@
 - [x] Corrigir campo de inscritos do YouTube de 'subscribers' para 'totalSubscribers' na API
 - [ ] Testar se quantidade de vídeos agora está correta
 - [ ] Testar se inscritos do YouTube estão sendo carregados corretamente
+
+
+## Implementação Redes Sociais - Blue Consult
+- [x] Obter blogId e userId corretos da Blue Consult (blogId: 3893423, userId: 3061390)
+- [x] Verificar se página Blue Consult já existe (existe)
+- [x] Adicionar busca de dados do Metricool na página Blue Consult
+- [x] Adicionar seção de Redes Sociais na página Blue Consult
+- [x] Adicionar 5 KPIs principais com tooltips
+- [x] Adicionar seção Top 5 Posts por Engagement
+- [ ] Verificar quais redes sociais estão conectadas (testar com dados reais)
+- [ ] Adicionar cards de seguidores para cada rede conectada
+- [ ] Adicionar breakdown de performance por rede
+- [ ] Testar integração completa com dados reais
+
+## Implementação Redes Sociais - Tokeniza Academy (antiga Bitclass)
+- [x] Obter blogId e userId corretos da Tokeniza Academy (blogId: 3893327, userId: 3061390)
+- [x] Verificar se página Tokeniza Academy já existe (existe)
+- [x] Adicionar busca de dados do Metricool na página Tokeniza Academy
+- [x] Adicionar seção de Redes Sociais na página Tokeniza Academy
+- [x] Adicionar 5 KPIs principais com tooltips
+- [x] Adicionar seção Top 5 Posts por Engagement
+- [ ] Verificar quais redes sociais estão conectadas (testar com dados reais)
+- [ ] Adicionar cards de seguidores para cada rede conectada
+- [ ] Adicionar breakdown de performance por rede
+- [ ] Testar integração completa com dados reais

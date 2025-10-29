@@ -2,7 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { trpc } from "@/lib/trpc";
-import { RefreshCw, TrendingUp, TrendingDown, Minus, DollarSign, Users, Clock } from "lucide-react";
+import { RefreshCw, TrendingUp, TrendingDown, Minus, DollarSign, Users, Clock, Heart, MessageCircle, Share2, Eye, BarChart3, ExternalLink } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
@@ -12,6 +12,10 @@ export default function BlueConsult() {
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
   const { data: niboKpis, isLoading: niboLoading, error: niboError } = trpc.kpis.niboFinancial.useQuery(undefined, {
     retry: false,
+  });
+  // Blue Consult blogId: 3893423 (userId: 3061390)
+  const { data: socialKpis, isLoading: socialLoading } = trpc.kpis.metricoolSocialMedia.useQuery({
+    blogId: '3893423', // Blue Consult
   });
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
@@ -283,9 +287,125 @@ export default function BlueConsult() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Social Media Section */}
+        {socialKpis && (
+          <>
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold tracking-tight mb-4">Redes Sociais</h2>
+              <p className="text-muted-foreground mb-6">
+                Métricas de performance nas redes sociais
+              </p>
+            </div>
+
+            {/* Social Media KPIs */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+              <KpiCardWithTooltip
+                kpi={{
+                  value: socialKpis?.totalPosts || 0,
+                  label: "Total de Posts",
+                }}
+                description={getKpiDescription('totalPosts')}
+              />
+
+              <KpiCardWithTooltip
+                kpi={{
+                  value: formatNumber(socialKpis?.totalInteractions || 0),
+                  label: "Interações",
+                }}
+                description={getKpiDescription('totalInteractions')}
+              />
+
+              <KpiCardWithTooltip
+                kpi={{
+                  value: `${(socialKpis?.averageEngagement || 0).toFixed(2)}%`,
+                  label: "Engagement Médio",
+                }}
+                description={getKpiDescription('averageEngagement')}
+              />
+
+              <KpiCardWithTooltip
+                kpi={{
+                  value: formatNumber(socialKpis?.totalReach || 0),
+                  label: "Alcance Total",
+                }}
+                description={getKpiDescription('totalReach')}
+              />
+
+              <KpiCardWithTooltip
+                kpi={{
+                  value: formatNumber(socialKpis?.totalImpressions || 0),
+                  label: "Impressões",
+                }}
+                description={getKpiDescription('totalImpressions')}
+              />
+            </div>
+
+            {/* Top Posts */}
+            {socialKpis?.topPosts && socialKpis.topPosts.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top 5 Posts por Engagement</CardTitle>
+                  <CardDescription>Posts com melhor performance nos últimos 30 dias</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {socialKpis.topPosts.map((post, index) => (
+                      <a 
+                        key={index} 
+                        href={post.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm text-muted-foreground truncate flex-1">{post.content}</p>
+                            <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                          <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3" />
+                              {post.likes}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageCircle className="w-3 h-3" />
+                              {post.comments}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Share2 className="w-3 h-3" />
+                              {post.shares}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <div className="text-lg font-bold text-primary">{post.engagement.toFixed(2)}%</div>
+                          <div className="text-xs text-muted-foreground">engagement</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
       </div>
     </DashboardLayout>
   );
+}
+
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
 }
 
 interface KpiCardProps {
