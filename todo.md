@@ -474,3 +474,14 @@
 - [x] Duração Média do YouTube mostra muitas casas decimais - Criado formatDuration() que formata para minutos e segundos (ex: "2m 3s")
 - [x] Tokeniza falta seção Top 5 Vídeos do YouTube - Adicionado seção completa com links e métricas
 - [x] Quantidade de vídeos do YouTube está 0 - Usando videoCount da YouTube API em vez de contar por período
+
+
+## Implementação TikTok - FOCO ATUAL
+- [x] Investigar quais métricas estão disponíveis na API Metricool para TikTok - ENCONTRADO NO MCP!
+- [ ] Corrigir busca de followers do TikTok (campo correto: 'followers_count')
+- [ ] Implementar métricas detalhadas: views, likes, comments, shares, reach, averageVideoViews
+- [ ] Adicionar Top Vídeos do TikTok por visualizações
+- [ ] Expandir breakdown do TikTok com todas as métricas disponíveis
+- [ ] Atualizar frontend Mychel Mendes com dados completos do TikTok
+- [ ] Atualizar frontend Tokeniza com dados completos do TikTok
+- [ ] Testar com dados reais

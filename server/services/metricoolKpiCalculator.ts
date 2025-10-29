@@ -27,6 +27,15 @@ export interface SocialMediaKPIs {
     shares: number;
     publishedAt: string;
   }>;
+  topTikTokVideos: Array<{
+    url: string;
+    title: string;
+    views: number;
+    likes: number;
+    comments: number;
+    shares: number;
+    publishedAt: string;
+  }>;
   followers: {
     instagram: {
       current: number;
@@ -86,6 +95,12 @@ export interface SocialMediaKPIs {
     tiktok: {
       videos: number;
       totalEngagement: number;
+      totalViews: number;
+      averageVideoViews: number;
+      totalLikes: number;
+      totalComments: number;
+      totalShares: number;
+      totalReach: number;
     };
     youtube: {
       videos: number;
@@ -268,7 +283,7 @@ export class MetricoolKpiCalculator {
         // Facebook
         isConnected('facebook') ? this.metricoolService.getFollowers(blogId, 'facebook', 'count', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         isConnected('facebook') ? this.metricoolService.getFollowers(blogId, 'facebook', 'count', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
-        // TikTok doesn't support followers API, return empty
+        // TikTok - API doesn't support followers endpoint
         Promise.resolve({ data: [] }),
         Promise.resolve({ data: [] }),
         // YouTube
@@ -348,6 +363,21 @@ export class MetricoolKpiCalculator {
           publishedAt: video.publishedAt || video.date || '',
         }));
 
+      // Get top 5 TikTok videos by views
+      const topTikTokVideos = (tiktokVideos.data || [])
+        .filter((video: any) => video.views && video.views > 0)
+        .sort((a: any, b: any) => (b.views || 0) - (a.views || 0))
+        .slice(0, 5)
+        .map((video: any) => ({
+          url: video.url || video.link || '',
+          title: video.title || (video.content || '').substring(0, 100) + '...',
+          views: video.views || 0,
+          likes: video.likes || 0,
+          comments: video.comments || 0,
+          shares: video.shares || 0,
+          publishedAt: video.publishedAt || video.date || '',
+        }));
+
       return {
         totalPosts,
         totalInteractions,
@@ -356,6 +386,7 @@ export class MetricoolKpiCalculator {
         totalImpressions,
         topPosts,
         topYouTubeVideos,
+        topTikTokVideos,
         followers: {
           instagram: {
             current: igCurrent,
@@ -415,6 +446,14 @@ export class MetricoolKpiCalculator {
           tiktok: {
             videos: (tiktokVideos.data || []).length,
             totalEngagement: tiktokEngagement,
+            totalViews: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.views || 0), 0),
+            averageVideoViews: (tiktokVideos.data || []).length > 0 
+              ? (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.views || 0), 0) / (tiktokVideos.data || []).length
+              : 0,
+            totalLikes: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.likes || 0), 0),
+            totalComments: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.comments || 0), 0),
+            totalShares: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.shares || 0), 0),
+            totalReach: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.reach || 0), 0),
           },
           youtube: {
             videos: youtubeChannelStats?.videoCount || (youtubeVideos.data || []).filter((video: any) => {

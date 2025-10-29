@@ -298,6 +298,26 @@ export default function Tokeniza() {
                   <span className="text-sm text-muted-foreground">Vídeos</span>
                   <span className="font-bold">{socialKpis?.networkBreakdown.tiktok.videos || 0}</span>
                 </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Visualizações</span>
+                  <span className="font-bold">{formatNumber(socialKpis?.networkBreakdown.tiktok.totalViews || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Média de Views/Vídeo</span>
+                  <span className="font-bold">{formatNumber(Math.round(socialKpis?.networkBreakdown.tiktok.averageVideoViews || 0))}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Likes</span>
+                  <span className="font-bold">{formatNumber(socialKpis?.networkBreakdown.tiktok.totalLikes || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Comentários</span>
+                  <span className="font-bold">{formatNumber(socialKpis?.networkBreakdown.tiktok.totalComments || 0)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Compartilhamentos</span>
+                  <span className="font-bold">{formatNumber(socialKpis?.networkBreakdown.tiktok.totalShares || 0)}</span>
+                </div>
                 <div className="flex justify-between items-center pt-2 border-t mt-auto">
                   <span className="text-sm text-muted-foreground">Engagement Total</span>
                   <span className="font-bold">{(socialKpis?.networkBreakdown.tiktok.totalEngagement || 0).toFixed(1)}%</span>
@@ -467,6 +487,61 @@ export default function Tokeniza() {
                           {formatNumber(video.comments)}
                         </div>
                       </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Top TikTok Videos */}
+        {socialKpis?.topTikTokVideos && socialKpis.topTikTokVideos.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Top 5 Vídeos do TikTok</CardTitle>
+              <CardDescription>Vídeos com melhor performance por visualizações</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {socialKpis.topTikTokVideos.map((video, index) => (
+                  <a 
+                    key={index} 
+                    href={video.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pink-500/10 flex items-center justify-center font-bold text-pink-500">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="text-sm font-medium truncate flex-1">{video.title}</p>
+                        <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Eye className="w-3 h-3" />
+                          {formatNumber(video.views)} views
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Heart className="w-3 h-3" />
+                          {formatNumber(video.likes)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MessageCircle className="w-3 h-3" />
+                          {formatNumber(video.comments)}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Share2 className="w-3 h-3" />
+                          {formatNumber(video.shares)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <div className="text-lg font-bold text-pink-500">{formatNumber(video.views)}</div>
+                      <div className="text-xs text-muted-foreground">visualizações</div>
                     </div>
                   </a>
                 ))}
