@@ -457,3 +457,14 @@
 - [x] Testar se inscritos do YouTube aparecem corretamente - SUCESSO! Mostra 97.1K
 - [x] Adicionar Channel IDs da Blue Consult (UCbVSA3qbIcvctG3zlDYiyyA) e Tokeniza (UCbYNvRYtwKa2vHIQwcAGg9A)
 - [ ] Testar Blue Consult e Tokeniza para verificar se inscritos aparecem
+
+
+## Frontend YouTube - Todas as Empresas
+- [x] Mychel Mendes - Frontend completo com YouTube (97.1K inscritos)
+- [x] Blue Consult - Adicionar cards de seguidores (Instagram, Facebook, YouTube 966 inscritos)
+- [x] Blue Consult - Adicionar breakdown por rede (Instagram, Facebook, YouTube)
+- [x] Blue Consult - Adicionar Top Vídeos do YouTube
+- [ ] Tokeniza - Adicionar card de seguidores do YouTube
+- [ ] Tokeniza - Adicionar breakdown do YouTube
+- [ ] Tokeniza - Adicionar card e breakdown do Twitter/X
+- [ ] Testar todas as páginas após atualizações

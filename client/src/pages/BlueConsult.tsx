@@ -341,6 +341,209 @@ export default function BlueConsult() {
               />
             </div>
 
+            {/* Followers by Network */}
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4">Seguidores por Rede Social</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {/* Instagram */}
+                {socialKpis?.followers?.instagram && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Instagram</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{formatNumber(socialKpis.followers.instagram.current)}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {socialKpis.followers.instagram.growth > 0 ? '+' : ''}{formatNumber(socialKpis.followers.instagram.growth)} 
+                        ({socialKpis.followers.instagram.growthPercentage > 0 ? '+' : ''}{socialKpis.followers.instagram.growthPercentage.toFixed(1)}%) vs mês anterior
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Facebook */}
+                {socialKpis?.followers?.facebook && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Facebook</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{formatNumber(socialKpis.followers.facebook.current)}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {socialKpis.followers.facebook.growth > 0 ? '+' : ''}{formatNumber(socialKpis.followers.facebook.growth)} 
+                        ({socialKpis.followers.facebook.growthPercentage > 0 ? '+' : ''}{socialKpis.followers.facebook.growthPercentage.toFixed(1)}%) vs mês anterior
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* YouTube */}
+                {socialKpis?.followers?.youtube && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">YouTube</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{formatNumber(socialKpis.followers.youtube.current)}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {socialKpis.followers.youtube.growth > 0 ? '+' : ''}{formatNumber(socialKpis.followers.youtube.growth)} 
+                        ({socialKpis.followers.youtube.growthPercentage > 0 ? '+' : ''}{socialKpis.followers.youtube.growthPercentage.toFixed(1)}%) vs mês anterior
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+
+            {/* Performance by Network */}
+            <div className="mt-8">
+              <h3 className="text-xl font-semibold mb-4">Performance por Rede Social</h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {/* Instagram Breakdown */}
+                {socialKpis?.networkBreakdown?.instagram && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Instagram</CardTitle>
+                      <CardDescription>Performance no Instagram</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Posts</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.instagram.posts}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Reels</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.instagram.reels}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Stories</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.instagram.stories}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t">
+                        <span className="text-sm font-medium">Engagement Total</span>
+                        <span className="font-bold text-primary">{socialKpis.networkBreakdown.instagram.totalEngagement.toFixed(1)}%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Facebook Breakdown */}
+                {socialKpis?.networkBreakdown?.facebook && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Facebook</CardTitle>
+                      <CardDescription>Performance no Facebook</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Posts</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.facebook.posts}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Reels</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.facebook.reels}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t">
+                        <span className="text-sm font-medium">Engagement Total</span>
+                        <span className="font-bold text-primary">{socialKpis.networkBreakdown.facebook.totalEngagement.toFixed(1)}%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* YouTube Breakdown */}
+                {socialKpis?.networkBreakdown?.youtube && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>YouTube</CardTitle>
+                      <CardDescription>Performance no YouTube</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Vídeos</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.youtube.videos}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Visualizações</span>
+                        <span className="font-medium">{formatNumber(socialKpis.networkBreakdown.youtube.totalViews)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Tempo de Exibição</span>
+                        <span className="font-medium">{formatNumber(socialKpis.networkBreakdown.youtube.totalWatchTime)} min</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Duração Média</span>
+                        <span className="font-medium">{socialKpis.networkBreakdown.youtube.averageViewDuration}s</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Likes</span>
+                        <span className="font-medium">{formatNumber(socialKpis.networkBreakdown.youtube.totalLikes)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Comentários</span>
+                        <span className="font-medium">{formatNumber(socialKpis.networkBreakdown.youtube.totalComments)}</span>
+                      </div>
+                      <div className="flex justify-between pt-2 border-t">
+                        <span className="text-sm font-medium">Engagement Total</span>
+                        <span className="font-bold text-primary">{socialKpis.networkBreakdown.youtube.totalEngagement.toFixed(1)}%</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+
+            {/* Top YouTube Videos */}
+            {socialKpis?.topYouTubeVideos && socialKpis.topYouTubeVideos.length > 0 && (
+              <Card className="mt-8">
+                <CardHeader>
+                  <CardTitle>Top 5 Vídeos do YouTube</CardTitle>
+                  <CardDescription>Vídeos com melhor performance por visualizações</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {socialKpis.topYouTubeVideos.map((video, index) => (
+                      <a 
+                        key={index} 
+                        href={video.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer group"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm font-medium truncate flex-1">{video.title}</p>
+                            <ExternalLink className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                          <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Eye className="w-3 h-3" />
+                              {formatNumber(video.views)} views
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Heart className="w-3 h-3" />
+                              {formatNumber(video.likes)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageCircle className="w-3 h-3" />
+                              {formatNumber(video.comments)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <div className="text-lg font-bold text-primary">{formatNumber(video.views)}</div>
+                          <div className="text-xs text-muted-foreground">visualizações</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Top Posts */}
             {socialKpis?.topPosts && socialKpis.topPosts.length > 0 && (
               <Card>
