@@ -464,7 +464,7 @@
 - [x] Blue Consult - Adicionar cards de seguidores (Instagram, Facebook, YouTube 966 inscritos)
 - [x] Blue Consult - Adicionar breakdown por rede (Instagram, Facebook, YouTube)
 - [x] Blue Consult - Adicionar Top Vídeos do YouTube
-- [ ] Tokeniza - Adicionar card de seguidores do YouTube
-- [ ] Tokeniza - Adicionar breakdown do YouTube
-- [ ] Tokeniza - Adicionar card e breakdown do Twitter/X
-- [ ] Testar todas as páginas após atualizações
+- [x] Tokeniza - Adicionar card de seguidores do YouTube
+- [x] Tokeniza - Adicionar breakdown do YouTube
+- [x] Tokeniza - Adicionar card e breakdown do Twitter/X
+- [ ] Testar todas as páginas após atualizações (Blue Consult, Tokeniza, Mychel Mendes)

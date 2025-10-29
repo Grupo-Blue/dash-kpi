@@ -144,7 +144,7 @@ export default function Tokeniza() {
         {/* Followers Section */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Seguidores por Rede Social</h2>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Instagram</CardTitle>
@@ -189,11 +189,47 @@ export default function Tokeniza() {
                 </p>
               </CardContent>
             </Card>
+
+            {/* YouTube */}
+            {socialKpis?.followers?.youtube && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">YouTube</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatNumber(socialKpis.followers.youtube.current)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {socialKpis.followers.youtube.growth >= 0 ? '+' : ''}
+                    {formatNumber(socialKpis.followers.youtube.growth)} ({socialKpis.followers.youtube.growthPercentage >= 0 ? '+' : ''}
+                    {socialKpis.followers.youtube.growthPercentage.toFixed(1)}%) vs mês anterior
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Twitter/X */}
+            {socialKpis?.followers?.twitter && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Twitter/X</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatNumber(socialKpis.followers.twitter.current)}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {socialKpis.followers.twitter.growth >= 0 ? '+' : ''}
+                    {formatNumber(socialKpis.followers.twitter.growth)} ({socialKpis.followers.twitter.growthPercentage >= 0 ? '+' : ''}
+                    {socialKpis.followers.twitter.growthPercentage.toFixed(1)}%) vs mês anterior
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
 
         {/* Network Breakdown */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader>
               <CardTitle>Instagram</CardTitle>
@@ -262,6 +298,58 @@ export default function Tokeniza() {
               </div>
             </CardContent>
           </Card>
+
+          {/* YouTube Breakdown */}
+          {socialKpis?.networkBreakdown?.youtube && (
+            <Card>
+              <CardHeader>
+                <CardTitle>YouTube</CardTitle>
+                <CardDescription>Performance no YouTube</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Vídeos</span>
+                    <span className="font-bold">{socialKpis.networkBreakdown.youtube.videos}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Visualizações</span>
+                    <span className="font-bold">{formatNumber(socialKpis.networkBreakdown.youtube.totalViews)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Likes</span>
+                    <span className="font-bold">{formatNumber(socialKpis.networkBreakdown.youtube.totalLikes)}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{socialKpis.networkBreakdown.youtube.totalEngagement.toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Twitter/X Breakdown */}
+          {socialKpis?.networkBreakdown?.twitter && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Twitter/X</CardTitle>
+                <CardDescription>Performance no Twitter/X</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis.networkBreakdown.twitter.posts}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{socialKpis.networkBreakdown.twitter.totalEngagement.toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Top Posts */}
