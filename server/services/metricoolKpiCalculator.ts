@@ -1,4 +1,5 @@
 import { MetricoolService } from './integrations';
+import { getCompanyByBlogId } from '../config/companies';
 
 export interface SocialMediaKPIs {
   totalPosts: number;
@@ -122,6 +123,14 @@ export class MetricoolKpiCalculator {
    */
   async calculateSocialMediaKPIs(blogId: string, from: string, to: string): Promise<SocialMediaKPIs> {
     try {
+      // Identify company and connected networks
+      const company = getCompanyByBlogId(blogId);
+      const connectedNetworks = company?.connectedNetworks || [];
+      console.log(`[MetricoolKPI] Company: ${company?.name}, Connected networks:`, connectedNetworks);
+      
+      // Helper to check if network is connected
+      const isConnected = (network: string) => connectedNetworks.includes(network.toLowerCase());
+      
       // Fetch data from all networks in parallel
       const [
         instagramPosts,
@@ -135,16 +144,23 @@ export class MetricoolKpiCalculator {
         linkedinPosts,
         threadsPosts,
       ] = await Promise.all([
-        this.metricoolService.getInstagramPosts(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getInstagramReels(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getInstagramStories(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFacebookPosts(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFacebookReels(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getTikTokVideos(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getYouTubeVideos(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getTwitterPosts(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getLinkedInPosts(blogId, from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getThreadsPosts(blogId, from, to).catch(() => ({ data: [] })),
+        // Instagram
+        isConnected('instagram') ? this.metricoolService.getInstagramPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('instagram') ? this.metricoolService.getInstagramReels(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('instagram') ? this.metricoolService.getInstagramStories(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // Facebook
+        isConnected('facebook') ? this.metricoolService.getFacebookPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('facebook') ? this.metricoolService.getFacebookReels(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // TikTok
+        isConnected('tiktok') ? this.metricoolService.getTikTokVideos(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // YouTube
+        isConnected('youtube') ? this.metricoolService.getYouTubeVideos(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // Twitter
+        isConnected('twitter') ? this.metricoolService.getTwitterPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // LinkedIn
+        isConnected('linkedin') ? this.metricoolService.getLinkedInPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // Threads
+        isConnected('threads') ? this.metricoolService.getThreadsPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
       ]);
 
       // Aggregate all posts
@@ -243,19 +259,24 @@ export class MetricoolKpiCalculator {
         liFollowersCurrent, liFollowersPrevious,
         thFollowersCurrent, thFollowersPrevious,
       ] = await Promise.all([
-        this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'instagram', 'followers', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'facebook', 'count', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'facebook', 'count', previousDate, from).catch(() => ({ data: [] })),
+        // Instagram
+        isConnected('instagram') ? this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('instagram') ? this.metricoolService.getFollowers(blogId, 'instagram', 'followers', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // Facebook
+        isConnected('facebook') ? this.metricoolService.getFollowers(blogId, 'facebook', 'count', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('facebook') ? this.metricoolService.getFollowers(blogId, 'facebook', 'count', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         // TikTok doesn't support followers API, return empty
         Promise.resolve({ data: [] }),
         Promise.resolve({ data: [] }),
-        this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'twitter', 'followers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'twitter', 'followers', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', previousDate, from).catch(() => ({ data: [] })),
+        // YouTube
+        isConnected('youtube') ? this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('youtube') ? this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // Twitter
+        isConnected('twitter') ? this.metricoolService.getFollowers(blogId, 'twitter', 'followers', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('twitter') ? this.metricoolService.getFollowers(blogId, 'twitter', 'followers', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        // LinkedIn
+        isConnected('linkedin') ? this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('linkedin') ? this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', previousDate, from).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         // Threads doesn't support followers API, return empty
         Promise.resolve({ data: [] }),
         Promise.resolve({ data: [] }),

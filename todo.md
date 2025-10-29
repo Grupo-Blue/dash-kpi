@@ -349,3 +349,17 @@
 1. Conectar/autenticar canal do YouTube do Mychel Mendes no Metricool
 2. Conectar redes sociais da Tokeniza Academy no Metricool (ou verificar blogId correto)
 3. Após conexões, os dados aparecerão automaticamente no dashboard
+
+
+## Correção Configuração de Empresas e Redes Sociais
+- [x] Criar arquivo de configuração centralizado com blogId e userId de cada empresa (server/config/companies.ts)
+- [x] Salvar redes sociais conectadas de cada empresa:
+  * Mychel Mendes (blogId=3893476): Site, Facebook, Instagram, Threads, Twitter, LinkedIn, TikTok, YouTube
+  * Blue Consult (blogId=3893423): Site, Facebook, Instagram, YouTube, Meta Ads, Google Ads
+  * Tokeniza (blogId=3890487): Facebook, Instagram, Twitter, YouTube, Meta Ads, Google Ads
+  * Tokeniza Academy (blogId=3893327): Facebook, Instagram, Twitter, Meta Ads, Google Ads
+- [x] Modificar calculator para buscar apenas redes conectadas (elimina erros 403)
+- [x] Testar Mychel Mendes - Erros 403 eliminados, API responde 200
+- [ ] Inscritos do YouTube retornam vazio (API retorna values: []) - Pode ser canal sem dados históricos
+- [ ] Testar outras empresas (Blue Consult, Tokeniza, Tokeniza Academy)
+- [ ] Ajustar frontend para ocultar redes sem dados
