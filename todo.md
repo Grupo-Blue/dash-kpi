@@ -267,3 +267,11 @@
 - [ ] Identificar diferença que causa erro 500
 - [ ] Corrigir implementação do método getFollowers
 - [ ] Testar e validar dados de seguidores no frontend
+
+
+## Nova Empresa - Mychel Mendes
+- [x] Verificar redes sociais conectadas na API do Metricool (blogId=3890482)
+- [x] Criar página Mychel Mendes no frontend
+- [x] Implementar KPIs de social media para Mychel Mendes
+- [x] Adicionar rota no menu lateral
+- [ ] Testar integração completa com dados reais

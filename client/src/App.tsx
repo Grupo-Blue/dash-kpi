@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import BlueConsult from "./pages/BlueConsult";
 import Tokeniza from "./pages/Tokeniza";
 import TokenizaAcademy from "./pages/TokenizaAcademy";
+import MychelMendes from "./pages/MychelMendes";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path={"/blue-consult"} component={BlueConsult} />
       <Route path={"/tokeniza"} component={Tokeniza} />
       <Route path={"/tokeniza-academy"} component={TokenizaAcademy} />
+      <Route path={"/mychel-mendes"} component={MychelMendes} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

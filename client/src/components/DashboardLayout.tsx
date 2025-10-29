@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Building2, GraduationCap, TrendingUp } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Building2, GraduationCap, TrendingUp, User } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -32,6 +32,7 @@ const menuItems = [
   { icon: Building2, label: "Blue Consult", path: "/blue-consult" },
   { icon: TrendingUp, label: "Tokeniza", path: "/tokeniza" },
   { icon: GraduationCap, label: "Tokeniza Academy", path: "/tokeniza-academy" },
+  { icon: User, label: "Mychel Mendes", path: "/mychel-mendes" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
