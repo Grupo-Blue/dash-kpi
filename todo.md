@@ -303,3 +303,12 @@
 - [x] Atualizar página Mychel Mendes com dados expandidos do YouTube
 - [ ] Atualizar página Tokeniza com dados expandidos do YouTube (Tokeniza não tem YouTube ainda)
 - [ ] Testar integração completa com dados reais do YouTube
+
+
+## Bugs e Melhorias - Página Mychel Mendes
+- [x] Corrigir quantidade de vídeos do YouTube (filtrar por data de publicação no período)
+- [x] Card de inscritos do YouTube já existe na seção de seguidores
+- [x] Adicionar ícone "i" com tooltip explicativo em todos os 5 KPIs principais usando KpiCardWithTooltip
+- [x] Corrigir campo de inscritos do YouTube de 'subscribers' para 'totalSubscribers' na API
+- [ ] Testar se quantidade de vídeos agora está correta
+- [ ] Testar se inscritos do YouTube estão sendo carregados corretamente

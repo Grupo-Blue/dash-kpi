@@ -249,8 +249,8 @@ export class MetricoolKpiCalculator {
         this.metricoolService.getFollowers(blogId, 'facebook', 'likes', previousDate, from).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', previousDate, from).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'youtube', 'subscribers', from, to).catch(() => ({ data: [] })),
-        this.metricoolService.getFollowers(blogId, 'youtube', 'subscribers', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'youtube', 'totalSubscribers', previousDate, from).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'twitter', 'followers', from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'twitter', 'followers', previousDate, from).catch(() => ({ data: [] })),
         this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', from, to).catch(() => ({ data: [] })),
@@ -370,7 +370,13 @@ export class MetricoolKpiCalculator {
             totalEngagement: tiktokEngagement,
           },
           youtube: {
-            videos: (youtubeVideos.data || []).length,
+            videos: (youtubeVideos.data || []).filter((video: any) => {
+              if (!video.publishedAt && !video.date) return false;
+              const publishDate = new Date(video.publishedAt || video.date);
+              const fromDate = new Date(from);
+              const toDate = new Date(to);
+              return publishDate >= fromDate && publishDate <= toDate;
+            }).length,
             totalEngagement: youtubeEngagement,
             totalViews: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.views || 0), 0),
             totalWatchTime: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.watchTime || 0), 0),

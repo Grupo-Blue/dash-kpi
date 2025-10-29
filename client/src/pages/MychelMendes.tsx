@@ -85,60 +85,45 @@ export default function MychelMendes() {
 
         {/* Summary KPIs */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total de Posts</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{socialKpis?.totalPosts || 0}</div>
-              <p className="text-xs text-muted-foreground">Últimos 30 dias</p>
-            </CardContent>
-          </Card>
+          <KpiCardWithTooltip
+            kpi={{
+              value: socialKpis?.totalPosts || 0,
+              label: "Total de Posts",
+            }}
+            description={getKpiDescription('totalPosts')}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Interações</CardTitle>
-              <Heart className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(socialKpis?.totalInteractions || 0)}</div>
-              <p className="text-xs text-muted-foreground">Likes + Comments + Shares</p>
-            </CardContent>
-          </Card>
+          <KpiCardWithTooltip
+            kpi={{
+              value: formatNumber(socialKpis?.totalInteractions || 0),
+              label: "Interações",
+            }}
+            description={getKpiDescription('totalInteractions')}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Engagement Médio</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(socialKpis?.averageEngagement || 0).toFixed(2)}%</div>
-              <p className="text-xs text-muted-foreground">Taxa de engajamento</p>
-            </CardContent>
-          </Card>
+          <KpiCardWithTooltip
+            kpi={{
+              value: `${(socialKpis?.averageEngagement || 0).toFixed(2)}%`,
+              label: "Engagement Médio",
+            }}
+            description={getKpiDescription('averageEngagement')}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Alcance Total</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(socialKpis?.totalReach || 0)}</div>
-              <p className="text-xs text-muted-foreground">Pessoas alcançadas</p>
-            </CardContent>
-          </Card>
+          <KpiCardWithTooltip
+            kpi={{
+              value: formatNumber(socialKpis?.totalReach || 0),
+              label: "Alcance Total",
+            }}
+            description={getKpiDescription('totalReach')}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Impressões</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatNumber(socialKpis?.totalImpressions || 0)}</div>
-              <p className="text-xs text-muted-foreground">Total de visualizações</p>
-            </CardContent>
-          </Card>
+          <KpiCardWithTooltip
+            kpi={{
+              value: formatNumber(socialKpis?.totalImpressions || 0),
+              label: "Impressões",
+            }}
+            description={getKpiDescription('totalImpressions')}
+          />
         </div>
 
         {/* Followers Section - All 8 Networks */}
