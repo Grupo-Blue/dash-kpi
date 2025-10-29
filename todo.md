@@ -275,3 +275,14 @@
 - [x] Implementar KPIs de social media para Mychel Mendes
 - [x] Adicionar rota no menu lateral
 - [ ] Testar integração completa com dados reais
+
+
+## Expansão Mychel Mendes - Todas as Redes Sociais
+- [x] Investigar quais dados estão disponíveis na API Metricool para cada rede (Threads, Twitter/X, LinkedIn, YouTube)
+- [x] Atualizar MetricoolService com métodos para buscar dados de Threads, Twitter/X, LinkedIn, YouTube
+- [x] Atualizar MetricoolKpiCalculator para incluir dados de todas as redes
+- [x] Atualizar interface SocialMediaKPIs para suportar todas as 8 redes (Instagram, Facebook, TikTok, YouTube, Twitter/X, LinkedIn, Threads)
+- [x] Atualizar frontend da página Mychel Mendes para exibir todas as 8 redes
+- [x] Adicionar cards de seguidores para: YouTube, Twitter/X, LinkedIn, Threads (Instagram, Facebook, TikTok já existiam)
+- [x] Adicionar breakdown de performance para: YouTube, Twitter/X, LinkedIn, Threads
+- [ ] Testar integração completa com dados reais de todas as redes (aguardando validação do usuário)

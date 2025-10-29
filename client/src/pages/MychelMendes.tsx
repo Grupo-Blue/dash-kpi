@@ -24,7 +24,7 @@ export default function MychelMendes() {
   });
 
   const handleRefresh = () => {
-    refreshMutation.mutate({ companySlug: "tokeniza" });
+    refreshMutation.mutate({ companySlug: "mychel-mendes" });
   };
 
   if (isLoading) {
@@ -141,10 +141,10 @@ export default function MychelMendes() {
           </Card>
         </div>
 
-        {/* Followers Section */}
+        {/* Followers Section - All 8 Networks */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Seguidores por Rede Social</h2>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Instagram</CardTitle>
@@ -154,7 +154,7 @@ export default function MychelMendes() {
                 <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.instagram?.current || 0)}</div>
                 <p className="text-xs text-muted-foreground">
                   {(socialKpis?.followers?.instagram?.growth || 0) >= 0 ? '+' : ''}
-                  {socialKpis?.followers?.instagram?.growth || 0} ({(socialKpis?.followers?.instagram?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.instagram?.growth || 0)} ({(socialKpis?.followers?.instagram?.growthPercentage || 0) >= 0 ? '+' : ''}
                   {(socialKpis?.followers?.instagram?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
                 </p>
               </CardContent>
@@ -169,8 +169,53 @@ export default function MychelMendes() {
                 <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.facebook?.current || 0)}</div>
                 <p className="text-xs text-muted-foreground">
                   {(socialKpis?.followers?.facebook?.growth || 0) >= 0 ? '+' : ''}
-                  {socialKpis?.followers?.facebook?.growth || 0} ({(socialKpis?.followers?.facebook?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.facebook?.growth || 0)} ({(socialKpis?.followers?.facebook?.growthPercentage || 0) >= 0 ? '+' : ''}
                   {(socialKpis?.followers?.facebook?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">YouTube</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.youtube?.current || 0)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {(socialKpis?.followers?.youtube?.growth || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.youtube?.growth || 0)} ({(socialKpis?.followers?.youtube?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {(socialKpis?.followers?.youtube?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Twitter/X</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.twitter?.current || 0)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {(socialKpis?.followers?.twitter?.growth || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.twitter?.growth || 0)} ({(socialKpis?.followers?.twitter?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {(socialKpis?.followers?.twitter?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">LinkedIn</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.linkedin?.current || 0)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {(socialKpis?.followers?.linkedin?.growth || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.linkedin?.growth || 0)} ({(socialKpis?.followers?.linkedin?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {(socialKpis?.followers?.linkedin?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
                 </p>
               </CardContent>
             </Card>
@@ -184,84 +229,178 @@ export default function MychelMendes() {
                 <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.tiktok?.current || 0)}</div>
                 <p className="text-xs text-muted-foreground">
                   {(socialKpis?.followers?.tiktok?.growth || 0) >= 0 ? '+' : ''}
-                  {socialKpis?.followers?.tiktok?.growth || 0} ({(socialKpis?.followers?.tiktok?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.tiktok?.growth || 0)} ({(socialKpis?.followers?.tiktok?.growthPercentage || 0) >= 0 ? '+' : ''}
                   {(socialKpis?.followers?.tiktok?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Threads</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatNumber(socialKpis?.followers?.threads?.current || 0)}</div>
+                <p className="text-xs text-muted-foreground">
+                  {(socialKpis?.followers?.threads?.growth || 0) >= 0 ? '+' : ''}
+                  {formatNumber(socialKpis?.followers?.threads?.growth || 0)} ({(socialKpis?.followers?.threads?.growthPercentage || 0) >= 0 ? '+' : ''}
+                  {(socialKpis?.followers?.threads?.growthPercentage || 0).toFixed(1)}%) vs mês anterior
                 </p>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Network Breakdown */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Instagram</CardTitle>
-              <CardDescription>Performance no Instagram</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Posts</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.instagram.posts || 0}</span>
+        {/* Network Breakdown - All 8 Networks */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Performance por Rede Social</h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Instagram</CardTitle>
+                <CardDescription>Performance no Instagram</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.instagram.posts || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Reels</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.instagram.reels || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Stories</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.instagram.stories || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.instagram.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Reels</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.instagram.reels || 0}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Stories</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.instagram.stories || 0}</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="text-sm text-muted-foreground">Engagement Total</span>
-                  <span className="font-bold">{(socialKpis?.networkBreakdown.instagram.totalEngagement || 0).toFixed(1)}%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Facebook</CardTitle>
-              <CardDescription>Performance no Facebook</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Posts</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.facebook.posts || 0}</span>
+            <Card>
+              <CardHeader>
+                <CardTitle>Facebook</CardTitle>
+                <CardDescription>Performance no Facebook</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.facebook.posts || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Reels</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.facebook.reels || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.facebook.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Reels</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.facebook.reels || 0}</span>
-                </div>
-                <div className="flex justify-between items-center pt-2 border-t mt-auto">
-                  <span className="text-sm text-muted-foreground">Engagement Total</span>
-                  <span className="font-bold">{(socialKpis?.networkBreakdown.facebook.totalEngagement || 0).toFixed(1)}%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>TikTok</CardTitle>
-              <CardDescription>Performance no TikTok</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Vídeos</span>
-                  <span className="font-bold">{socialKpis?.networkBreakdown.tiktok.videos || 0}</span>
+            <Card>
+              <CardHeader>
+                <CardTitle>YouTube</CardTitle>
+                <CardDescription>Performance no YouTube</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Vídeos</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.youtube.videos || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.youtube.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t mt-auto">
-                  <span className="text-sm text-muted-foreground">Engagement Total</span>
-                  <span className="font-bold">{(socialKpis?.networkBreakdown.tiktok.totalEngagement || 0).toFixed(1)}%</span>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Twitter/X</CardTitle>
+                <CardDescription>Performance no Twitter/X</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.twitter.posts || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.twitter.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>LinkedIn</CardTitle>
+                <CardDescription>Performance no LinkedIn</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.linkedin.posts || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.linkedin.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>TikTok</CardTitle>
+                <CardDescription>Performance no TikTok</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Vídeos</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.tiktok.videos || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.tiktok.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Threads</CardTitle>
+                <CardDescription>Performance no Threads</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Posts</span>
+                    <span className="font-bold">{socialKpis?.networkBreakdown.threads.posts || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                    <span className="text-sm text-muted-foreground">Engagement Total</span>
+                    <span className="font-bold">{(socialKpis?.networkBreakdown.threads.totalEngagement || 0).toFixed(1)}%</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Top Posts */}

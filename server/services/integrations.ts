@@ -368,6 +368,26 @@ export class MetricoolService implements IntegrationService {
     });
   }
 
+  // Get LinkedIn posts
+  async getLinkedInPosts(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/linkedin', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
+  // Get Threads posts
+  async getThreadsPosts(blogId: string, from: string, to: string) {
+    return this.makeRequest('/v2/analytics/posts/threads', {
+      blogId,
+      from: `${from}T00:00:00`,
+      to: `${to}T23:59:59`,
+      integrationSource: 'MCP',
+    });
+  }
+
   // Get Google Ads campaigns
   async getGoogleAdsCampaigns(blogId: string, from: string, to: string) {
     return this.makeRequest('/stats/adwords/campaigns', {

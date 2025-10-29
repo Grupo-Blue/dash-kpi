@@ -33,6 +33,30 @@ export interface SocialMediaKPIs {
       growth: number;
       growthPercentage: number;
     };
+    youtube: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+    twitter: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+    linkedin: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
+    threads: {
+      current: number;
+      previous: number;
+      growth: number;
+      growthPercentage: number;
+    };
   };
   networkBreakdown: {
     instagram: {
@@ -48,6 +72,22 @@ export interface SocialMediaKPIs {
     };
     tiktok: {
       videos: number;
+      totalEngagement: number;
+    };
+    youtube: {
+      videos: number;
+      totalEngagement: number;
+    };
+    twitter: {
+      posts: number;
+      totalEngagement: number;
+    };
+    linkedin: {
+      posts: number;
+      totalEngagement: number;
+    };
+    threads: {
+      posts: number;
       totalEngagement: number;
     };
   };
@@ -73,6 +113,10 @@ export class MetricoolKpiCalculator {
         facebookPosts,
         facebookReels,
         tiktokVideos,
+        youtubeVideos,
+        twitterPosts,
+        linkedinPosts,
+        threadsPosts,
       ] = await Promise.all([
         this.metricoolService.getInstagramPosts(blogId, from, to).catch(() => ({ data: [] })),
         this.metricoolService.getInstagramReels(blogId, from, to).catch(() => ({ data: [] })),
@@ -80,6 +124,10 @@ export class MetricoolKpiCalculator {
         this.metricoolService.getFacebookPosts(blogId, from, to).catch(() => ({ data: [] })),
         this.metricoolService.getFacebookReels(blogId, from, to).catch(() => ({ data: [] })),
         this.metricoolService.getTikTokVideos(blogId, from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getYouTubeVideos(blogId, from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getTwitterPosts(blogId, from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getLinkedInPosts(blogId, from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getThreadsPosts(blogId, from, to).catch(() => ({ data: [] })),
       ]);
 
       // Aggregate all posts
@@ -89,6 +137,10 @@ export class MetricoolKpiCalculator {
         ...(facebookPosts.data || []),
         ...(facebookReels.data || []),
         ...(tiktokVideos.data || []),
+        ...(youtubeVideos.data || []),
+        ...(twitterPosts.data || []),
+        ...(linkedinPosts.data || []),
+        ...(threadsPosts.data || []),
       ];
 
       // Calculate total metrics
@@ -134,6 +186,26 @@ export class MetricoolKpiCalculator {
         0
       );
 
+      const youtubeEngagement = (youtubeVideos.data || []).reduce(
+        (sum: number, post: any) => sum + (post.engagement || 0),
+        0
+      );
+
+      const twitterEngagement = (twitterPosts.data || []).reduce(
+        (sum: number, post: any) => sum + (post.engagement || 0),
+        0
+      );
+
+      const linkedinEngagement = (linkedinPosts.data || []).reduce(
+        (sum: number, post: any) => sum + (post.engagement || 0),
+        0
+      );
+
+      const threadsEngagement = (threadsPosts.data || []).reduce(
+        (sum: number, post: any) => sum + (post.engagement || 0),
+        0
+      );
+
       // Fetch followers data
       console.log('[MetricoolKPI] Starting followers fetch...');
       console.log('[MetricoolKPI] Period:', { from, to });
@@ -145,19 +217,30 @@ export class MetricoolKpiCalculator {
       
       console.log('[MetricoolKPI] Dates:', { currentDate, previousDate });
 
-      const [igFollowersCurrent, igFollowersPrevious, fbFollowersCurrent, fbFollowersPrevious, ttFollowersCurrent, ttFollowersPrevious] =
-        await Promise.all([
-          this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })),
-          this.metricoolService
-            .getFollowers(blogId, 'instagram', 'followers', previousDate, from)
-            .catch(() => ({ data: [] })),
-          this.metricoolService.getFollowers(blogId, 'facebook', 'likes', from, to).catch(() => ({ data: [] })),
-          this.metricoolService.getFollowers(blogId, 'facebook', 'likes', previousDate, from).catch(() => ({ data: [] })),
-          this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', from, to).catch(() => ({ data: [] })),
-          this.metricoolService
-            .getFollowers(blogId, 'tiktok', 'followers_count', previousDate, from)
-            .catch(() => ({ data: [] })),
-        ]);
+      const [
+        igFollowersCurrent, igFollowersPrevious,
+        fbFollowersCurrent, fbFollowersPrevious,
+        ttFollowersCurrent, ttFollowersPrevious,
+        ytFollowersCurrent, ytFollowersPrevious,
+        twFollowersCurrent, twFollowersPrevious,
+        liFollowersCurrent, liFollowersPrevious,
+        thFollowersCurrent, thFollowersPrevious,
+      ] = await Promise.all([
+        this.metricoolService.getFollowers(blogId, 'instagram', 'followers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'instagram', 'followers', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'facebook', 'likes', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'facebook', 'likes', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'tiktok', 'followers_count', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'youtube', 'subscribers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'youtube', 'subscribers', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'twitter', 'followers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'twitter', 'followers', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'linkedin', 'followers', previousDate, from).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'threads', 'followers', from, to).catch(() => ({ data: [] })),
+        this.metricoolService.getFollowers(blogId, 'threads', 'followers', previousDate, from).catch(() => ({ data: [] })),
+      ]);
 
       // Extract latest follower counts
       // API returns format: { data: [{ metric: string, values: [{ dateTime: string, value: number }] }] }
@@ -175,6 +258,14 @@ export class MetricoolKpiCalculator {
       const fbPrevious = extractLatestValue(fbFollowersPrevious);
       const ttCurrent = extractLatestValue(ttFollowersCurrent);
       const ttPrevious = extractLatestValue(ttFollowersPrevious);
+      const ytCurrent = extractLatestValue(ytFollowersCurrent);
+      const ytPrevious = extractLatestValue(ytFollowersPrevious);
+      const twCurrent = extractLatestValue(twFollowersCurrent);
+      const twPrevious = extractLatestValue(twFollowersPrevious);
+      const liCurrent = extractLatestValue(liFollowersCurrent);
+      const liPrevious = extractLatestValue(liFollowersPrevious);
+      const thCurrent = extractLatestValue(thFollowersCurrent);
+      const thPrevious = extractLatestValue(thFollowersPrevious);
 
       return {
         totalPosts,
@@ -202,6 +293,30 @@ export class MetricoolKpiCalculator {
             growth: ttCurrent - ttPrevious,
             growthPercentage: ttPrevious > 0 ? ((ttCurrent - ttPrevious) / ttPrevious) * 100 : 0,
           },
+          youtube: {
+            current: ytCurrent,
+            previous: ytPrevious,
+            growth: ytCurrent - ytPrevious,
+            growthPercentage: ytPrevious > 0 ? ((ytCurrent - ytPrevious) / ytPrevious) * 100 : 0,
+          },
+          twitter: {
+            current: twCurrent,
+            previous: twPrevious,
+            growth: twCurrent - twPrevious,
+            growthPercentage: twPrevious > 0 ? ((twCurrent - twPrevious) / twPrevious) * 100 : 0,
+          },
+          linkedin: {
+            current: liCurrent,
+            previous: liPrevious,
+            growth: liCurrent - liPrevious,
+            growthPercentage: liPrevious > 0 ? ((liCurrent - liPrevious) / liPrevious) * 100 : 0,
+          },
+          threads: {
+            current: thCurrent,
+            previous: thPrevious,
+            growth: thCurrent - thPrevious,
+            growthPercentage: thPrevious > 0 ? ((thCurrent - thPrevious) / thPrevious) * 100 : 0,
+          },
         },
         networkBreakdown: {
           instagram: {
@@ -218,6 +333,22 @@ export class MetricoolKpiCalculator {
           tiktok: {
             videos: (tiktokVideos.data || []).length,
             totalEngagement: tiktokEngagement,
+          },
+          youtube: {
+            videos: (youtubeVideos.data || []).length,
+            totalEngagement: youtubeEngagement,
+          },
+          twitter: {
+            posts: (twitterPosts.data || []).length,
+            totalEngagement: twitterEngagement,
+          },
+          linkedin: {
+            posts: (linkedinPosts.data || []).length,
+            totalEngagement: linkedinEngagement,
+          },
+          threads: {
+            posts: (threadsPosts.data || []).length,
+            totalEngagement: threadsEngagement,
           },
         },
       };
