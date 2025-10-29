@@ -135,10 +135,15 @@ export class MetricoolKpiCalculator {
       );
 
       // Fetch followers data
+      console.log('[MetricoolKPI] Starting followers fetch...');
+      console.log('[MetricoolKPI] Period:', { from, to });
+      
       const currentDate = to;
       const previousDate = new Date(new Date(from).getTime() - 30 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0];
+      
+      console.log('[MetricoolKPI] Dates:', { currentDate, previousDate });
 
       const [igFollowersCurrent, igFollowersPrevious, fbFollowersCurrent, fbFollowersPrevious, ttFollowersCurrent, ttFollowersPrevious] =
         await Promise.all([
@@ -155,10 +160,13 @@ export class MetricoolKpiCalculator {
         ]);
 
       // Extract latest follower counts
+      // API returns format: { data: [{ metric: string, values: [{ dateTime: string, value: number }] }] }
       const extractLatestValue = (response: any) => {
-        if (!response.data || response.data.length === 0) return 0;
+        if (!response || !response.data || !Array.isArray(response.data) || response.data.length === 0) return 0;
         const values = response.data[0]?.values || [];
-        return values.length > 0 ? values[0].value : 0;
+        if (values.length === 0) return 0;
+        // Get the most recent value (first in array, as API returns newest first)
+        return values[0]?.value || 0;
       };
 
       const igCurrent = extractLatestValue(igFollowersCurrent);

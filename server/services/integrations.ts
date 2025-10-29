@@ -231,15 +231,20 @@ export class MetricoolService implements IntegrationService {
   }
 
   private async makeRequest(endpoint: string, params: Record<string, any> = {}) {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
-    
-    // Add common parameters
-    url.searchParams.append('userId', this.userId);
-    
-    // Add additional parameters
+    // Build query string manually to avoid encoding timezone
+    const queryParts: string[] = [];
     Object.entries(params).forEach(([key, value]) => {
-      url.searchParams.append(key, String(value));
+      // Don't encode timezone parameter (API doesn't accept encoded slashes)
+      if (key.includes('timezone')) {
+        queryParts.push(`${key}=${value}`);
+      } else {
+        queryParts.push(`${key}=${encodeURIComponent(String(value))}`);
+      }
     });
+    const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
+    const url = `${this.baseUrl}${endpoint}${queryString}`;
+
+    console.log('[Metricool] Making request:', url);
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -248,11 +253,17 @@ export class MetricoolService implements IntegrationService {
       },
     });
 
+    console.log('[Metricool] Response status:', response.status, response.statusText);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Metricool] Error response:', errorText);
       throw new Error(`Metricool API error: ${response.statusText}`);
     }
 
-    return response.json();
+    const data = await response.json();
+    console.log('[Metricool] Response data sample:', JSON.stringify(data).substring(0, 200));
+    return data;
   }
 
   async testConnection(): Promise<boolean> {
@@ -378,7 +389,8 @@ export class MetricoolService implements IntegrationService {
   }
 
   // Get followers timeline for a specific network
-  async getFollowers(blogId: string, network: string, metric: string, from: string, to: string, timezone: string = 'America%2FSao_Paulo') {
+  // Uses /v2/analytics/timelines endpoint which returns structured data with metric and values
+  async getFollowers(blogId: string, network: string, metric: string, from: string, to: string, timezone: string = 'America/Sao_Paulo') {
     return this.makeRequest('/v2/analytics/timelines', {
       blogId,
       userId: this.userId,

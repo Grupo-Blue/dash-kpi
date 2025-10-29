@@ -259,3 +259,11 @@
 - [x] Mostrar crescimento de seguidores em relação ao mês anterior (percentual)
 - [ ] **BUG**: Resolver erro 500 nas chamadas de getFollowers (endpoint funciona via curl mas não via MetricoolService)
 - [ ] **BUG**: Investigar por que dados de seguidores retornam 0 no frontend
+
+
+## Bug Crítico - Erro 500 em getFollowers - EM INVESTIGAÇÃO
+- [ ] Revisar código do MCP oficial do Metricool para ver implementação correta
+- [ ] Comparar parâmetros e headers da chamada do MCP vs nossa implementação
+- [ ] Identificar diferença que causa erro 500
+- [ ] Corrigir implementação do método getFollowers
+- [ ] Testar e validar dados de seguidores no frontend
