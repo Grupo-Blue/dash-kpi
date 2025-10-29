@@ -14,6 +14,17 @@ export interface SocialMediaKPIs {
     comments: number;
     shares: number;
   }>;
+  topYouTubeVideos: Array<{
+    url: string;
+    title: string;
+    views: number;
+    watchTime: number; // em minutos
+    averageViewDuration: number; // em segundos
+    likes: number;
+    comments: number;
+    shares: number;
+    publishedAt: string;
+  }>;
   followers: {
     instagram: {
       current: number;
@@ -77,6 +88,12 @@ export interface SocialMediaKPIs {
     youtube: {
       videos: number;
       totalEngagement: number;
+      totalViews: number;
+      totalWatchTime: number; // em minutos
+      averageViewDuration: number; // em segundos
+      totalLikes: number;
+      totalComments: number;
+      totalShares: number;
     };
     twitter: {
       posts: number;
@@ -267,6 +284,23 @@ export class MetricoolKpiCalculator {
       const thCurrent = extractLatestValue(thFollowersCurrent);
       const thPrevious = extractLatestValue(thFollowersPrevious);
 
+      // Get top 5 YouTube videos by views
+      const topYouTubeVideos = (youtubeVideos.data || [])
+        .filter((video: any) => video.views && video.views > 0)
+        .sort((a: any, b: any) => (b.views || 0) - (a.views || 0))
+        .slice(0, 5)
+        .map((video: any) => ({
+          url: video.url || video.link || '',
+          title: video.title || (video.content || '').substring(0, 100) + '...',
+          views: video.views || 0,
+          watchTime: video.watchTime || 0,
+          averageViewDuration: video.averageViewDuration || 0,
+          likes: video.likes || 0,
+          comments: video.comments || 0,
+          shares: video.shares || 0,
+          publishedAt: video.publishedAt || video.date || '',
+        }));
+
       return {
         totalPosts,
         totalInteractions,
@@ -274,6 +308,7 @@ export class MetricoolKpiCalculator {
         totalReach,
         totalImpressions,
         topPosts,
+        topYouTubeVideos,
         followers: {
           instagram: {
             current: igCurrent,
@@ -337,6 +372,14 @@ export class MetricoolKpiCalculator {
           youtube: {
             videos: (youtubeVideos.data || []).length,
             totalEngagement: youtubeEngagement,
+            totalViews: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.views || 0), 0),
+            totalWatchTime: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.watchTime || 0), 0),
+            averageViewDuration: (youtubeVideos.data || []).length > 0 
+              ? (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.averageViewDuration || 0), 0) / (youtubeVideos.data || []).length
+              : 0,
+            totalLikes: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.likes || 0), 0),
+            totalComments: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.comments || 0), 0),
+            totalShares: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.shares || 0), 0),
           },
           twitter: {
             posts: (twitterPosts.data || []).length,

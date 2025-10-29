@@ -292,3 +292,14 @@
 - [x] Corrigir blogId do Mychel Mendes de 3890482 para 3893476 (correto fornecido pelo usuário)
 - [x] Validar que userId está correto: 3061390
 - [ ] Testar página Mychel Mendes com blogId correto (aguardando validação do usuário)
+
+
+## Melhorias nos Dados do YouTube (Páginas Existentes)
+- [x] Investigar métricas específicas do YouTube disponíveis na API Metricool
+- [x] Expandir card de YouTube com métricas detalhadas (visualizações, likes, comentários, compartilhamentos)
+- [x] Adicionar breakdown específico do YouTube com dados de vídeos
+- [x] Implementar seção de Top Vídeos do YouTube por visualizações
+- [x] Adicionar métricas de tempo de exibição e duração média de visualização
+- [x] Atualizar página Mychel Mendes com dados expandidos do YouTube
+- [ ] Atualizar página Tokeniza com dados expandidos do YouTube (Tokeniza não tem YouTube ainda)
+- [ ] Testar integração completa com dados reais do YouTube
