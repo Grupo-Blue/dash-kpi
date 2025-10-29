@@ -286,3 +286,9 @@
 - [x] Adicionar cards de seguidores para: YouTube, Twitter/X, LinkedIn, Threads (Instagram, Facebook, TikTok já existiam)
 - [x] Adicionar breakdown de performance para: YouTube, Twitter/X, LinkedIn, Threads
 - [ ] Testar integração completa com dados reais de todas as redes (aguardando validação do usuário)
+
+
+## Bug - BlogId Incorreto Mychel Mendes
+- [x] Corrigir blogId do Mychel Mendes de 3890482 para 3893476 (correto fornecido pelo usuário)
+- [x] Validar que userId está correto: 3061390
+- [ ] Testar página Mychel Mendes com blogId correto (aguardando validação do usuário)

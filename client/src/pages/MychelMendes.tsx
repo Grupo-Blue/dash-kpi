@@ -8,9 +8,9 @@ import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function MychelMendes() {
-  // Mychel Mendes blogId: 3890482
+  // Mychel Mendes blogId: 3893476 (userId: 3061390)
   const { data: socialKpis, isLoading, error, refetch } = trpc.kpis.metricoolSocialMedia.useQuery({
-    blogId: '3890482', // Mychel Mendes
+    blogId: '3893476', // Mychel Mendes
   });
   
   const refreshMutation = trpc.kpis.refresh.useMutation({
