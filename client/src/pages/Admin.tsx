@@ -2,6 +2,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, ListChecks, Settings as SettingsIcon } from "lucide-react";
 import { ManualDataHistory } from "@/components/admin/ManualDataHistory";
+import { ApiStatus } from "@/components/admin/ApiStatus";
+import { ManageCompanies } from "@/components/admin/ManageCompanies";
 
 export default function Admin() {
   return (
@@ -35,17 +37,11 @@ export default function Admin() {
           </TabsContent>
 
           <TabsContent value="apis" className="space-y-4">
-            <div className="rounded-lg border p-8 text-center text-muted-foreground">
-              <Database className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Status das APIs será implementado em breve</p>
-            </div>
+            <ApiStatus />
           </TabsContent>
 
           <TabsContent value="companies" className="space-y-4">
-            <div className="rounded-lg border p-8 text-center text-muted-foreground">
-              <SettingsIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Gerenciamento de empresas será implementado em breve</p>
-            </div>
+            <ManageCompanies />
           </TabsContent>
         </Tabs>
       </div>
