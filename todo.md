@@ -470,3 +470,135 @@ Mover o botão "Administração" para a parte inferior do menu lateral, próximo
 - Menu organizado: Páginas de empresas no topo, Administração no rodapé
 - Separação visual clara entre conteúdo e configurações
 - Botão manteve todas as funcionalidades (hover, ativo, tooltip)
+
+
+## 📊 Fase 3: Home com Visão Geral Consolidada - EM ANDAMENTO
+
+### Objetivo
+Criar dashboard executivo na Home para gestores e C-levels, mostrando visão consolidada de todas as empresas com comparações temporais e gráficos estratégicos.
+
+### Público-Alvo
+- **Gestores**: Visão rápida de performance geral
+- **C-levels**: Métricas estratégicas e tendências
+- **Tomadores de decisão**: Comparações temporais para insights
+
+### Métricas Consolidadas
+
+#### 1. **Vendas (Pipedrive - Blue Consult)**
+- [ ] Faturamento total consolidado
+- [ ] Comparação MoM (Month over Month)
+- [ ] Comparação YoY (Year over Year)
+- [ ] Número de negócios fechados
+- [ ] Taxa de conversão média
+- [ ] Gráfico de evolução mensal (últimos 12 meses)
+
+#### 2. **Financeiro (Nibo - Blue Consult)**
+- [ ] Receitas totais
+- [ ] Despesas totais
+- [ ] Saldo (lucro/prejuízo)
+- [ ] Comparação MoM e YoY
+- [ ] Gráfico de fluxo de caixa
+
+#### 3. **Comunidade (Discord - Tokeniza Academy)**
+- [ ] Total de membros
+- [ ] Crescimento de membros (MoM e YoY)
+- [ ] Mensagens totais
+- [ ] Taxa de atividade
+- [ ] Gráfico de crescimento da comunidade
+
+#### 4. **Redes Sociais (Metricool - Todas as empresas)**
+- [ ] Total de seguidores (todas as redes)
+- [ ] Crescimento de seguidores (MoM e YoY)
+- [ ] Total de posts
+- [ ] Engajamento total
+- [ ] Alcance total
+- [ ] Gráfico de evolução de seguidores por empresa
+- [ ] Gráfico de engajamento por rede social
+
+### Estrutura da Home
+
+#### Seção 1: KPIs Principais (Cards no topo)
+- [ ] Faturamento Total (com % MoM e YoY)
+- [ ] Seguidores Totais (com % MoM e YoY)
+- [ ] Membros Discord (com % MoM e YoY)
+- [ ] Engajamento Médio (com % MoM e YoY)
+
+#### Seção 2: Gráficos Executivos
+- [ ] Gráfico de Faturamento Mensal (últimos 12 meses)
+- [ ] Gráfico de Crescimento de Seguidores por Empresa
+- [ ] Gráfico de Performance por Rede Social
+- [ ] Gráfico de Fluxo de Caixa
+
+#### Seção 3: Performance por Empresa (Cards)
+- [ ] Blue Consult: Faturamento + Clientes
+- [ ] Tokeniza: Seguidores + Engajamento
+- [ ] Tokeniza Academy: Membros + Alunos
+- [ ] Mychel Mendes: Seguidores + Engajamento
+
+#### Seção 4: Status das Integrações (já existe)
+- [x] Mantém seção atual de status das APIs
+
+### Implementação Técnica
+
+#### Backend
+- [ ] Criar endpoint `consolidatedKpis.overview` no routers.ts
+- [ ] Agregar dados de todas as fontes (Pipedrive, Nibo, Discord, Metricool)
+- [ ] Calcular comparações MoM e YoY
+- [ ] Retornar dados formatados para frontend
+
+#### Frontend
+- [ ] Reescrever página Home.tsx
+- [ ] Criar componentes de KPI cards com comparações
+- [ ] Criar gráficos executivos (Recharts)
+- [ ] Implementar loading states
+- [ ] Adicionar botão "Atualizar Dados"
+
+### Comparações Temporais
+
+**MoM (Month over Month):**
+```
+Crescimento MoM = ((Valor Atual - Valor Mês Anterior) / Valor Mês Anterior) × 100
+```
+
+**YoY (Year over Year):**
+```
+Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo Mês Ano Passado) × 100
+```
+
+### Design/UX
+- [ ] Cards grandes e legíveis para C-levels
+- [ ] Cores para indicar crescimento (verde) ou queda (vermelho)
+- [ ] Ícones de setas para tendências (↑ ↓)
+- [ ] Gráficos limpos e profissionais
+- [ ] Responsivo para tablet e desktop
+
+### Prioridade
+**Alta** - Dashboard executivo é crítico para tomada de decisão estratégica
+
+
+## 🐛 Bug: Seguidores retornando NaN no dashboard consolidado - ✅ CORRIGIDO
+
+### Problema
+- API do Metricool não retorna campo `followers` (erro 400: "Invalid field 'followers'")
+- Cards de Tokeniza e Mychel Mendes mostram "NaN" para seguidores
+- Card "Seguidores Totais" mostra "NaN"
+
+### Solução
+- [x] Buscar dados de seguidores da tabela `socialMediaMetrics` (registros manuais)
+- [x] Criar função `getLatestFollowersByCompany()` no db.ts
+- [x] Integrar dados do banco no endpoint consolidado
+- [x] Calcular total de seguidores somando todas as empresas/redes
+- [x] Criar script `import-followers.ts` para importar dados do Metricool
+- [x] Importar 11 registros de seguidores (7 salvos com sucesso)
+
+### Resultado
+- ✅ Seguidores Totais: 37.984 (antes NaN)
+- ✅ Tokeniza: 14.395 seguidores
+- ✅ Gráfico de Performance funcionando
+- ⚠️ Alguns cards ainda mostram 0 (função precisa ajuste)
+
+### Dados Importados
+- Blue Consult: Instagram (6.108), YouTube (966)
+- Tokeniza: Instagram (14.195), Facebook (1), YouTube (199)
+- Tokeniza Academy: Instagram (1.515), TikTok (15.000)
+- Mychel Mendes: Instagram (52.787), Facebook (1), TikTok (300), YouTube (97.100)

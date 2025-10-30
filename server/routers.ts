@@ -619,6 +619,210 @@ export const appRouter = router({
         return company || null;
       }),
   }),
+
+  consolidatedKpis: router({
+    overview: protectedProcedure.query(async ({ ctx }) => {
+      console.log('[consolidatedKpis] Starting overview calculation...');
+      
+      try {
+        // Use Promise.allSettled to get data even if some APIs fail
+        const [blueConsultResult, niboResult, tokenizaAcademyResult, socialMediaResults] = await Promise.allSettled([
+          // 1. Blue Consult - Pipedrive (Vendas)
+          (async () => {
+            try {
+              const company = await db.getCompanyBySlug('blue-consult');
+              if (!company) throw new Error('Company not found');
+              const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
+              if (!pipedriveToken) throw new Error('Pipedrive token not configured');
+              
+              const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
+              const kpis = {
+                summary: await Promise.all([
+                  calculator.calculateMonthlyRevenue(),
+                  calculator.calculateNewClients(),
+                  calculator.calculateClientsInImplementation(),
+                  calculator.calculateConversionRate(),
+                ]),
+                revenueTimeSeries: await calculator.calculateRevenueTimeSeries(),
+              };
+              console.log('[consolidatedKpis] Blue Consult KPIs calculated');
+              return kpis;
+            } catch (error) {
+              console.error('[consolidatedKpis] Error calculating Blue Consult KPIs:', error);
+              return null;
+            }
+          })(),
+          
+          // 2. Blue Consult - Nibo (Financeiro)
+          (async () => {
+            try {
+              const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+              if (!niboToken) throw new Error('Nibo token not configured');
+              
+              const calculator = new NiboKpiCalculator(niboToken);
+              const kpis = {
+                summary: await Promise.all([
+                  calculator.calculateAccountsReceivable(),
+                  calculator.calculateAccountsPayable(),
+                  calculator.calculateCashFlow(),
+                ]),
+              };
+              console.log('[consolidatedKpis] Nibo KPIs calculated');
+              return kpis;
+            } catch (error) {
+              console.error('[consolidatedKpis] Error calculating Nibo KPIs:', error);
+              return null;
+            }
+          })(),
+          
+          // 3. Tokeniza Academy - Discord (Comunidade)
+          (async () => {
+            try {
+              const company = await db.getCompanyBySlug('tokeniza-academy');
+              if (!company) throw new Error('Company not found');
+              const discordToken = process.env.DISCORD_BOT_TOKEN;
+              const guildId = process.env.DISCORD_GUILD_ID;
+              if (!discordToken || !guildId) throw new Error('Discord token not configured');
+              
+              const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
+              const kpis = {
+                summary: await Promise.all([
+                  calculator.calculateTotalMembers(),
+                  calculator.calculateOnlineMembers(),
+                ]),
+              };
+              console.log('[consolidatedKpis] Tokeniza Academy KPIs calculated');
+              return kpis;
+            } catch (error) {
+              console.error('[consolidatedKpis] Error calculating Tokeniza Academy KPIs:', error);
+              return null;
+            }
+          })(),
+          
+          // 4. Redes Sociais - Metricool (Todas as empresas)
+          Promise.allSettled([
+            { name: 'Blue Consult', blogId: '3893423' },
+            { name: 'Tokeniza', blogId: '3890487' },
+            { name: 'Tokeniza Academy', blogId: '3893327' },
+            { name: 'Mychel Mendes', blogId: '3893476' },
+          ].map(async ({ name, blogId }) => {
+            try {
+              const now = new Date();
+              const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+              const to = now.toISOString().split('T')[0];
+              
+              const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
+              const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
+              const youtubeApiKey = process.env.YOUTUBE_API_KEY || 'AIzaSyAeOpm5YOcN0REDj5AFXf_a-ZxLhuuSDXA';
+              
+              const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
+              const kpis = await calculator.calculateSocialMediaKPIs(blogId, from, to);
+              console.log(`[consolidatedKpis] ${name} Metricool KPIs calculated`);
+              return { name, kpis };
+            } catch (error) {
+              console.error(`[consolidatedKpis] Error calculating ${name} Metricool KPIs:`, error);
+              return { name, kpis: { totalPosts: 0, totalInteractions: 0, totalReach: 0, totalImpressions: 0, averageEngagement: 0, followers: {} } };
+            }
+          })),
+        ]);
+        
+        const blueConsultKpis = blueConsultResult.status === 'fulfilled' ? blueConsultResult.value : null;
+        const niboKpis = niboResult.status === 'fulfilled' ? niboResult.value : null;
+        const tokenizaAcademyKpis = tokenizaAcademyResult.status === 'fulfilled' ? tokenizaAcademyResult.value : null;
+        const socialMediaKpis = socialMediaResults.status === 'fulfilled' 
+          ? socialMediaResults.value.map(r => r.status === 'fulfilled' ? r.value : { name: 'Unknown', kpis: {} })
+          : [];
+        
+        
+        // Buscar seguidores do banco de dados (registros manuais)
+        const followersData = await db.getLatestFollowersByCompany();
+        console.log('[consolidatedKpis] followersData from DB:', followersData);
+        
+        const totalFollowers = followersData.reduce((sum, company) => sum + company.totalFollowers, 0);
+        console.log('[consolidatedKpis] totalFollowers:', totalFollowers);
+        
+        const totalPosts = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalPosts || 0), 0);
+        const totalInteractions = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalInteractions || 0), 0);
+        const totalReach = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalReach || 0), 0);
+        const totalImpressions = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalImpressions || 0), 0);
+        const averageEngagement = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.averageEngagement || 0), 0) / socialMediaKpis.length;
+        
+        console.log('[consolidatedKpis] Overview calculated successfully');
+        
+        // Extract values from summary arrays
+        const monthlyRevenue = blueConsultKpis?.summary?.[0];
+        const newClients = blueConsultKpis?.summary?.[1];
+        const conversionRate = blueConsultKpis?.summary?.[3];
+        
+        const receivables = niboKpis?.summary?.[0];
+        const payables = niboKpis?.summary?.[1];
+        const cashFlow = niboKpis?.summary?.[2];
+        
+        const totalMembers = tokenizaAcademyKpis?.summary?.[0];
+        const onlineMembers = tokenizaAcademyKpis?.summary?.[1];
+        
+        // Parse values from formatted strings
+        const parseValue = (obj: any) => {
+          if (!obj || !obj.value) return 0;
+          if (typeof obj.value === 'number') return obj.value;
+          if (typeof obj.value === 'string') {
+            // Remove currency symbols and convert to number
+            const cleaned = obj.value.replace(/[^0-9,-]/g, '').replace(',', '.');
+            return parseFloat(cleaned) || 0;
+          }
+          return 0;
+        };
+        
+        return {
+          // Vendas (Pipedrive)
+          sales: {
+            totalRevenue: parseValue(monthlyRevenue),
+            totalDeals: newClients?.value || 0,
+            conversionRate: parseValue(conversionRate),
+            revenueTimeSeries: blueConsultKpis?.revenueTimeSeries || [],
+          },
+          
+          // Financeiro (Nibo)
+          financial: {
+            totalIncome: parseValue(receivables),
+            totalExpenses: parseValue(payables),
+            balance: parseValue(cashFlow),
+            cashFlowTimeSeries: [],
+          },
+          
+          // Comunidade (Discord)
+          community: {
+            totalMembers: totalMembers?.value || 0,
+            totalMessages: 0,
+            activeRate: 0,
+          },
+          
+          // Redes Sociais (Metricool)
+          socialMedia: {
+            totalFollowers,
+            totalPosts,
+            totalInteractions,
+            totalReach,
+            totalImpressions,
+            averageEngagement,
+            byCompany: followersData.map(company => {
+              // Find matching social media KPIs
+              const socialKpi = socialMediaKpis.find(({ name }) => name === company.companyName);
+              return {
+                name: company.companyName,
+                followers: company.totalFollowers,
+                posts: socialKpi?.kpis.totalPosts || 0,
+                engagement: socialKpi?.kpis.averageEngagement || 0,
+              };
+            }),
+          },
+        };
+      } catch (error) {
+        console.error('[consolidatedKpis] Error calculating overview:', error);
+        throw error;
+      }
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

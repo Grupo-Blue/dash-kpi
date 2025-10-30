@@ -1,0 +1,45 @@
+{
+  "query": "SELECT c.name, sm.network, sm.followers FROM socialMediaMetrics sm JOIN companies c ON sm.companyId = c.id ORDER BY c.name, sm.network",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute SELECT c.name, sm.network, sm.followers FROM socialMediaMetrics sm JOIN companies c ON sm.companyId = c.id ORDER BY c.name, sm.network",
+  "rows": [
+    {
+      "name": "Blue Consult",
+      "network": "instagram",
+      "followers": "6108"
+    },
+    {
+      "name": "Blue Consult",
+      "network": "youtube",
+      "followers": "966"
+    },
+    {
+      "name": "Tokeniza",
+      "network": "facebook",
+      "followers": "1"
+    },
+    {
+      "name": "Tokeniza",
+      "network": "instagram",
+      "followers": "14195"
+    },
+    {
+      "name": "Tokeniza",
+      "network": "youtube",
+      "followers": "199"
+    },
+    {
+      "name": "Tokeniza Academy",
+      "network": "instagram",
+      "followers": "1515"
+    },
+    {
+      "name": "Tokeniza Academy",
+      "network": "tiktok",
+      "followers": "15000"
+    }
+  ],
+  "messages": [],
+  "stdout": "name\tnetwork\tfollowers\nBlue Consult\tinstagram\t6108\nBlue Consult\tyoutube\t966\nTokeniza\tfacebook\t1\nTokeniza\tinstagram\t14195\nTokeniza\tyoutube\t199\nTokeniza Academy\tinstagram\t1515\nTokeniza Academy\ttiktok\t15000\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

@@ -440,3 +440,46 @@ export async function updateSocialMediaMetric(data: {
     })
     .where(eq(socialMediaMetrics.id, data.id));
 }
+
+
+// Get latest followers count for each company/platform
+export async function getLatestFollowersByCompany() {
+  console.log('[DB] getLatestFollowersByCompany called');
+  const db = await getDb();
+  if (!db) return [];
+  
+  // Get all companies
+  const allCompanies = await db.select().from(companies);
+  
+  const results = [];
+  
+  for (const company of allCompanies) {
+    // Get latest social media metrics for this company
+    const metrics = await db
+      .select()
+      .from(socialMediaMetrics)
+      .where(eq(socialMediaMetrics.companyId, company.id))
+      .orderBy(desc(socialMediaMetrics.recordDate))
+      .limit(10); // Get last 10 records to cover all platforms
+    
+    // Group by network and get the most recent
+    const platformFollowers: Record<string, number> = {};
+    for (const metric of metrics) {
+      if (metric.network && metric.followers && !platformFollowers[metric.network]) {
+        platformFollowers[metric.network] = metric.followers;
+      }
+    }
+    
+    const totalFollowers = Object.values(platformFollowers).reduce((sum, count) => sum + count, 0);
+    
+    results.push({
+      companyId: company.id,
+      companyName: company.name,
+      companySlug: company.slug,
+      platformFollowers,
+      totalFollowers,
+    });
+  }
+  
+  return results;
+}
