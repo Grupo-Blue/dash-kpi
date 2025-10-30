@@ -1,0 +1,40 @@
+{
+  "query": "SELECT id, name, slug, active FROM companies ORDER BY id",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute SELECT id, name, slug, active FROM companies ORDER BY id",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Blue Consult",
+      "slug": "blue-consult",
+      "active": "1"
+    },
+    {
+      "id": "2",
+      "name": "Tokeniza",
+      "slug": "tokeniza",
+      "active": "1"
+    },
+    {
+      "id": "3",
+      "name": "Tokeniza Private",
+      "slug": "tokeniza-private",
+      "active": "1"
+    },
+    {
+      "id": "4",
+      "name": "Tokeniza Academy",
+      "slug": "tokeniza-academy",
+      "active": "1"
+    },
+    {
+      "id": "30004",
+      "name": "Mychel Mendes",
+      "slug": "mychel-mendes",
+      "active": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\tactive\n1\tBlue Consult\tblue-consult\t1\n2\tTokeniza\ttokeniza\t1\n3\tTokeniza Private\ttokeniza-private\t1\n4\tTokeniza Academy\ttokeniza-academy\t1\n30004\tMychel Mendes\tmychel-mendes\t1\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

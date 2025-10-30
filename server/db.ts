@@ -122,6 +122,67 @@ export async function getCompanyBySlug(slug: string): Promise<Company | undefine
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getCompanyById(id: number): Promise<Company | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(companies).where(eq(companies.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function createCompany(company: InsertCompany): Promise<Company> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  // Generate slug from name if not provided
+  if (!company.slug) {
+    company.slug = company.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove accents
+      .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  }
+  
+  const result = await db.insert(companies).values(company);
+  const insertedId = Number(result.insertId);
+  const inserted = await getCompanyById(insertedId);
+  if (!inserted) throw new Error('Failed to retrieve inserted company');
+  return inserted;
+}
+
+export async function updateCompany(id: number, updates: Partial<InsertCompany>): Promise<Company> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  // If updating name and slug is not provided, regenerate slug
+  if (updates.name && !updates.slug) {
+    updates.slug = updates.name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+  
+  await db.update(companies).set(updates).where(eq(companies.id, id));
+  const updated = await getCompanyById(id);
+  if (!updated) throw new Error('Failed to retrieve updated company');
+  return updated;
+}
+
+export async function deleteCompany(id: number): Promise<void> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  // Check if company has associated data
+  const kpis = await db.select().from(kpiCache).where(eq(kpiCache.companyId, id)).limit(1);
+  if (kpis.length > 0) {
+    throw new Error('Cannot delete company with associated KPI data. Set as inactive instead.');
+  }
+  
+  await db.delete(companies).where(eq(companies.id, id));
+}
+
 // Integrations
 export async function getUserIntegrations(userId: number): Promise<Integration[]> {
   const db = await getDb();

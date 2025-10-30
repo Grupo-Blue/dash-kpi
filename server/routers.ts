@@ -41,6 +41,43 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getCompanyBySlug(input.slug);
       }),
+    
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getCompanyById(input.id);
+      }),
+    
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1, 'Nome é obrigatório'),
+        slug: z.string().optional(),
+        description: z.string().optional(),
+        active: z.boolean().optional().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        return await db.createCompany(input);
+      }),
+    
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        slug: z.string().optional(),
+        description: z.string().optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        return await db.updateCompany(id, updates);
+      }),
+    
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteCompany(input.id);
+        return { success: true };
+      }),
   }),
 
   integrations: router({

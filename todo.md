@@ -312,3 +312,40 @@ CREATE TABLE apiStatus (
 - Fase 2: Funcionalidades reais dos modais de administração
 - Fase 3: Redesign da Home com visão consolidada
 - Fase 4: Reestruturação das páginas com abas por rede social
+
+
+## 🏢 Sistema de Gerenciamento de Empresas - ✅ CONCLUÍDO
+
+### Objetivo
+Implementar funcionalidade completa de CRUD (Create, Read, Update, Delete) de empresas no painel de administração.
+
+### Tarefas
+- [x] Analisar estrutura atual da tabela `companies` no banco de dados
+- [x] Criar endpoints tRPC para CRUD de empresas
+  - [x] Endpoint `companies.list` - Listar todas as empresas (já existia)
+  - [x] Endpoint `companies.getById` - Buscar empresa por ID
+  - [x] Endpoint `companies.create` - Criar nova empresa
+  - [x] Endpoint `companies.update` - Atualizar empresa existente
+  - [x] Endpoint `companies.delete` - Excluir empresa
+- [x] Criar componente `ManageCompanies.tsx` no admin
+  - [x] Tabela com listagem de empresas (nome, slug, descrição, status)
+  - [x] Botão "Adicionar Empresa" que abre modal
+  - [x] Botões de ação em cada linha (Editar, Excluir)
+  - [x] Modal de criação/edição com formulário
+  - [x] Confirmação antes de excluir (clique duplo com timeout de 3s)
+- [x] Rota já existe no painel de administração
+- [x] Testar todas as operações CRUD
+- [x] Validar que slugs são únicos (validação no banco)
+- [x] Validar que não é possível excluir empresas com dados associados (implementado em deleteCompany)
+
+### Campos da Empresa
+- **name**: Nome da empresa (obrigatório)
+- **slug**: Identificador único em URL (obrigatório, único, lowercase)
+- **description**: Descrição da empresa (opcional)
+- **active**: Status ativo/inativo (boolean, padrão: true)
+
+### Regras de Negócio
+1. Slug deve ser único e em lowercase
+2. Slug deve ser gerado automaticamente a partir do nome se não fornecido
+3. Não permitir exclusão de empresas com KPIs ou integrações associadas
+4. Empresas inativas não aparecem na navegação principal, mas continuam no banco
