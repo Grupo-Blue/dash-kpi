@@ -78,7 +78,7 @@ export default function MychelMendes() {
     <div>
       <h2 className="text-2xl font-bold mb-4">Seguidores por Rede Social</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {['instagram', 'facebook', 'youtube', 'twitter', 'linkedin', 'tiktok', 'threads', 'pinterest'].map((network) => {
+        {['instagram', 'facebook', 'youtube', 'twitter', 'linkedin', 'tiktok', 'threads'].map((network) => {
           const networkData = socialKpis?.followers?.[network];
           const networkNames: Record<string, string> = {
             instagram: 'Instagram',
@@ -87,8 +87,7 @@ export default function MychelMendes() {
             twitter: 'Twitter/X',
             linkedin: 'LinkedIn',
             tiktok: 'TikTok',
-            threads: 'Threads',
-            pinterest: 'Pinterest'
+            threads: 'Threads'
           };
           
           return (
@@ -344,33 +343,7 @@ export default function MychelMendes() {
     </Card>
   );
 
-  // Pinterest Tab
-  const pinterestTab = (
-    <Card>
-      <CardHeader>
-        <CardTitle>Performance no Pinterest</CardTitle>
-        <CardDescription>Métricas detalhadas do Pinterest</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Conteúdo</h3>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Pins</span>
-              <span className="font-bold">{socialKpis?.networkBreakdown?.pinterest?.pins || 0}</span>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Engajamento</h3>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Engagement Total</span>
-              <span className="font-bold">{(socialKpis?.networkBreakdown?.pinterest?.totalEngagement || 0).toFixed(1)}%</span>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+
 
   const tabs = [
     {
@@ -420,12 +393,6 @@ export default function MychelMendes() {
       label: 'Threads',
       icon: <MessageSquare className="h-4 w-4" />,
       content: threadsTab,
-    },
-    {
-      id: 'pinterest',
-      label: 'Pinterest',
-      icon: <ImageIcon className="h-4 w-4" />,
-      content: pinterestTab,
     },
   ];
 

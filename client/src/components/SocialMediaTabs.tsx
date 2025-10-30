@@ -28,9 +28,13 @@ export function SocialMediaTabs({ tabs, defaultTab }: SocialMediaTabsProps) {
 
   return (
     <Tabs defaultValue={defaultValue} className="space-y-6">
-      <TabsList className={`grid w-full ${tabs.length <= 4 ? `grid-cols-${tabs.length}` : 'grid-cols-4'} lg:w-auto lg:inline-grid`}>
+      <TabsList className={`grid w-full ${tabs.length <= 4 ? `grid-cols-${tabs.length}` : 'grid-cols-4'} lg:w-auto lg:inline-grid h-auto p-1`}>
         {tabs.map((tab) => (
-          <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2">
+          <TabsTrigger 
+            key={tab.id} 
+            value={tab.id} 
+            className="flex items-center gap-2 px-4 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
             {tab.icon || iconMap[tab.id.toLowerCase()]}
             <span className="hidden sm:inline">{tab.label}</span>
           </TabsTrigger>

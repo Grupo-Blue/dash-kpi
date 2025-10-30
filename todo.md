@@ -414,3 +414,16 @@ Página da Empresa
 3. **Performance**: Carrega apenas a aba ativa
 4. **Escalabilidade**: Fácil adicionar novas redes sociais
 5. **UX Moderna**: Interface mais limpa e profissional
+
+
+## 🎨 Melhorias de UX nas Abas - ✅ CONCLUÍDO
+
+### Tarefas
+- [x] Melhorar UX do componente SocialMediaTabs (aumentar altura/espaçamento das abas)
+  - [x] Aumentado padding vertical para py-3
+  - [x] Aumentado padding horizontal para px-4
+  - [x] Melhorado contraste da aba ativa
+- [x] Remover aba Pinterest de todas as páginas (não usamos)
+  - [x] Mychel Mendes (agora 8 abas: Visão Geral + 7 redes)
+  - [x] Tokeniza (agora 7 abas: Visão Geral + 6 redes)
+- [x] Blue Consult - Verificar gráfico de Faturamento Mensal (confirmado: já é LineChart)

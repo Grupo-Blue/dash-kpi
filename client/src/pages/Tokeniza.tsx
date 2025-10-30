@@ -78,7 +78,7 @@ export default function Tokeniza() {
     <div>
       <h2 className="text-2xl font-bold mb-4">Seguidores por Rede Social</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {['instagram', 'facebook', 'youtube', 'twitter', 'linkedin', 'tiktok', 'threads', 'pinterest'].map((network) => {
+        {['instagram', 'facebook', 'youtube', 'twitter', 'linkedin', 'tiktok', 'threads'].map((network) => {
           const networkData = socialKpis?.followers?.[network];
           const networkNames: Record<string, string> = {
             instagram: 'Instagram',
@@ -87,8 +87,7 @@ export default function Tokeniza() {
             twitter: 'Twitter/X',
             linkedin: 'LinkedIn',
             tiktok: 'TikTok',
-            threads: 'Threads',
-            pinterest: 'Pinterest'
+            threads: 'Threads'
           };
           
           return (
