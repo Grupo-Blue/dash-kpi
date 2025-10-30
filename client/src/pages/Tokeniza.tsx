@@ -7,12 +7,14 @@ import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
+import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
 import { useState } from "react";
 
 export default function Tokeniza() {
   const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
   const [threadsModalOpen, setThreadsModalOpen] = useState(false);
+  const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
   
   // Get company info
   const { data: company } = trpc.companies.getBySlug.useQuery({ slug: 'tokeniza' });
@@ -302,6 +304,14 @@ export default function Tokeniza() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mb-3"
+                  onClick={() => setTiktokModalOpen(true)}
+                >
+                  Registrar Dados
+                </Button>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">Vídeos</span>
                   <span className="font-bold">{socialKpis?.networkBreakdown.tiktok.videos || 0}</span>
@@ -646,6 +656,12 @@ export default function Tokeniza() {
             companyId={company.id}
             network="threads"
             networkLabel="Threads"
+            onSuccess={() => refetch()}
+          />
+          <TikTokManualEntryModal 
+            open={tiktokModalOpen}
+            onOpenChange={setTiktokModalOpen}
+            companyId={company.id}
             onSuccess={() => refetch()}
           />
         </>

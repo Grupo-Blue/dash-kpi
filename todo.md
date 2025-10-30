@@ -633,8 +633,8 @@
 - [ ] Calcular crescimento baseado em registros anteriores
 
 
-## 📝 Replicar Sistema de Entrada Manual para Outras Páginas - EM IMPLEMENTAÇÃO
-- [x] Adicionar entrada manual na página Tokeniza (Twitter/X, LinkedIn, Threads)
+### 📝 Replicar Sistema de Entrada Manual para Outras Páginas - EM IMPLEMENTAÇÃO
+- [x] Adicionar entrada manual na página Tokeniza (Twitter/X, LinkedIn, Threads, TikTok)
 - [ ] Adicionar entrada manual na página Blue Consult (Twitter/X, LinkedIn, Threads, TikTok)
 - [ ] Adicionar entrada manual na página Tokeniza Academy (Twitter/X, LinkedIn, Threads, TikTok)
-- [x] Testar funcionalidade na Tokeniza (todos os 3 botões funcionando)
+- [x] Testar funcionalidade na Tokeniza (todos os 4 botões funcionando)
