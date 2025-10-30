@@ -7,8 +7,16 @@ import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
+import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
+import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
+import { useState } from "react";
 
 export default function Tokeniza() {
+  const [twitterModalOpen, setTwitterModalOpen] = useState(false);
+  const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
+  const [threadsModalOpen, setThreadsModalOpen] = useState(false);
+  const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
+  
   const { data: socialKpis, isLoading, error, refetch } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3890487', // Tokeniza
   });
@@ -239,6 +247,14 @@ export default function Tokeniza() {
         <CardDescription>Métricas detalhadas do Twitter/X</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setTwitterModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -267,6 +283,14 @@ export default function Tokeniza() {
         <CardDescription>Métricas detalhadas do LinkedIn</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setLinkedinModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -295,6 +319,14 @@ export default function Tokeniza() {
         <CardDescription>Métricas detalhadas do TikTok</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setTiktokModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -323,6 +355,14 @@ export default function Tokeniza() {
         <CardDescription>Métricas detalhadas do Threads</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setThreadsModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -456,6 +496,35 @@ export default function Tokeniza() {
 
         {/* Tabs de Redes Sociais */}
         <SocialMediaTabs tabs={tabs} defaultTab="overview" />
+        
+        {/* Modais de Registro Manual */}
+        <SocialMediaManualEntryModal 
+          open={twitterModalOpen}
+          onOpenChange={setTwitterModalOpen}
+          platform="twitter"
+          companySlug="tokeniza"
+          onSuccess={refetch}
+        />
+        <SocialMediaManualEntryModal 
+          open={linkedinModalOpen}
+          onOpenChange={setLinkedinModalOpen}
+          platform="linkedin"
+          companySlug="tokeniza"
+          onSuccess={refetch}
+        />
+        <SocialMediaManualEntryModal 
+          open={threadsModalOpen}
+          onOpenChange={setThreadsModalOpen}
+          platform="threads"
+          companySlug="tokeniza"
+          onSuccess={refetch}
+        />
+        <TikTokManualEntryModal 
+          open={tiktokModalOpen}
+          onOpenChange={setTiktokModalOpen}
+          companySlug="tokeniza"
+          onSuccess={refetch}
+        />
       </div>
     </DashboardLayout>
   );

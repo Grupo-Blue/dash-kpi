@@ -427,3 +427,27 @@ Página da Empresa
   - [x] Mychel Mendes (agora 8 abas: Visão Geral + 7 redes)
   - [x] Tokeniza (agora 7 abas: Visão Geral + 6 redes)
 - [x] Blue Consult - Verificar gráfico de Faturamento Mensal (confirmado: já é LineChart)
+
+
+## 🐛 Bug: Botões de Registro Manual Removidos - ✅ CORRIGIDO
+
+### Problema
+Ao reestruturar as páginas com abas, os botões de registro manual de dados para redes sociais sem API foram removidos acidentalmente.
+
+### Redes Afetadas
+- TikTok (sem API)
+- Twitter/X (sem API)
+- LinkedIn (sem API)
+- Threads (sem API)
+
+### Páginas Afetadas
+- [x] Tokeniza (tinha modais de registro manual)
+- [x] Mychel Mendes (tinha modais de registro manual)
+- [x] Blue Consult e Tokeniza Academy não tinham esses botões
+
+### Solução
+- [x] Restaurar botões "Registrar Dados Manualmente" nas abas das redes sem API
+  - [x] Tokeniza: Twitter, LinkedIn, TikTok, Threads
+  - [x] Mychel Mendes: Twitter, LinkedIn, TikTok, Threads
+- [x] Restaurar modais de registro manual (SocialMediaManualEntryModal, TikTokManualEntryModal)
+- [x] Testar funcionalidade de registro manual

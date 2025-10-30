@@ -7,8 +7,16 @@ import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
+import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
+import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
+import { useState } from "react";
 
 export default function MychelMendes() {
+  const [twitterModalOpen, setTwitterModalOpen] = useState(false);
+  const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
+  const [threadsModalOpen, setThreadsModalOpen] = useState(false);
+  const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
+  
   const { data: socialKpis, isLoading, error, refetch } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3893476', // Mychel Mendes
   });
@@ -230,8 +238,7 @@ export default function MychelMendes() {
       </CardContent>
     </Card>
   );
-
-  // Twitter Tab
+  // Twitter/X Tab
   const twitterTab = (
     <Card>
       <CardHeader>
@@ -239,6 +246,14 @@ export default function MychelMendes() {
         <CardDescription>Métricas detalhadas do Twitter/X</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setTwitterModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -258,7 +273,6 @@ export default function MychelMendes() {
       </CardContent>
     </Card>
   );
-
   // LinkedIn Tab
   const linkedinTab = (
     <Card>
@@ -267,6 +281,14 @@ export default function MychelMendes() {
         <CardDescription>Métricas detalhadas do LinkedIn</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setLinkedinModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -295,6 +317,14 @@ export default function MychelMendes() {
         <CardDescription>Métricas detalhadas do TikTok</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setTiktokModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -323,6 +353,14 @@ export default function MychelMendes() {
         <CardDescription>Métricas detalhadas do Threads</CardDescription>
       </CardHeader>
       <CardContent>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mb-4"
+          onClick={() => setThreadsModalOpen(true)}
+        >
+          Registrar Dados Manualmente
+        </Button>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-4">
             <h3 className="font-semibold text-lg">Conteúdo</h3>
@@ -458,6 +496,35 @@ export default function MychelMendes() {
 
         {/* Tabs de Redes Sociais */}
         <SocialMediaTabs tabs={tabs} defaultTab="overview" />
+        
+        {/* Modais de Registro Manual */}
+        <TikTokManualEntryModal 
+          open={tiktokModalOpen}
+          onOpenChange={setTiktokModalOpen}
+          companySlug="mychel-mendes"
+          onSuccess={refetch}
+        />
+        <SocialMediaManualEntryModal 
+          open={twitterModalOpen}
+          onOpenChange={setTwitterModalOpen}
+          platform="twitter"
+          companySlug="mychel-mendes"
+          onSuccess={refetch}
+        />
+        <SocialMediaManualEntryModal 
+          open={linkedinModalOpen}
+          onOpenChange={setLinkedinModalOpen}
+          platform="linkedin"
+          companySlug="mychel-mendes"
+          onSuccess={refetch}
+        />
+        <SocialMediaManualEntryModal 
+          open={threadsModalOpen}
+          onOpenChange={setThreadsModalOpen}
+          platform="threads"
+          companySlug="mychel-mendes"
+          onSuccess={refetch}
+        />
       </div>
     </DashboardLayout>
   );
