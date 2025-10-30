@@ -451,3 +451,22 @@ Ao reestruturar as páginas com abas, os botões de registro manual de dados par
   - [x] Mychel Mendes: Twitter, LinkedIn, TikTok, Threads
 - [x] Restaurar modais de registro manual (SocialMediaManualEntryModal, TikTokManualEntryModal)
 - [x] Testar funcionalidade de registro manual
+
+
+## 🎨 Melhoria: Reposicionar Botão de Administração no Menu - ✅ CONCLUÍDO
+
+### Objetivo
+Mover o botão "Administração" para a parte inferior do menu lateral, próximo ao nome do usuário, melhorando a organização visual e separando páginas de empresas das configurações administrativas.
+
+### Mudanças
+- [x] Localizar componente do menu lateral (DashboardLayout.tsx)
+- [x] Remover "Administração" do array menuItems
+- [x] Adicionar como item separado no SidebarFooter
+- [x] Posicionar acima do avatar do usuário (Mychel Mendes)
+- [x] Manter ícone de engrenagem (Settings) e estado ativo
+- [x] Testar responsividade (componente usa group-data-[collapsible=icon] para modo colapsado)
+
+### Resultado
+- Menu organizado: Páginas de empresas no topo, Administração no rodapé
+- Separação visual clara entre conteúdo e configurações
+- Botão manteve todas as funcionalidades (hover, ativo, tooltip)

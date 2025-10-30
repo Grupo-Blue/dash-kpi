@@ -33,7 +33,6 @@ const menuItems = [
   { icon: TrendingUp, label: "Tokeniza", path: "/tokeniza" },
   { icon: GraduationCap, label: "Tokeniza Academy", path: "/tokeniza-academy" },
   { icon: User, label: "Mychel Mendes", path: "/mychel-mendes" },
-  { icon: Settings, label: "Administração", path: "/admin" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -234,7 +233,23 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="p-3 gap-2">
+            {/* Administração Button */}
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={location === "/admin"}
+                  onClick={() => setLocation("/admin")}
+                  tooltip="Administração"
+                  className="h-10 transition-all font-normal"
+                >
+                  <Settings className={`h-4 w-4 ${location === "/admin" ? "text-primary" : ""}`} />
+                  <span>Administração</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+            
+            {/* User Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
