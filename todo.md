@@ -602,3 +602,19 @@ Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo M�
 - Tokeniza: Instagram (14.195), Facebook (1), YouTube (199)
 - Tokeniza Academy: Instagram (1.515), TikTok (15.000)
 - Mychel Mendes: Instagram (52.787), Facebook (1), TikTok (300), YouTube (97.100)
+
+
+## 🐛 Bugs Urgentes na Home - EM CORREÇÃO
+
+### Bug 1: Seguidores Mychel Mendes mostrando 0
+- Card de Mychel Mendes mostra 0 seguidores (deveria mostrar ~150K)
+- Dados existem no banco: Instagram (52.787), YouTube (97.100), TikTok (300), Facebook (1)
+- Total esperado: 150.188 seguidores
+- [ ] Corrigir função getLatestFollowersByCompany() ou byCompany no endpoint
+
+### Bug 2: Faturamento Blue Consult dividido por 100
+- Mostrando: R$ 976,00
+- Valor correto: R$ 97.600,00
+- Problema: valor está sendo dividido por 100 incorretamente
+- [ ] Verificar extração de dados do Pipedrive no endpoint consolidado
+- [ ] Multiplicar por 100 ou corrigir fonte do dado

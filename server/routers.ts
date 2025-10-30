@@ -736,10 +736,8 @@ export const appRouter = router({
         
         // Buscar seguidores do banco de dados (registros manuais)
         const followersData = await db.getLatestFollowersByCompany();
-        console.log('[consolidatedKpis] followersData from DB:', followersData);
         
         const totalFollowers = followersData.reduce((sum, company) => sum + company.totalFollowers, 0);
-        console.log('[consolidatedKpis] totalFollowers:', totalFollowers);
         
         const totalPosts = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalPosts || 0), 0);
         const totalInteractions = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalInteractions || 0), 0);
@@ -766,9 +764,34 @@ export const appRouter = router({
           if (!obj || !obj.value) return 0;
           if (typeof obj.value === 'number') return obj.value;
           if (typeof obj.value === 'string') {
+            // Handle abbreviated values (K = thousands, M = millions)
+            let multiplier = 1;
+            let value = obj.value;
+            let hasAbbreviation = false;
+            
+            if (value.includes('K')) {
+              multiplier = 1000;
+              value = value.replace('K', '');
+              hasAbbreviation = true;
+            } else if (value.includes('M')) {
+              multiplier = 1000000;
+              value = value.replace('M', '');
+              hasAbbreviation = true;
+            }
+            
             // Remove currency symbols and convert to number
-            const cleaned = obj.value.replace(/[^0-9,-]/g, '').replace(',', '.');
-            return parseFloat(cleaned) || 0;
+            let cleaned = value.replace(/[R$\s]/g, '');  // Remove R$ and spaces
+            
+            if (hasAbbreviation) {
+              // For abbreviated values (97.6K), keep the dot as decimal separator
+              // Just replace comma with dot if present
+              cleaned = cleaned.replace(',', '.');
+            } else {
+              // For full values (R$ 97.600,00), remove thousand separators
+              cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+            }
+            
+            return (parseFloat(cleaned) || 0) * multiplier;
           }
           return 0;
         };
