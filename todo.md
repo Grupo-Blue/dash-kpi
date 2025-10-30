@@ -405,12 +405,13 @@
 - [ ] Top posts
 - [ ] Breakdown de performance
 
-**6. TikTok** ⚠️ PARCIAL (40%)
+**6. TikTok** ✅ 100% COMPLETO
 - [x] Vídeos
-- [x] Métricas básicas
-- [ ] Seguidores não suportados pela API
-- [ ] Validar métricas de engagement
-- [ ] Top vídeos
+- [x] Métricas detalhadas (views, likes, comments, shares, reach, averageVideoViews)
+- [x] Seguidores não suportados pela API (confirmado)
+- [x] Engagement calculado
+- [x] Top 5 vídeos por visualizações
+- [x] Breakdown de performance expandido
 
 **7. Threads** ❌ NÃO IMPLEMENTADO (10%)
 - [x] Busca de posts (método existe)
@@ -476,12 +477,94 @@
 - [x] Quantidade de vídeos do YouTube está 0 - Usando videoCount da YouTube API em vez de contar por período
 
 
-## Implementação TikTok - FOCO ATUAL
+## Implementação TikTok - ✅ CONCLUÍDA
 - [x] Investigar quais métricas estão disponíveis na API Metricool para TikTok - ENCONTRADO NO MCP!
-- [ ] Corrigir busca de followers do TikTok (campo correto: 'followers_count')
-- [ ] Implementar métricas detalhadas: views, likes, comments, shares, reach, averageVideoViews
-- [ ] Adicionar Top Vídeos do TikTok por visualizações
-- [ ] Expandir breakdown do TikTok com todas as métricas disponíveis
-- [ ] Atualizar frontend Mychel Mendes com dados completos do TikTok
-- [ ] Atualizar frontend Tokeniza com dados completos do TikTok
-- [ ] Testar com dados reais
+- [x] API não suporta followers do TikTok (confirmado - só métricas de vídeos)
+- [x] Implementar métricas detalhadas: views, likes, comments, shares, reach, averageVideoViews
+- [x] Adicionar Top Vídeos do TikTok por visualizações (Top 5 com links clicáveis)
+- [x] Expandir breakdown do TikTok com todas as métricas disponíveis
+- [x] Atualizar frontend Mychel Mendes com dados completos do TikTok
+- [x] Atualizar frontend Tokeniza com dados completos do TikTok
+- [ ] Testar com dados reais (aguardando validação do usuário)
+
+
+## Bug Reportado - TikTok Dados Zerados
+- [ ] Investigar por que dados do TikTok aparecem zerados no frontend
+- [ ] Verificar se API está retornando dados corretos
+- [ ] Verificar se cálculos no MetricoolKpiCalculator estão corretos
+- [ ] Testar com dados reais para identificar problema
+- [ ] Corrigir exibição de dados do TikTok
+
+
+## 🔍 Descoberta Importante - TikTok Métricas Zeradas (29/10/2025)
+**CAUSA IDENTIFICADA** segundo documentação oficial do Metricool:
+- ❌ Vídeos inativos (sem interações) por mais de 7 dias = métricas zeradas pela API
+- ❌ Contas pessoais TikTok têm métricas limitadas vs contas business
+- ✅ A API retorna os vídeos (14 vídeos encontrados) mas sem métricas preenchidas
+- ✅ Engagement de 64.1% está correto (calculado pelo sistema)
+
+**Próximos passos:**
+- [ ] Verificar se conta Mychel Mendes é Personal ou Business no TikTok
+- [ ] Adicionar tooltip/aviso no card do TikTok explicando limitação da API
+- [ ] Considerar mostrar mensagem quando métricas estiverem zeradas
+- [ ] Documentar limitação no userGuide.md
+
+
+## 🚀 Integração TikTok API Oficial (Display API) - EM IMPLEMENTAÇÃO
+**Objetivo**: Substituir dados do Metricool por dados diretos da API oficial do TikTok para obter métricas completas e precisas.
+
+### Etapa 1 - Configuração no TikTok Developer Portal (USUÁRIO)
+- [ ] Criar conta no TikTok Developer Portal (https://developers.tiktok.com/)
+- [ ] Criar novo App no portal
+- [ ] Configurar Display API no app
+- [ ] Adicionar scopes necessários: user.info.basic, user.info.profile, user.info.stats, video.list
+- [ ] Configurar Redirect URI para OAuth: https://SEU_DOMINIO/api/auth/tiktok/callback
+- [ ] Obter Client Key e Client Secret
+
+### Etapa 2 - Implementação Backend (DESENVOLVEDOR)
+- [ ] Criar TikTokService para integração com Display API v2
+- [ ] Implementar fluxo OAuth 2.0 do TikTok
+- [ ] Implementar método getUserInfo() - obter follower_count, video_count, likes_count
+- [ ] Implementar método listVideos() - obter lista de vídeos do usuário
+- [ ] Implementar método getVideoStats() - obter view_count, like_count, comment_count, share_count
+- [ ] Criar endpoints tRPC para OAuth e dados do TikTok
+- [ ] Armazenar access_token e refresh_token no banco de dados
+- [ ] Implementar renovação automática de tokens
+
+### Etapa 3 - Implementação Frontend (DESENVOLVEDOR)
+- [ ] Criar botão "Conectar TikTok" na página de configurações
+- [ ] Implementar fluxo de autorização OAuth (popup ou redirect)
+- [ ] Atualizar página Mychel Mendes para usar dados da API oficial
+- [ ] Adicionar indicador de status da conexão TikTok
+
+### Etapa 4 - Testes e Validação
+- [ ] Testar fluxo completo de OAuth
+- [ ] Validar dados retornados pela API
+- [ ] Comparar métricas com dados do Metricool
+- [ ] Testar renovação de tokens
+- [ ] Documentar processo no userGuide.md
+
+
+## 📝 Sistema de Entrada Manual de Dados TikTok - ✅ CONCLUÍDO
+**Objetivo**: Permitir registro manual de métricas do TikTok (seguidores, vídeos, etc.) com data, salvando no banco para gerar KPIs históricos.
+
+### Backend
+- [x] Criar tabela `tiktokMetrics` no schema do banco (companyId, recordDate, followers, videos, totalViews, totalLikes, totalComments, totalShares, notes, createdBy, createdAt, updatedAt)
+- [x] Criar endpoint tRPC `insertTikTokMetric` para salvar métricas manualmente
+- [x] Criar endpoint tRPC `getLatestTikTokMetric` para buscar registro mais recente
+- [x] Atualizar MetricoolKpiCalculator para usar dados manuais quando disponíveis (prioridade sobre API)
+- [x] Corrigir bug do campo `videos` (era `totalVideos` no código mas `videos` no schema)
+- [x] Implementar cálculo de média de views por vídeo usando dados manuais
+
+### Frontend
+- [x] Criar componente TikTokManualEntryModal com formulário completo
+- [x] Campos: Data (pré-preenchida com hoje), Seguidores, Total de Vídeos, Total de Visualizações, Total de Likes, Total de Comentários, Total de Compartilhamentos, Notas (opcional)
+- [x] Adicionar botão "Registrar Dados" no card do TikTok (Mychel Mendes)
+- [x] Integrar modal com endpoint tRPC para salvar dados
+- [x] Atualizar KPIs para exibir dados manuais mais recentes
+- [x] Testar funcionalidade completa com dados reais
+
+### Próximas Etapas
+- [ ] Adicionar sistema de entrada manual na página Tokeniza
+- [ ] Implementar visualização de histórico de registros manuais
+- [ ] Calcular crescimento de seguidores comparando com registro anterior

@@ -1,6 +1,7 @@
 import { MetricoolService } from './integrations';
 import { YouTubeService } from './youtube.service';
 import { getCompanyByBlogId } from '../config/companies';
+import * as db from '../db';
 
 export interface SocialMediaKPIs {
   totalPosts: number;
@@ -170,7 +171,10 @@ export class MetricoolKpiCalculator {
         isConnected('facebook') ? this.metricoolService.getFacebookPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         isConnected('facebook') ? this.metricoolService.getFacebookReels(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         // TikTok
-        isConnected('tiktok') ? this.metricoolService.getTikTokVideos(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+        isConnected('tiktok') ? this.metricoolService.getTikTokVideos(blogId, from, to).catch((error) => {
+          console.log('[MetricoolKPI] TikTok Error:', error.message || error);
+          return { data: [] };
+        }) : Promise.resolve({ data: [] }),
         // YouTube
         isConnected('youtube') ? this.metricoolService.getYouTubeVideos(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         // Twitter
@@ -180,6 +184,31 @@ export class MetricoolKpiCalculator {
         // Threads
         isConnected('threads') ? this.metricoolService.getThreadsPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
       ]);
+
+      // Try to get manual TikTok metrics from database
+      let manualTikTokData = null;
+      try {
+        // Find company by blogId to get companyId
+        const companySlug = blogId === '3893476' ? 'mychel-mendes' 
+          : blogId === '3893423' ? 'blue-consult'
+          : blogId === '3890487' ? 'tokeniza'
+          : blogId === '3893327' ? 'tokeniza-academy'
+          : null;
+        
+        if (companySlug) {
+          const companyData = await db.getCompanyBySlug(companySlug);
+          if (companyData) {
+            manualTikTokData = await db.getLatestTikTokMetric(companyData.id);
+            if (manualTikTokData) {
+              console.log('[MetricoolKPI] Using manual TikTok data for company:', companySlug);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[MetricoolKPI] Error fetching manual TikTok data:', error);
+      }
+
+      // Manual TikTok data loaded successfully if available
 
       // Aggregate all posts
       const allPosts = [
@@ -314,8 +343,15 @@ export class MetricoolKpiCalculator {
       const igPrevious = extractLatestValue(igFollowersPrevious);
       const fbCurrent = extractLatestValue(fbFollowersCurrent);
       const fbPrevious = extractLatestValue(fbFollowersPrevious);
-      const ttCurrent = extractLatestValue(ttFollowersCurrent);
-      const ttPrevious = extractLatestValue(ttFollowersPrevious);
+      
+      // Use manual TikTok followers if available, otherwise use API data
+      let ttCurrent = manualTikTokData?.followers || extractLatestValue(ttFollowersCurrent);
+      let ttPrevious = extractLatestValue(ttFollowersPrevious);
+      
+      if (manualTikTokData && ttCurrent > 0 && ttPrevious === 0) {
+        // If we have manual current but no previous, assume no growth
+        ttPrevious = ttCurrent;
+      }
       // Try to get YouTube subscribers from YouTube API first (more reliable)
       let ytCurrent = 0;
       let ytPrevious = 0;
@@ -443,7 +479,20 @@ export class MetricoolKpiCalculator {
             reels: (facebookReels.data || []).length,
             totalEngagement: facebookEngagement,
           },
-          tiktok: {
+          tiktok: manualTikTokData ? {
+            // Use manual data when available
+            videos: manualTikTokData.videos || (tiktokVideos.data || []).length,
+            totalEngagement: tiktokEngagement,
+            totalViews: manualTikTokData.totalViews || 0,
+            averageVideoViews: (manualTikTokData.videos || 0) > 0 
+              ? Math.round((manualTikTokData.totalViews || 0) / (manualTikTokData.videos || 1))
+              : 0,
+            totalLikes: manualTikTokData.totalLikes || 0,
+            totalComments: manualTikTokData.totalComments || 0,
+            totalShares: manualTikTokData.totalShares || 0,
+            totalReach: 0, // Not available in manual data
+          } : {
+            // Fallback to API data
             videos: (tiktokVideos.data || []).length,
             totalEngagement: tiktokEngagement,
             totalViews: (tiktokVideos.data || []).reduce((sum: number, video: any) => sum + (video.views || 0), 0),

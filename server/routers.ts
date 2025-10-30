@@ -240,6 +240,21 @@ export const appRouter = router({
         }
       }),
 
+    // DEBUG: Get raw TikTok data
+    debugTikTokData: protectedProcedure
+      .input(z.object({ 
+        blogId: z.string(),
+        from: z.string(),
+        to: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const { MetricoolService } = await import('./services/integrations');
+        const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
+        const service = new MetricoolService(metricoolToken);
+        const data = await service.getTikTokVideos(input.blogId, input.from, input.to);
+        return data;
+      }),
+
     // Get Metricool brands
     metricoolBrands: protectedProcedure.query(async () => {
       console.log('[metricoolBrands] Fetching brands...');
@@ -262,6 +277,75 @@ export const appRouter = router({
         throw error;
       }
     }),
+  }),
+
+  tiktokMetrics: router({
+    // Save manual TikTok metrics
+    save: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        recordDate: z.string(), // ISO date string
+        followers: z.number().default(0),
+        videos: z.number().default(0),
+        totalViews: z.number().default(0),
+        totalLikes: z.number().default(0),
+        totalComments: z.number().default(0),
+        totalShares: z.number().default(0),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const recordDate = new Date(input.recordDate);
+        
+        await db.insertTikTokMetric({
+          companyId: input.companyId,
+          recordDate,
+          followers: input.followers,
+          videos: input.videos,
+          totalViews: input.totalViews,
+          totalLikes: input.totalLikes,
+          totalComments: input.totalComments,
+          totalShares: input.totalShares,
+          notes: input.notes,
+          createdBy: ctx.user.id,
+        });
+        
+        console.log('[tiktokMetrics] Saved manual metrics for company:', input.companyId);
+        return { success: true };
+      }),
+
+    // Get TikTok metrics history for a company
+    getHistory: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        limit: z.number().default(30),
+      }))
+      .query(async ({ input }) => {
+        const history = await db.getTikTokMetricsHistory(input.companyId, input.limit);
+        console.log('[tiktokMetrics] Fetched history for company:', input.companyId, 'records:', history.length);
+        return history;
+      }),
+
+    // Get latest TikTok metrics for a company
+    getLatest: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const latest = await db.getLatestTikTokMetric(input.companyId);
+        console.log('[tiktokMetrics] Fetched latest for company:', input.companyId, 'found:', !!latest);
+        return latest;
+      }),
+
+    // Delete a TikTok metric record
+    delete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteTikTokMetric(input.id);
+        console.log('[tiktokMetrics] Deleted record:', input.id);
+        return { success: true };
+      }),
   }),
 });
 

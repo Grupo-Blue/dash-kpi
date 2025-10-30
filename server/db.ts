@@ -13,7 +13,10 @@ import {
   InsertKpiCache,
   kpiDefinitions,
   KpiDefinition,
-  InsertKpiDefinition
+  InsertKpiDefinition,
+  tiktokMetrics,
+  TikTokMetric,
+  InsertTikTokMetric
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -190,4 +193,42 @@ export async function getKpiDefinitions(companyId: number): Promise<KpiDefinitio
       eq(kpiDefinitions.companyId, companyId),
       eq(kpiDefinitions.active, true)
     ));
+}
+
+
+// TikTok Metrics
+export async function insertTikTokMetric(metric: InsertTikTokMetric) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  return db.insert(tiktokMetrics).values(metric);
+}
+
+export async function getTikTokMetricsHistory(companyId: number, limit: number = 30): Promise<TikTokMetric[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(tiktokMetrics)
+    .where(eq(tiktokMetrics.companyId, companyId))
+    .orderBy(desc(tiktokMetrics.recordDate))
+    .limit(limit);
+}
+
+export async function getLatestTikTokMetric(companyId: number): Promise<TikTokMetric | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const results = await db.select().from(tiktokMetrics)
+    .where(eq(tiktokMetrics.companyId, companyId))
+    .orderBy(desc(tiktokMetrics.recordDate))
+    .limit(1);
+  
+  return results[0];
+}
+
+export async function deleteTikTokMetric(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  return db.delete(tiktokMetrics).where(eq(tiktokMetrics.id, id));
 }

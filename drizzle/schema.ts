@@ -87,3 +87,26 @@ export const kpiDefinitions = mysqlTable("kpiDefinitions", {
 
 export type KpiDefinition = typeof kpiDefinitions.$inferSelect;
 export type InsertKpiDefinition = typeof kpiDefinitions.$inferInsert;
+
+/**
+ * Manual TikTok metrics tracking
+ * Allows manual entry of TikTok metrics with date for historical tracking
+ */
+export const tiktokMetrics = mysqlTable("tiktokMetrics", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("companyId").notNull(), // which company this data belongs to
+  recordDate: timestamp("recordDate").notNull(), // date of the metrics snapshot
+  followers: int("followers").default(0).notNull(),
+  videos: int("videos").default(0).notNull(),
+  totalViews: int("totalViews").default(0).notNull(),
+  totalLikes: int("totalLikes").default(0).notNull(),
+  totalComments: int("totalComments").default(0).notNull(),
+  totalShares: int("totalShares").default(0).notNull(),
+  notes: text("notes"), // optional notes about this record
+  createdBy: int("createdBy"), // user who created this record
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type TikTokMetric = typeof tiktokMetrics.$inferSelect;
+export type InsertTikTokMetric = typeof tiktokMetrics.$inferInsert;

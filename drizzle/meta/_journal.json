@@ -15,6 +15,13 @@
       "when": 1761664548570,
       "tag": "0001_little_salo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1761821690551,
+      "tag": "0002_sticky_shaman",
+      "breakpoints": true
     }
   ]
 }

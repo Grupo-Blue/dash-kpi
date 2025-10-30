@@ -6,8 +6,15 @@ import { RefreshCw, TrendingUp, Heart, MessageCircle, Share2, Eye, BarChart3, Ex
 import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
+import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
+import { useState } from "react";
 
 export default function MychelMendes() {
+  const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
+  
+  // Get company info
+  const { data: company } = trpc.companies.getBySlug.useQuery({ slug: 'mychel-mendes' });
+  
   // Mychel Mendes blogId: 3893476 (userId: 3061390)
   const { data: socialKpis, isLoading, error, refetch } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3893476', // Mychel Mendes
@@ -376,9 +383,18 @@ export default function MychelMendes() {
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>TikTok</CardTitle>
-                <CardDescription>Performance no TikTok</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>TikTok</CardTitle>
+                  <CardDescription>Performance no TikTok</CardDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setTiktokModalOpen(true)}
+                >
+                  Registrar Dados
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -598,6 +614,16 @@ export default function MychelMendes() {
           </Card>
         )}
       </div>
+
+      {/* TikTok Manual Entry Modal */}
+      {company && (
+        <TikTokManualEntryModal 
+          open={tiktokModalOpen}
+          onOpenChange={setTiktokModalOpen}
+          companyId={company.id}
+          onSuccess={() => refetch()}
+        />
+      )}
     </DashboardLayout>
   );
 }
