@@ -146,31 +146,31 @@ export default function TokenizaAcademy() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Certificados Emitidos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Novos Alunos (30 dias)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{cademiKpis.certificatesIssued}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total de certificados</p>
+            <div className="text-3xl font-bold">{cademiKpis.newStudentsLast30Days}</div>
+            <p className="text-xs text-muted-foreground mt-1">Novos cadastros no último mês</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Interações</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total de Cursos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{cademiKpis.interactions}</div>
-            <p className="text-xs text-muted-foreground mt-1">Comentários e compartilhamentos</p>
+            <div className="text-3xl font-bold">{cademiKpis.totalCourses}</div>
+            <p className="text-xs text-muted-foreground mt-1">Cursos disponíveis na plataforma</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Emails Inválidos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Nunca Acessaram</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{cademiKpis.invalidEmails}</div>
-            <p className="text-xs text-muted-foreground mt-1">Precisam de atualização</p>
+            <div className="text-3xl font-bold">{cademiKpis.neverAccessed}</div>
+            <p className="text-xs text-muted-foreground mt-1">Alunos que ainda não acessaram</p>
           </CardContent>
         </Card>
       </div>
@@ -254,6 +254,39 @@ export default function TokenizaAcademy() {
           <p className="text-sm text-muted-foreground mt-2">
             {((cademiKpis.neverAccessed / cademiKpis.totalStudents) * 100).toFixed(1)}% do total de alunos
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Top Active Students */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top 5 Alunos Mais Ativos</CardTitle>
+          <CardDescription>Alunos com acessos mais recentes nos últimos 30 dias</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {cademiKpis.topActiveStudents.map((student, index) => (
+              <div key={student.id} className="flex items-center justify-between border-b pb-3 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+                    {index + 1}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{student.name}</p>
+                    <p className="text-xs text-muted-foreground">{student.email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">
+                    {student.daysAgo === 0 ? 'Hoje' : student.daysAgo === 1 ? 'Ontem' : `${student.daysAgo} dias atrás`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(student.lastAccess).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

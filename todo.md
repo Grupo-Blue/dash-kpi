@@ -810,3 +810,33 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Atualizado URL no código para portal.escoladecripto.com.br
 - [x] Validar resposta JSON da API - funcionando
 - [ ] Aguardando API key válida do usuário para testar com dados reais
+
+
+## 🔍 Investigar Endpoints Adicionais da API Cademi - ✅ CONCLUÍDO
+
+### Buscar Dados Faltantes
+- [x] Explorar documentação completa da API Cademi
+- [x] Procurar endpoint de certificados - NÃO DISPONÍVEL
+- [x] Procurar endpoint de interações/atividades - NÃO DISPONÍVEL
+- [x] Procurar endpoint de progresso dos alunos - NÃO DISPONÍVEL
+- [x] Verificar se há dados de emails inválidos/bounces - NÃO DISPONÍVEL
+- [x] Analisados todos os 5 endpoints: /usuario, /tag, /produto, /aula, /entrega
+- [x] Conclusão: API Cademi não fornece dados de certificados, interações ou rankings
+- [ ] Decisão: Manter campos zerados com tooltip ou remover da interface
+
+
+## 🎯 Novos KPIs da Cademi - ✅ CONCLUÍDO
+
+### Remover Campos Zerados e Adicionar KPIs Relevantes
+- [x] Remover da interface: Certificados Emitidos, Interações, Emails Inválidos
+- [x] Adicionar: Alunos mais ativos nos últimos 30 dias (top 5)
+- [x] Adicionar: Quantidade de alunos novos nos últimos 30 dias
+- [x] Adicionar: Total de cursos disponíveis
+- [x] Adicionar: Nunca acessaram (movido para card destacado)
+- [x] Buscar dados de produtos/cursos da API
+- [x] Atualizar CademiKpiCalculator com novos cálculos
+- [x] Atualizar interface TokenizaAcademy com novos KPIs
+- [x] Criar card visual para Top 5 Alunos Ativos
+- [x] Testar e validar dados no navegador
+- [x] Validados: Total Alunos (2.834), Novos Alunos 30d (195), Total Cursos (46), Nunca Acessaram (1.445)
+- [x] Validados: Acessos 30d (288), Top 5 Alunos Ativos, Distribuição de Acessos

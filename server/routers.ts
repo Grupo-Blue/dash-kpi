@@ -268,11 +268,19 @@ export const appRouter = router({
           throw new Error('Cademi API não configurada. Configure a chave de API para visualizar dados dos cursos.');
         }
 
+        // Busca KPIs dos alunos
         const kpis = await calculateCademiKpis();
+        
+        // Busca total de cursos
+        const { getAllProducts } = await import('./services/cademiService');
+        const productsResponse = await getAllProducts();
+        kpis.totalCourses = productsResponse.produto.length;
+        
         await trackApiStatus('cademi', true);
         
         const duration = Date.now() - startTime;
         console.log(`[cademiCourses] KPIs calculated successfully in ${duration}ms`);
+        console.log(`[cademiCourses] Total courses: ${kpis.totalCourses}`);
         
         return kpis;
       } catch (error) {

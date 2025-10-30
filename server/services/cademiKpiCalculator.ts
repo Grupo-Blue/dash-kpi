@@ -9,13 +9,7 @@ import { fetchAllUsers, type CademiUser } from './cademiService';
 export interface CademiKpis {
   totalStudents: number;
   studentsVariation: number; // Percentual de variação nas últimas 4 semanas
-  newStudentsByMonth: Array<{
-    month: string;
-    count: number;
-  }>;
-  certificatesIssued: number;
-  interactions: number;
-  invalidEmails: number;
+  newStudentsLast30Days: number; // Novos alunos nos últimos 30 dias
   accessLast30Days: number;
   accessDistribution: {
     today: number;
@@ -25,16 +19,14 @@ export interface CademiKpis {
     days14to30: number;
   };
   neverAccessed: number;
-  topStudentsByPoints: Array<{
+  topActiveStudents: Array<{
     id: number;
     name: string;
-    points: number;
+    email: string;
+    lastAccess: string;
+    daysAgo: number;
   }>;
-  topStudentsByEngagement: Array<{
-    id: number;
-    name: string;
-    lessonsWatched: number;
-  }>;
+  totalCourses: number;
 }
 
 /**
@@ -136,18 +128,16 @@ export async function calculateCademiKpis(): Promise<CademiKpis> {
     // Variação nas últimas 4 semanas
     const studentsVariation = calculateStudentsVariation(users, now);
 
-    // Novos alunos por mês (últimos 12 meses)
-    const monthlyData = groupByMonth(users);
-    const newStudentsByMonth = Array.from(monthlyData.entries())
-      .map(([month, count]) => ({ month, count }))
-      .sort((a, b) => b.month.localeCompare(a.month))
-      .slice(0, 12)
-      .reverse();
-
-    // Acessos nos últimos 30 dias
+    // Novos alunos nos últimos 30 dias
     const thirtyDaysAgo = new Date(now);
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
+    const newStudentsLast30Days = users.filter(u => {
+      const created = new Date(u.criado_em);
+      return created >= thirtyDaysAgo;
+    }).length;
+
+    // Acessos nos últimos 30 dias
     const accessLast30Days = users.filter(u => {
       if (!u.ultimo_acesso_em) return false;
       const lastAccess = new Date(u.ultimo_acesso_em);
@@ -160,39 +150,47 @@ export async function calculateCademiKpis(): Promise<CademiKpis> {
     // Nunca acessou
     const neverAccessed = users.filter(u => !u.ultimo_acesso_em).length;
 
-    // Emails inválidos (estimativa: emails com formato inválido ou vazios)
-    const invalidEmails = users.filter(u => {
-      if (!u.email) return true;
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return !emailRegex.test(u.email);
-    }).length;
+    // Top 5 alunos mais ativos nos últimos 30 dias
+    const activeStudents = users
+      .filter(u => {
+        if (!u.ultimo_acesso_em) return false;
+        const lastAccess = new Date(u.ultimo_acesso_em);
+        return lastAccess >= thirtyDaysAgo;
+      })
+      .map(u => {
+        const lastAccess = new Date(u.ultimo_acesso_em!);
+        const daysAgo = daysBetween(lastAccess, now);
+        return {
+          id: u.id,
+          name: u.nome,
+          email: u.email || 'N/A',
+          lastAccess: lastAccess.toISOString(),
+          daysAgo
+        };
+      })
+      .sort((a, b) => a.daysAgo - b.daysAgo)
+      .slice(0, 5);
 
-    // Métricas que precisam de endpoints adicionais (placeholder por enquanto)
-    const certificatesIssued = 0; // TODO: Implementar quando descobrir endpoint
-    const interactions = 0; // TODO: Implementar quando descobrir endpoint
-
-    // Rankings (placeholder - precisam de dados de progresso)
-    const topStudentsByPoints: Array<{ id: number; name: string; points: number }> = [];
-    const topStudentsByEngagement: Array<{ id: number; name: string; lessonsWatched: number }> = [];
+    // Total de cursos (será buscado da API /produto)
+    const totalCourses = 0; // Será atualizado no router
 
     console.log('[CademiKPI] KPIs calculated successfully');
     console.log(`[CademiKPI] Total students: ${totalStudents}`);
     console.log(`[CademiKPI] Variation: ${studentsVariation.toFixed(2)}%`);
+    console.log(`[CademiKPI] New students last 30 days: ${newStudentsLast30Days}`);
     console.log(`[CademiKPI] Access last 30 days: ${accessLast30Days}`);
     console.log(`[CademiKPI] Never accessed: ${neverAccessed}`);
+    console.log(`[CademiKPI] Top active students: ${activeStudents.length}`);
 
     return {
       totalStudents,
       studentsVariation,
-      newStudentsByMonth,
-      certificatesIssued,
-      interactions,
-      invalidEmails,
+      newStudentsLast30Days,
       accessLast30Days,
       accessDistribution,
       neverAccessed,
-      topStudentsByPoints,
-      topStudentsByEngagement,
+      topActiveStudents: activeStudents,
+      totalCourses,
     };
   } catch (error) {
     console.error('[CademiKPI] Failed to calculate KPIs:', error);

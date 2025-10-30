@@ -79,6 +79,18 @@ interface CademiProgressResponse {
   };
 }
 
+export interface CademiProduct {
+  id: number;
+  ordem: number;
+  nome: string;
+  oferta_url: string | null;
+}
+
+interface CademiProductsResponse {
+  paginator: CademiPaginator;
+  produto: CademiProduct[];
+}
+
 /**
  * Faz requisição à API da Cademi
  */
@@ -153,6 +165,13 @@ export async function getUserProgress(
   productId: number
 ): Promise<CademiProgressResponse> {
   return cademiRequest<CademiProgressResponse>(`/usuario/progresso_por_produto/${userIdentifier}/${productId}`);
+}
+
+/**
+ * Lista todos os produtos/cursos
+ */
+export async function getAllProducts(): Promise<CademiProductsResponse> {
+  return cademiRequest<CademiProductsResponse>('/produto');
 }
 
 /**
