@@ -351,7 +351,7 @@ Implementar funcionalidade completa de CRUD (Create, Read, Update, Delete) de em
 4. Empresas inativas não aparecem na navegação principal, mas continuam no banco
 
 
-## 📑 Fase 4: Reestruturação com Abas nas Páginas de Empresas - EM ANDAMENTO
+## 📁 Fase 4: Reestruturação com Abas nas Páginas de Empresas - ✅ CONCLUÍDA
 
 ### Objetivo
 Organizar as métricas de redes sociais em abas separadas nas páginas das empresas, melhorando a navegação e experiência do usuário.
@@ -375,11 +375,11 @@ Atualmente, as páginas de empresas (Blue Consult, Tokeniza, Tokeniza Academy) e
   - [x] Agrupar métricas por rede social
   - [x] Implementar abas em Mychel Mendes (9 abas: Visão Geral + 8 redes)
   - [x] Manter KPIs principais visíveis (fora das abas)
-  - [ ] Implementar abas em Blue Consult
-  - [ ] Implementar abas em Tokeniza
+  - [x] Implementar abas em Blue Consult (3 abas: Vendas/Pipedrive, Financeiro/Nibo, Redes Sociais)
+  - [x] Implementar abas em Tokeniza (8 abas: Visão Geral + 7 redes sociais)
   - [x] Implementar abas em Tokeniza Academy (3 abas: Discord, Cursos, Redes Sociais)
-- [ ] Testar navegação entre abas
-- [ ] Validar responsividade mobile
+- [x] Testar navegação entre abas
+- [x] Validar responsividade mobile (componente SocialMediaTabs é responsivo)
 
 ### Estrutura Proposta
 ```
