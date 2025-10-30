@@ -604,23 +604,25 @@ Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo M�
 - Mychel Mendes: Instagram (52.787), Facebook (1), TikTok (300), YouTube (97.100)
 
 
-## 🐛 Bugs Urgentes na Home - EM CORREÇÃO
+## 🐛 Bugs Urgentes na Home - ✅ CORRIGIDOS
 
 ### Bug 1: Seguidores Mychel Mendes mostrando 0
-- Card de Mychel Mendes mostra 0 seguidores (deveria mostrar ~150K)
-- Dados existem no banco: Instagram (52.787), YouTube (97.100), TikTok (300), Facebook (1)
-- Total esperado: 150.188 seguidores
-- [ ] Corrigir função getLatestFollowersByCompany() ou byCompany no endpoint
+- [x] Card de Mychel Mendes mostra 0 seguidores (deveria mostrar ~150K)
+- [x] Dados existem no banco: Instagram (52.787), YouTube (97.100), TikTok (300), Facebook (1)
+- [x] Total esperado: 150.188 seguidores
+- [x] Corrigido: companyId inconsistente (5 no banco vs 30004 na tabela companies)
+- [x] Solução: Atualizado companyId de 5 para 30004 no banco
+- [x] Resultado: Mychel Mendes agora mostra 150.188 seguidores
 
 ### Bug 2: Faturamento Blue Consult dividido por 100
-- Mostrando: R$ 976,00
-- Valor correto: R$ 97.600,00
-- Problema: valor está sendo dividido por 100 incorretamente
-- [ ] Verificar extração de dados do Pipedrive no endpoint consolidado
-- [ ] Multiplicar por 100 ou corrigir fonte do dado
+- [x] Mostrando: R$ 976,00 (incorreto)
+- [x] Valor correto: R$ 97.600,00
+- [x] Problema: Pipedrive retorna valores abreviados ("R$ 97.6K") e parseValue estava removendo ponto decimal
+- [x] Solução: Ajustado parseValue() para detectar K/M e manter ponto como decimal
+- [x] Resultado: Faturamento agora mostra R$ 97.600,00 corretamente
 
 
-## 🎨 Melhorias de UX e Funcionalidades - EM ANDAMENTO
+## 🎨 Melhorias de UX e Funcionalidades - ✅ CONCLUÍDO
 
 ### 1. Restaurar Top 5 Posts nas Páginas de Empresas
 - [x] Verificar quais páginas perderam a seção Top 5 Posts após reestruturação com abas
@@ -632,22 +634,30 @@ Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo M�
 ### 2. Adicionar Tooltips (ícone i) em Todos os KPIs
 - [x] Verificar arquivo `kpiDescriptions.ts` e adicionar descrições faltantes
 - [x] Expandido kpiDescriptions.ts com 100+ descrições (Home, redes sociais, todas as métricas)
-- [ ] Adicionar tooltips na página Home (KPIs consolidados) - EM ANDAMENTO
+- [x] Adicionar tooltips na página Home (KPIs consolidados)
 - [x] Blue Consult já usa KpiCardWithTooltip
 - [x] Tokeniza já usa KpiCardWithTooltip
 - [x] Mychel Mendes já usa KpiCardWithTooltip
 - [x] Tokeniza Academy já usa KpiCardWithTooltip
 
 ### 3. Filtro de Período na Home
-- [ ] Criar componente de filtro de período (dropdown ou tabs)
-- [ ] Opções de filtro:
-  - [ ] Mês Atual (padrão)
-  - [ ] Mês Específico (seletor de mês/ano)
-  - [ ] Trimestre (Q1, Q2, Q3, Q4)
-  - [ ] Semestre (S1, S2)
-  - [ ] Ano (seletor de ano)
-- [ ] Atualizar endpoint `consolidatedKpis.overview` para aceitar parâmetros de período
-- [ ] Implementar lógica de filtragem de dados por período no backend
-- [ ] Integrar filtro no componente Home
-- [ ] Testar com diferentes períodos
-- [ ] Adicionar indicadores de comparação MoM e YoY
+- [x] Criar componente PeriodFilter (dropdown)
+- [x] Opções de filtro:
+  - [x] Mês Atual (padrão)
+  - [x] Mês Específico (seletor de mês/ano)
+  - [x] Trimestre (Q1, Q2, Q3, Q4)
+  - [x] Semestre (S1, S2)
+  - [x] Ano (seletor de ano)
+- [x] Atualizar endpoint `consolidatedKpis.overview` para aceitar parâmetros de período
+- [x] Implementar lógica de filtragem de dados por período no backend (cálculo de datas from/to)
+- [x] Integrar filtro no componente Home (dropdown no header)
+- [x] Testado com Mês Atual
+- [ ] Adicionar indicadores de comparação MoM e YoY (futuro)
+
+### Resultado Final
+- ✅ Top 5 Posts restaurado em Mychel Mendes e Tokeniza
+- ✅ 100+ descrições de KPIs adicionadas ao kpiDescriptions.ts
+- ✅ Tooltips (ícone i) em todos os KPIs da Home
+- ✅ Filtro de período funcional na Home (dropdown com 5 opções)
+- ✅ Componente KpiCardWithTooltip atualizado para suportar ambos os formatos (objeto kpi e props individuais)
+- ✅ Todos os dados consolidados funcionando corretamente

@@ -621,7 +621,15 @@ export const appRouter = router({
   }),
 
   consolidatedKpis: router({
-    overview: protectedProcedure.query(async ({ ctx }) => {
+    overview: protectedProcedure
+      .input(z.object({
+        type: z.enum(['current_month', 'specific_month', 'quarter', 'semester', 'year']).optional().default('current_month'),
+        year: z.number().optional(),
+        month: z.number().min(1).max(12).optional(),
+        quarter: z.number().min(1).max(4).optional(),
+        semester: z.number().min(1).max(2).optional(),
+      }).optional().default({ type: 'current_month' }))
+      .query(async ({ ctx, input }) => {
       console.log('[consolidatedKpis] Starting overview calculation...');
       
       try {
@@ -707,9 +715,36 @@ export const appRouter = router({
             { name: 'Mychel Mendes', blogId: '3893476' },
           ].map(async ({ name, blogId }) => {
             try {
+              // Calcular from/to baseado no filtro de período
               const now = new Date();
-              const from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-              const to = now.toISOString().split('T')[0];
+              let from: string;
+              let to: string;
+              
+              const filter = input || { type: 'current_month' };
+              
+              if (filter.type === 'current_month') {
+                from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                to = now.toISOString().split('T')[0];
+              } else if (filter.type === 'specific_month' && filter.year && filter.month) {
+                from = new Date(filter.year, filter.month - 1, 1).toISOString().split('T')[0];
+                const lastDay = new Date(filter.year, filter.month, 0).getDate();
+                to = new Date(filter.year, filter.month - 1, lastDay).toISOString().split('T')[0];
+              } else if (filter.type === 'quarter' && filter.year && filter.quarter) {
+                const startMonth = (filter.quarter - 1) * 3;
+                from = new Date(filter.year, startMonth, 1).toISOString().split('T')[0];
+                to = new Date(filter.year, startMonth + 3, 0).toISOString().split('T')[0];
+              } else if (filter.type === 'semester' && filter.year && filter.semester) {
+                const startMonth = filter.semester === 1 ? 0 : 6;
+                from = new Date(filter.year, startMonth, 1).toISOString().split('T')[0];
+                to = new Date(filter.year, startMonth + 6, 0).toISOString().split('T')[0];
+              } else if (filter.type === 'year' && filter.year) {
+                from = new Date(filter.year, 0, 1).toISOString().split('T')[0];
+                to = new Date(filter.year, 11, 31).toISOString().split('T')[0];
+              } else {
+                // Fallback para mês atual
+                from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                to = now.toISOString().split('T')[0];
+              }
               
               const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
               const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';

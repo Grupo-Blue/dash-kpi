@@ -10,6 +10,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Skeleton } from "@/components/ui/skeleton";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
+import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
+import { useState } from "react";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -63,7 +65,8 @@ export default function Home() {
 }
 
 function HomeContent() {
-  const { data: overview, isLoading, refetch } = trpc.consolidatedKpis.overview.useQuery();
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
+  const { data: overview, isLoading, refetch } = trpc.consolidatedKpis.overview.useQuery(periodFilter);
 
   // Função para formatar moeda
   const formatCurrency = (value: number) => {
@@ -111,111 +114,86 @@ function HomeContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Visão Geral</h1>
           <p className="text-muted-foreground">
             Bem-vindo ao dashboard de KPIs do Grupo Blue
           </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Atualizar
-        </Button>
+        <div className="flex items-center gap-2">
+          <PeriodFilter value={periodFilter} onChange={setPeriodFilter} />
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Atualizar
+          </Button>
+        </div>
       </div>
 
       {/* KPIs Principais */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {/* Faturamento Total */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Faturamento Total</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview?.sales.totalRevenue || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Blue Consult - Pipedrive
-            </p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Faturamento Total"
+          value={formatCurrency(overview?.sales.totalRevenue || 0)}
+          description="Blue Consult - Pipedrive"
+          icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
+          tooltip={getKpiDescription('faturamento_total')}
+        />
 
         {/* Seguidores Totais */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Seguidores Totais</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.totalFollowers || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Todas as redes sociais
-            </p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Seguidores Totais"
+          value={formatNumber(overview?.socialMedia.totalFollowers || 0)}
+          description="Todas as redes sociais"
+          icon={<Users className="h-4 w-4 text-muted-foreground" />}
+          tooltip={getKpiDescription('seguidores_totais')}
+        />
 
         {/* Membros Discord */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Membros Discord</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(overview?.community.totalMembers || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Tokeniza Academy
-            </p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Membros Discord"
+          value={formatNumber(overview?.community.totalMembers || 0)}
+          description="Tokeniza Academy"
+          icon={<MessageSquare className="h-4 w-4 text-muted-foreground" />}
+          tooltip={getKpiDescription('membros_discord')}
+        />
 
         {/* Engajamento Médio */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Engajamento Médio</CardTitle>
-            <ThumbsUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatPercent(overview?.socialMedia.averageEngagement || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Redes sociais
-            </p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Engajamento Médio"
+          value={formatPercent(overview?.socialMedia.averageEngagement || 0)}
+          description="Redes sociais"
+          icon={<ThumbsUp className="h-4 w-4 text-muted-foreground" />}
+          tooltip={getKpiDescription('engajamento_medio')}
+        />
       </div>
 
       {/* Métricas Financeiras */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Receitas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(overview?.financial.totalIncome || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Nibo - Blue Consult</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Receitas"
+          value={formatCurrency(overview?.financial.totalIncome || 0)}
+          description="Nibo - Blue Consult"
+          valueClassName="text-green-600"
+          tooltip={getKpiDescription('receitas')}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Despesas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(overview?.financial.totalExpenses || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Nibo - Blue Consult</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Despesas"
+          value={formatCurrency(overview?.financial.totalExpenses || 0)}
+          description="Nibo - Blue Consult"
+          valueClassName="text-red-600"
+          tooltip={getKpiDescription('despesas')}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Saldo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${(overview?.financial.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(overview?.financial.balance || 0)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">Lucro/Prejuízo</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Saldo"
+          value={formatCurrency(overview?.financial.balance || 0)}
+          description="Lucro/Prejuízo"
+          valueClassName={(overview?.financial.balance || 0) >= 0 ? 'text-green-600' : 'text-red-600'}
+          tooltip={getKpiDescription('saldo')}
+        />
       </div>
 
       {/* Performance por Empresa */}
@@ -249,30 +227,20 @@ function HomeContent() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(overview?.sales.totalRevenue || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatNumber(overview?.sales.totalDeals || 0)} negócios
-            </p>
-            <p className="text-xs text-green-600 mt-2 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              Consultoria em IR Cripto
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">41 negócios</p>
+            <p className="text-xs text-green-600 mt-1">✓ Consultoria em IR Cripto</p>
           </CardContent>
         </Card>
 
         <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/tokeniza'}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tokeniza</CardTitle>
-            <TrendingUpIcon className="h-4 w-4 text-muted-foreground" />
+            <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatNumber(overview?.socialMedia.byCompany?.find(c => c.name === 'Tokeniza')?.followers || 0)}
-            </div>
+            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.byCompany.find(c => c.name === 'Tokeniza')?.followers || 0)}</div>
             <p className="text-xs text-muted-foreground mt-1">seguidores</p>
-            <p className="text-xs text-green-600 mt-2 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              Plataforma & Private
-            </p>
+            <p className="text-xs text-green-600 mt-1">✓ Plataforma & Private</p>
           </CardContent>
         </Card>
 
@@ -284,10 +252,7 @@ function HomeContent() {
           <CardContent>
             <div className="text-2xl font-bold">{formatNumber(overview?.community.totalMembers || 0)}</div>
             <p className="text-xs text-muted-foreground mt-1">membros Discord</p>
-            <p className="text-xs text-green-600 mt-2 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              Academy & Discord
-            </p>
+            <p className="text-xs text-green-600 mt-1">✓ Academy & Discord</p>
           </CardContent>
         </Card>
 
@@ -297,53 +262,53 @@ function HomeContent() {
             <UserIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatNumber(overview?.socialMedia.byCompany?.find(c => c.name === 'Mychel Mendes')?.followers || 0)}
-            </div>
+            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.byCompany.find(c => c.name === 'Mychel Mendes')?.followers || 0)}</div>
             <p className="text-xs text-muted-foreground mt-1">seguidores</p>
-            <p className="text-xs text-green-600 mt-2 flex items-center">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              Influenciador Digital
-            </p>
+            <p className="text-xs text-green-600 mt-1">✓ Influenciador Digital</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Métricas de Redes Sociais */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Posts Totais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.totalPosts || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Todas as empresas</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Posts Totais"
+          value={formatNumber(overview?.socialMedia.totalPosts || 0)}
+          description="Todas as empresas"
+          tooltip={getKpiDescription('posts_totais')}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Alcance Total</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.totalReach || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Impressões únicas</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Alcance Total"
+          value={formatNumber(overview?.socialMedia.totalReach || 0)}
+          description="Impressões únicas"
+          tooltip={getKpiDescription('alcance_total')}
+        />
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium">Interações Totais</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(overview?.socialMedia.totalInteractions || 0)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Curtidas, comentários, compartilhamentos</p>
-          </CardContent>
-        </Card>
+        <KpiCardWithTooltip
+          title="Interações Totais"
+          value={formatNumber(overview?.socialMedia.totalInteractions || 0)}
+          description="Curtidas, comentários, compartilhamentos"
+          tooltip={getKpiDescription('interacoes_totais')}
+        />
       </div>
 
       {/* Status das Integrações */}
-      <IntegrationStatus />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Status das Integrações</CardTitle>
+            <CardDescription>Monitoramento em tempo real das APIs conectadas</CardDescription>
+          </div>
+          <Button onClick={() => refetch()} variant="ghost" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Atualizar
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <IntegrationStatus />
+        </CardContent>
+      </Card>
     </div>
   );
 }
