@@ -638,3 +638,118 @@
 - [ ] Adicionar entrada manual na página Blue Consult (Twitter/X, LinkedIn, Threads, TikTok)
 - [ ] Adicionar entrada manual na página Tokeniza Academy (Twitter/X, LinkedIn, Threads, TikTok)
 - [x] Testar funcionalidade na Tokeniza (todos os 4 botões funcionando)
+
+## 🏭️ REESTRUTURAÇÃO COMPLETA DO DASHBOARD - EM IMPLEMENTAÇÃO
+
+### Fase 1: Painel de Administração + Histórico - ✅ 80% CONCLUÍDA
+- [x] Adicionar item "Administração" no menu lateral
+- [x] Criar página Admin com 3 abas (Histórico, Status APIs, Gerenciar Empresas)
+- [x] Implementar componente ManualDataHistory com tabela completa
+- [x] Adicionar filtros por empresa, rede social e busca
+- [x] Criar modal de edição de registros (EditManualDataModal)
+- [x] Implementar endpoints tRPC: getAll, update, delete (TikTok e Social Media)
+- [x] Adicionar funções no db.ts para suportar CRUD completo
+- [ ] Corrigir bug: empresa aparece como "Desconhecida" (problema com companyId)
+- [ ] Testar edição e exclusão de registros
+
+### Fase 2: Status das APIs + Gerenciar Empresas - PENDENTE
+### Fase 3: Home com Visão Geral Consolidada - PENDENTE
+### Fase 4: Reestruturação com Abas nas Páginas de Empresas - PENDENTE
+
+---
+
+## 🏭️ REESTRUTURAÇÃO COMPLETA DO DASHBOARD - PLANEJAMENTO ORIGINALETURA
+
+### 1. Menu Lateral - Adicionar "Administração"
+- [ ] Criar página de Administração no menu lateral
+- [ ] Submenu: Entrada Manual de Dados (TikTok e outras redes)
+- [ ] Submenu: Status das APIs Conectadas
+- [ ] Submenu: Gerenciar Empresas
+- [ ] Submenu: Histórico de Registros Manuais
+
+### 2. Painel de Administração - Entrada Manual de Dados
+- [ ] Interface para registrar seguidores do TikTok por empresa e data
+- [ ] Interface para registrar dados de outras redes sociais
+- [ ] Formulário com seleção de empresa, rede social, data e métricas
+- [ ] Validação de dados antes de salvar
+
+### 3. Painel de Administração - Status das APIs
+- [ ] Listar todas as APIs conectadas (Metricool, Pipedrive, Discord, Nibo, YouTube)
+- [ ] Mostrar status de conexão (Online/Offline) em tempo real
+- [ ] Última atualização de cada API
+- [ ] Botão para testar conexão de cada API
+- [ ] Indicadores visuais de saúde das integrações
+
+### 4. Painel de Administração - Gerenciar Empresas
+- [ ] Listar todas as empresas cadastradas
+- [ ] Botão "Adicionar Nova Empresa"
+- [ ] Formulário: Nome, Slug, Descrição, Logo
+- [ ] Configuração de APIs por empresa:
+  - [ ] Metricool (blogId, redes sociais conectadas)
+  - [ ] Pipedrive (API token, pipeline ID)
+  - [ ] Discord (guild ID, channel IDs)
+  - [ ] Nibo (API token, empresa ID)
+  - [ ] YouTube (channel ID, API key)
+- [ ] Opção de editar empresas existentes
+- [ ] Opção de desativar (não deletar) empresas
+
+### 5. Painel de Administração - Histórico de Registros Manuais
+- [ ] Tabela com todos os registros manuais (TikTok e redes sociais)
+- [ ] Filtros: Empresa, Rede Social, Período
+- [ ] Colunas: Data, Empresa, Rede, Métricas, Criado por, Criado em
+- [ ] Botão "Editar" para cada registro
+- [ ] Botão "Excluir" para cada registro (com confirmação)
+- [ ] Modal de edição com todos os campos
+- [ ] Paginação e ordenação
+
+### 6. Home - Visão Geral de Todas as Empresas
+- [ ] Redesenhar home para mostrar panorama de todas as empresas
+- [ ] Cards com KPIs consolidados por empresa
+- [ ] Métricas principais: Total de seguidores, Engagement médio, Posts totais
+- [ ] Comparação entre empresas (ranking)
+- [ ] Gráficos de evolução consolidados
+- [ ] Filtro de período (últimos 7, 30, 90 dias)
+
+### 7. Página de Empresa - Panorama Geral + Abas
+- [ ] Redesenhar páginas de empresas com nova estrutura
+- [ ] Seção superior: Panorama Geral (KPIs consolidados de todas as fontes)
+- [ ] Menu de abas horizontais:
+  - [ ] Aba "Visão Geral" (panorama atual)
+  - [ ] Aba "Instagram"
+  - [ ] Aba "Facebook"
+  - [ ] Aba "TikTok"
+  - [ ] Aba "YouTube"
+  - [ ] Aba "Twitter/X"
+  - [ ] Aba "LinkedIn"
+  - [ ] Aba "Threads"
+  - [ ] Aba "Comercial" (Pipedrive)
+  - [ ] Aba "Financeiro" (Nibo)
+  - [ ] Aba "Comunidade" (Discord - se aplicável)
+- [ ] Cada aba mostra métricas detalhadas da respectiva fonte
+- [ ] Manter botões "Registrar Dados" nas abas de redes não conectadas
+
+### 8. Backend - Novos Endpoints
+- [ ] CRUD completo para empresas (create, read, update, delete/disable)
+- [ ] Endpoint para atualizar configurações de API por empresa
+- [ ] Endpoint para editar registros manuais
+- [ ] Endpoint para excluir registros manuais
+- [ ] Endpoint para listar histórico com filtros e paginação
+- [ ] Endpoint para testar status de conexão das APIs
+
+### 9. Banco de Dados - Ajustes no Schema
+- [ ] Adicionar tabela de configurações de API por empresa
+- [ ] Adicionar campo `isActive` na tabela de empresas
+- [ ] Adicionar campo `createdBy` nos registros manuais (se não existe)
+- [ ] Índices para otimizar queries de histórico
+
+### 10. Segurança e Permissões
+- [ ] Implementar controle de acesso ao painel de administração
+- [ ] Apenas usuários autorizados podem acessar Administração
+- [ ] Log de ações administrativas (audit trail)
+- [ ] Validação de permissões em todos os endpoints administrativos
+
+### Prioridade de Implementação
+1. **Fase 1**: Menu Administração + Histórico de Registros Manuais (editar/excluir)
+2. **Fase 2**: Status das APIs + Gerenciar Empresas
+3. **Fase 3**: Home com Visão Geral de Todas as Empresas
+4. **Fase 4**: Reestruturação das páginas de empresas com abas

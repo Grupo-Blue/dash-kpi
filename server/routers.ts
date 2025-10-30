@@ -344,6 +344,35 @@ export const appRouter = router({
         return history;
       }),
 
+    // Get all social media metrics (for admin)
+    getAll: protectedProcedure
+      .query(async () => {
+        const allMetrics = await db.getAllSocialMediaMetrics();
+        console.log('[socialMediaMetrics] Fetched all records:', allMetrics.length);
+        return allMetrics;
+      }),
+
+    // Update a social media metric record
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        recordDate: z.date(),
+        followers: z.number().nullable(),
+        posts: z.number().nullable(),
+        totalLikes: z.number().nullable(),
+        totalComments: z.number().nullable(),
+        totalShares: z.number().nullable(),
+        totalViews: z.number().nullable(),
+        totalReach: z.number().nullable(),
+        totalImpressions: z.number().nullable(),
+        notes: z.string().nullable(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateSocialMediaMetric(input);
+        console.log('[socialMediaMetrics] Updated record:', input.id);
+        return { success: true };
+      }),
+
     // Delete a social media metric record
     delete: protectedProcedure
       .input(z.object({
@@ -411,6 +440,33 @@ export const appRouter = router({
         const latest = await db.getLatestTikTokMetric(input.companyId);
         console.log('[tiktokMetrics] Fetched latest for company:', input.companyId, 'found:', !!latest);
         return latest;
+      }),
+
+    // Get all TikTok metrics (for admin)
+    getAll: protectedProcedure
+      .query(async () => {
+        const allMetrics = await db.getAllTikTokMetrics();
+        console.log('[tiktokMetrics] Fetched all records:', allMetrics.length);
+        return allMetrics;
+      }),
+
+    // Update a TikTok metric record
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        recordDate: z.date(),
+        followers: z.number().nullable(),
+        videos: z.number().nullable(),
+        totalViews: z.number().nullable(),
+        totalLikes: z.number().nullable(),
+        totalComments: z.number().nullable(),
+        totalShares: z.number().nullable(),
+        notes: z.string().nullable(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.updateTikTokMetric(input);
+        console.log('[tiktokMetrics] Updated record:', input.id);
+        return { success: true };
       }),
 
     // Delete a TikTok metric record

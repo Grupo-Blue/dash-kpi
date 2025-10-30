@@ -284,3 +284,98 @@ export async function deleteSocialMediaMetric(id: number) {
   
   return db.delete(socialMediaMetrics).where(eq(socialMediaMetrics.id, id));
 }
+
+
+// Get all TikTok metrics (for admin)
+export async function getAllTikTokMetrics() {
+  console.log('[DB] getAllTikTokMetrics called');
+  const db = await getDb();
+  if (!db) return [];
+  
+  const results = await db
+    .select()
+    .from(tiktokMetrics)
+    .orderBy(desc(tiktokMetrics.createdAt));
+  return results;
+}
+
+// Update TikTok metric
+export async function updateTikTokMetric(data: {
+  id: number;
+  recordDate: Date;
+  followers: number | null;
+  videos: number | null;
+  totalViews: number | null;
+  totalLikes: number | null;
+  totalComments: number | null;
+  totalShares: number | null;
+  notes: string | null;
+}) {
+  console.log('[DB] updateTikTokMetric called for id:', data.id);
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(tiktokMetrics)
+    .set({
+      recordDate: data.recordDate,
+      followers: data.followers,
+      videos: data.videos,
+      totalViews: data.totalViews,
+      totalLikes: data.totalLikes,
+      totalComments: data.totalComments,
+      totalShares: data.totalShares,
+      notes: data.notes,
+      updatedAt: new Date(),
+    })
+    .where(eq(tiktokMetrics.id, data.id));
+}
+
+// Get all social media metrics (for admin)
+export async function getAllSocialMediaMetrics() {
+  console.log('[DB] getAllSocialMediaMetrics called');
+  const db = await getDb();
+  if (!db) return [];
+  
+  const results = await db
+    .select()
+    .from(socialMediaMetrics)
+    .orderBy(desc(socialMediaMetrics.createdAt));
+  return results;
+}
+
+// Update social media metric
+export async function updateSocialMediaMetric(data: {
+  id: number;
+  recordDate: Date;
+  followers: number | null;
+  posts: number | null;
+  totalLikes: number | null;
+  totalComments: number | null;
+  totalShares: number | null;
+  totalViews: number | null;
+  totalReach: number | null;
+  totalImpressions: number | null;
+  notes: string | null;
+}) {
+  console.log('[DB] updateSocialMediaMetric called for id:', data.id);
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db
+    .update(socialMediaMetrics)
+    .set({
+      recordDate: data.recordDate,
+      followers: data.followers,
+      posts: data.posts,
+      totalLikes: data.totalLikes,
+      totalComments: data.totalComments,
+      totalShares: data.totalShares,
+      totalViews: data.totalViews,
+      totalReach: data.totalReach,
+      totalImpressions: data.totalImpressions,
+      notes: data.notes,
+      updatedAt: new Date(),
+    })
+    .where(eq(socialMediaMetrics.id, data.id));
+}
