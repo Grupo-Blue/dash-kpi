@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { trpc } from '../../lib/trpc';
 import { Plus, Pencil, Building2, Key } from 'lucide-react';
+import { ConfigureApisModal } from './ConfigureApisModal';
+import { AddCompanyModal } from './AddCompanyModal';
 
 export function ManageCompanies() {
   const { data: companies, isLoading, refetch } = trpc.companies.getAll.useQuery();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showConfigureModal, setShowConfigureModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+
+  const handleConfigureApis = (company: any) => {
+    setSelectedCompany(company);
+    setShowConfigureModal(true);
+  };
 
   if (isLoading) {
     return (
@@ -80,7 +88,7 @@ export function ManageCompanies() {
                 </div>
               </div>
               <button
-                onClick={() => setSelectedCompany(company)}
+                onClick={() => handleConfigureApis(company)}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
               >
                 <Key className="w-4 h-4" />
@@ -102,6 +110,23 @@ export function ManageCompanies() {
           Para adicionar uma nova empresa ou configurar APIs, entre em contato com o administrador do sistema.
         </p>
       </div>
+
+      {/* Modais */}
+      {selectedCompany && (
+        <ConfigureApisModal
+          open={showConfigureModal}
+          onClose={() => {
+            setShowConfigureModal(false);
+            setSelectedCompany(null);
+          }}
+          company={selectedCompany}
+        />
+      )}
+
+      <AddCompanyModal
+        open={showAddModal}
+        onClose={() => setShowAddModal(false)}
+      />
     </div>
   );
 }

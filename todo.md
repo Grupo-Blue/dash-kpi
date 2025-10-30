@@ -763,3 +763,9 @@
 - [x] Corrigir bug "Empresa Desconhecida" (criado endpoint companies.getAll)
 - [x] Validar edição de registros (testado: 221 → 300 seguidores)
 - [x] Validar exclusão de registros (testado: removido 1 registro)
+
+
+## 🐛 Bugs Reportados - Painel de Administração
+- [x] APIs mostrando como Offline quando estão Online - RESOLVIDO (adicionado checkers para Nibo e Metricool)
+- [ ] Botão "Configurar APIs" não está funcionando (implementar modal de configuração)
+- [ ] Botão "Adicionar Empresa" não está funcionando (implementar modal de criação)
