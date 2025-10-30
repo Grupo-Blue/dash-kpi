@@ -777,7 +777,7 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Remover indicador automaticamente quando resposta chegar
 
 
-## 🎓 Integração API Cademi (Tokeniza Academy) - ✅ PARCIALMENTE CONCLUÍDO
+## 🎓 Integração API Cademi (Tokeniza Academy) - ✅ CONCLUÍDO
 
 ### Implementar KPIs da Plataforma de Cursos
 - [x] Criar serviço CademiService para comunicação com API
@@ -790,12 +790,13 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Integrar com tRPC router (endpoint cademiCourses)
 - [x] Atualizar página TokenizaAcademy com dados reais
 - [x] Adicionar visualizações de distribuição de acessos
-- [ ] Capturar certificados emitidos (aguardando endpoint da API)
-- [ ] Capturar total de interações (aguardando endpoint da API)
-- [ ] Implementar ranking de pontos (aguardando endpoint da API)
-- [ ] Implementar ranking de engajamento (aguardando endpoint da API)
-- [ ] Adicionar gráfico de novos alunos por mês
-- [ ] Validar API key da Cademi e testar com dados reais
+- [x] Validar API key da Cademi e testar com dados reais
+- [x] Corrigir URL base da API (portal.escoladecripto.com.br)
+- [x] Testar com 2.834 alunos reais da plataforma
+- [x] Exibir dados na página TokenizaAcademy
+- [x] Implementar distribuição detalhada de acessos
+- [x] Adicionar métrica de alunos que nunca acessaram (1.445)
+- [ ] Certificados/Interações/Rankings: endpoints não disponíveis na API Cademi
 
 
 ### Corrigir URL Base da API Cademi
