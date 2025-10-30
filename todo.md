@@ -661,3 +661,82 @@ Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo M�
 - ✅ Filtro de período funcional na Home (dropdown com 5 opções)
 - ✅ Componente KpiCardWithTooltip atualizado para suportar ambos os formatos (objeto kpi e props individuais)
 - ✅ Todos os dados consolidados funcionando corretamente
+
+
+## 🤖 Chat com IA por Empresa - EM DESENVOLVIMENTO
+
+### Objetivo
+Implementar sistema de chat com inteligência artificial em cada página de empresa, permitindo que usuários façam perguntas sobre métricas, tendências e dados específicos. A IA lerá dados reais do banco de dados e fornecerá insights personalizados.
+
+### Funcionalidades
+- [ ] Componente de chat flutuante (botão fixo no canto inferior direito)
+- [ ] Interface de chat com histórico de mensagens
+- [ ] Endpoint tRPC para processar perguntas com IA
+- [ ] Integração com API de IA (OpenAI GPT-4 ou similar)
+- [ ] Sistema de contexto: IA recebe dados da empresa antes de responder
+- [ ] Contexto inclui:
+  - [ ] Métricas atuais (KPIs principais)
+  - [ ] Dados históricos (últimos 3-6 meses)
+  - [ ] Integrações ativas (Pipedrive, Discord, Nibo, Metricool)
+  - [ ] Top posts/conteúdos
+  - [ ] Comparações MoM e YoY
+- [ ] Exemplos de perguntas sugeridas
+- [ ] Histórico de conversas salvo no banco de dados
+- [ ] Integrar chat em todas as páginas de empresas:
+  - [ ] Blue Consult
+  - [ ] Tokeniza
+  - [ ] Tokeniza Academy
+  - [ ] Mychel Mendes
+
+### Arquitetura Técnica
+**Frontend:**
+- Componente `CompanyChat.tsx` reutilizável
+- Estado local para mensagens e loading
+- Botão flutuante fixo (bottom-right)
+- Modal/drawer expansível para chat
+
+**Backend:**
+- Endpoint `chat.askQuestion` no tRPC
+- Parâmetros: `companyId`, `question`, `conversationId` (opcional)
+- Buscar dados da empresa do banco de dados
+- Montar contexto estruturado para a IA
+- Chamar API de IA com contexto + pergunta
+- Retornar resposta formatada
+
+**Banco de Dados:**
+- Tabela `chatConversations` (id, companyId, userId, createdAt)
+- Tabela `chatMessages` (id, conversationId, role, content, createdAt)
+
+### Exemplos de Perguntas
+- "Qual foi o faturamento da Blue Consult no último mês?"
+- "Como está a taxa de conversão comparada ao mês passado?"
+- "Quais redes sociais têm melhor engajamento?"
+- "Quantos novos membros entraram no Discord esta semana?"
+- "Qual foi o post com mais alcance no Instagram?"
+- "Como estão as despesas comparadas às receitas?"
+
+### Prioridade
+🔥 Alta - Funcionalidade diferenciadora que agrega muito valor ao dashboard
+
+### Chat com IA por Empresa - ✅ 100% FUNCIONAL
+- [x] Criar componente CompanyChat reutilizável com UI flutuante
+- [x] Implementar endpoint tRPC chat.askQuestion
+- [x] Buscar dados da empresa do banco de dados (getCompanyBySlug)
+- [x] Buscar seguidores por rede social (getLatestFollowersByCompany)
+- [x] Construir contexto estruturado com métricas da empresa
+- [x] Integrar com API de IA usando BUILT_IN_FORGE_API_KEY
+- [x] Adicionar chat na página Blue Consult
+- [x] Adicionar chat na página Tokeniza
+- [x] Adicionar chat na página Tokeniza Academy
+- [x] Adicionar chat na página Mychel Mendes
+- [x] Testar funcionamento do chat em todas as páginas
+- [x] Validar respostas contextualizadas da IA
+
+**Funcionalidades Implementadas:**
+- Botão flutuante no canto inferior direito de cada página de empresa
+- Modal de chat expansível com histórico de mensagens
+- Perguntas sugeridas para facilitar interação
+- IA com contexto específico de cada empresa (dados reais do banco)
+- Loading states durante processamento
+- Tratamento de erros com mensagens amigáveis
+- Design moderno e responsivo

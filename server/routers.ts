@@ -881,6 +881,122 @@ export const appRouter = router({
       }
     }),
   }),
+
+  // Chat with AI
+  chat: router({
+    askQuestion: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        question: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const { companyId, question } = input;
+
+        try {
+          // Get company data
+          const company = await db.getCompanyById(companyId);
+          if (!company) {
+            throw new Error('Company not found');
+          }
+
+          // Build context with company data
+          let context = `Empresa: ${company.name}\n\n`;
+
+          // Get latest KPIs based on company
+          if (company.slug === 'blue-consult') {
+            const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
+            if (pipedriveToken) {
+              const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
+              const kpis = await calculator.calculateAll();
+              context += `KPIs Comerciais (Pipedrive):\n`;
+              context += `- Faturamento: ${kpis.summary.find(k => k.label === 'Faturamento')?.value || 'N/A'}\n`;
+              context += `- Novos Clientes: ${kpis.summary.find(k => k.label === 'Novos Clientes')?.value || 'N/A'}\n`;
+              context += `- Taxa de Conversão: ${kpis.summary.find(k => k.label === 'Taxa de Conversão')?.value || 'N/A'}\n\n`;
+            }
+
+            const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+            const niboCalculator = new NiboKpiCalculator(niboToken);
+            const accountsReceivable = await niboCalculator.calculateAccountsReceivable();
+            const accountsPayable = await niboCalculator.calculateAccountsPayable();
+            context += `KPIs Financeiros (Nibo):\n`;
+            context += `- Contas a Receber: ${accountsReceivable.value}\n`;
+            context += `- Contas a Pagar: ${accountsPayable.value}\n\n`;
+          }
+
+          if (company.slug === 'tokeniza-academy') {
+            const discordToken = process.env.DISCORD_BOT_TOKEN;
+            const guildId = process.env.DISCORD_GUILD_ID;
+            if (discordToken && guildId) {
+              const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
+              const kpis = await calculator.calculateAll();
+              context += `KPIs Discord:\n`;
+              context += `- Total de Membros: ${kpis.summary.find(k => k.label === 'Total de Membros')?.value || 'N/A'}\n`;
+              context += `- Mensagens (30 dias): ${kpis.summary.find(k => k.label === 'Mensagens (30 dias)')?.value || 'N/A'}\n\n`;
+            }
+          }
+
+          // Get social media data from database
+          const followersData = await db.getLatestFollowersByCompany();
+          const companyFollowers = followersData.find(f => f.companyId === companyId);
+          if (companyFollowers) {
+            context += `Redes Sociais:\n`;
+            context += `- Total de Seguidores: ${companyFollowers.totalFollowers.toLocaleString('pt-BR')}\n`;
+            if (companyFollowers.networks && companyFollowers.networks.length > 0) {
+              context += `- Redes: ${companyFollowers.networks.map(n => `${n.network} (${n.followers.toLocaleString('pt-BR')})`).join(', ')}\n`;
+            }
+            context += `\n`;
+          }
+
+          // Call AI API
+          const forgeApiUrl = process.env.BUILT_IN_FORGE_API_URL || 'https://api.manus.im/v1';
+          const forgeApiKey = process.env.BUILT_IN_FORGE_API_KEY;
+
+          if (!forgeApiKey) {
+            throw new Error('BUILT_IN_FORGE_API_KEY not configured');
+          }
+
+          const response = await fetch(`${forgeApiUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${forgeApiKey}`,
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [
+                {
+                  role: 'system',
+                  content: `Você é um assistente de IA especializado em análise de dados e métricas de negócios. Responda perguntas sobre a empresa usando os dados fornecidos no contexto. Seja objetivo, claro e use números quando possível. Responda em português brasileiro.\n\nContexto da empresa:\n${context}`,
+                },
+                {
+                  role: 'user',
+                  content: question,
+                },
+              ],
+              temperature: 0.7,
+              max_tokens: 500,
+            }),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('[Chat] AI API error:', errorText);
+            throw new Error(`AI API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const answer = data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua pergunta.';
+
+          return {
+            answer,
+            context: context.substring(0, 200) + '...', // Return truncated context for debugging
+          };
+        } catch (error) {
+          console.error('[Chat] Error processing question:', error);
+          throw new Error(`Erro ao processar pergunta: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

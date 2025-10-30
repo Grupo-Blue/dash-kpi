@@ -7,8 +7,10 @@ import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
+import { CompanyChat } from "@/components/CompanyChat";
 
 export default function TokenizaAcademy() {
+  const companyId = 30002; // Tokeniza Academy ID
   const { data: kpis, isLoading, refetch } = trpc.kpis.tokenizaAcademy.useQuery();
   const { data: socialKpis, isLoading: socialLoading } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3893327', // Tokeniza Academy
@@ -349,6 +351,9 @@ export default function TokenizaAcademy() {
         {/* Tabs */}
         <SocialMediaTabs tabs={tabs} defaultTab="discord" />
       </div>
+      
+      {/* AI Chat Assistant */}
+      <CompanyChat companyId={companyId} companyName="Tokeniza Academy" />
     </DashboardLayout>
   );
 }

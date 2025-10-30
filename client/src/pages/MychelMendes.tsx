@@ -9,9 +9,11 @@ import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
 import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
+import { CompanyChat } from "@/components/CompanyChat";
 import { useState } from "react";
 
 export default function MychelMendes() {
+  const companyId = 30004; // Mychel Mendes ID
   const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
   const [threadsModalOpen, setThreadsModalOpen] = useState(false);
@@ -569,6 +571,9 @@ export default function MychelMendes() {
           onSuccess={refetch}
         />
       </div>
+      
+      {/* AI Chat Assistant */}
+      <CompanyChat companyId={companyId} companyName="Mychel Mendes" />
     </DashboardLayout>
   );
 }
