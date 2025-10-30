@@ -4,6 +4,9 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
+import { getDb } from "./db";
+import * as schema from "../drizzle/schema";
+import { eq } from "drizzle-orm";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
@@ -478,6 +481,31 @@ export const appRouter = router({
         await db.deleteTikTokMetric(input.id);
         console.log('[tiktokMetrics] Deleted record:', input.id);
         return { success: true };
+      }),
+  }),
+
+  // Companies router
+  companies: router({
+    getAll: protectedProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) return [];
+        const companies = await db.select().from(schema.companies);
+        console.log('[companies] Fetched all companies:', companies.length);
+        return companies;
+      }),
+
+    getBySlug: protectedProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return null;
+        const [company] = await db
+          .select()
+          .from(schema.companies)
+          .where(eq(schema.companies.slug, input.slug))
+          .limit(1);
+        return company || null;
       }),
   }),
 });
