@@ -618,3 +618,36 @@ Crescimento YoY = ((Valor Atual - Valor Mesmo Mês Ano Passado) / Valor Mesmo M�
 - Problema: valor está sendo dividido por 100 incorretamente
 - [ ] Verificar extração de dados do Pipedrive no endpoint consolidado
 - [ ] Multiplicar por 100 ou corrigir fonte do dado
+
+
+## 🎨 Melhorias de UX e Funcionalidades - EM ANDAMENTO
+
+### 1. Restaurar Top 5 Posts nas Páginas de Empresas
+- [x] Verificar quais páginas perderam a seção Top 5 Posts após reestruturação com abas
+- [x] Restaurar seção Top 5 Posts em Mychel Mendes
+- [x] Restaurar seção Top 5 Posts em Tokeniza
+- [x] Blue Consult já tinha Top 5 Posts
+- [x] Tokeniza Academy já tinha Top 5 Posts
+
+### 2. Adicionar Tooltips (ícone i) em Todos os KPIs
+- [x] Verificar arquivo `kpiDescriptions.ts` e adicionar descrições faltantes
+- [x] Expandido kpiDescriptions.ts com 100+ descrições (Home, redes sociais, todas as métricas)
+- [ ] Adicionar tooltips na página Home (KPIs consolidados) - EM ANDAMENTO
+- [x] Blue Consult já usa KpiCardWithTooltip
+- [x] Tokeniza já usa KpiCardWithTooltip
+- [x] Mychel Mendes já usa KpiCardWithTooltip
+- [x] Tokeniza Academy já usa KpiCardWithTooltip
+
+### 3. Filtro de Período na Home
+- [ ] Criar componente de filtro de período (dropdown ou tabs)
+- [ ] Opções de filtro:
+  - [ ] Mês Atual (padrão)
+  - [ ] Mês Específico (seletor de mês/ano)
+  - [ ] Trimestre (Q1, Q2, Q3, Q4)
+  - [ ] Semestre (S1, S2)
+  - [ ] Ano (seletor de ano)
+- [ ] Atualizar endpoint `consolidatedKpis.overview` para aceitar parâmetros de período
+- [ ] Implementar lógica de filtragem de dados por período no backend
+- [ ] Integrar filtro no componente Home
+- [ ] Testar com diferentes períodos
+- [ ] Adicionar indicadores de comparação MoM e YoY

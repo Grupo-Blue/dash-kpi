@@ -8,6 +8,8 @@ import { Building2, TrendingUp, GraduationCap, RefreshCw, DollarSign, Users, Mes
 import { IntegrationStatus } from "@/components/IntegrationStatus";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
+import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
+import { getKpiDescription } from "@/lib/kpiDescriptions";
 
 export default function Home() {
   const { user, loading } = useAuth();

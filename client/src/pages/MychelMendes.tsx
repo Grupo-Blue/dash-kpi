@@ -497,6 +497,49 @@ export default function MychelMendes() {
         {/* Tabs de Redes Sociais */}
         <SocialMediaTabs tabs={tabs} defaultTab="overview" />
         
+        {/* Top Posts */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Top 5 Posts por Engagement</CardTitle>
+            <CardDescription>Posts com maior engajamento nas redes sociais</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {socialKpis?.topPosts && socialKpis.topPosts.length > 0 ? (
+              <div className="space-y-4">
+                {socialKpis.topPosts.slice(0, 5).map((post: any, index: number) => (
+                  <div key={index} className="flex items-start gap-4 p-4 border rounded-lg hover:bg-accent/50 transition-colors">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{post.text || 'Sem legenda'}</p>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <TrendingUp className="h-3 w-3" />
+                          {formatNumber(post.interactions || 0)} interações
+                        </span>
+                        <span>{post.network || 'Desconhecido'}</span>
+                        {post.url && (
+                          <a 
+                            href={post.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                          >
+                            Ver post
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-center text-muted-foreground py-8">Nenhum post disponível</p>
+            )}
+          </CardContent>
+        </Card>
+        
         {/* Modais de Registro Manual */}
         <TikTokManualEntryModal 
           open={tiktokModalOpen}
