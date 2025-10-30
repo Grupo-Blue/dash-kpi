@@ -5,7 +5,7 @@
  * Documentação: https://ajuda.cademi.com.br/configuracoes/api
  */
 
-const CADEMI_BASE_URL = 'https://escoladecripto.cademi.com.br/api/v1';
+const CADEMI_BASE_URL = 'https://portal.escoladecripto.com.br/api/v1';
 const CADEMI_API_KEY = process.env.CADEMI_API_KEY;
 
 interface CademiResponse<T> {

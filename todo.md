@@ -796,3 +796,16 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [ ] Implementar ranking de engajamento (aguardando endpoint da API)
 - [ ] Adicionar gráfico de novos alunos por mês
 - [ ] Validar API key da Cademi e testar com dados reais
+
+
+### Corrigir URL Base da API Cademi
+- [x] Atualizar URL de escoladecripto.cademi.com.br para bitclass.cademi.com.br
+- [x] Testar conexão com API usando URL correta
+- [x] Identificado: API retorna HTML ao invés de JSON
+
+### Corrigir Domínio da API Cademi - ✅ CONCLUÍDO
+- [x] Testado bitclass.cademi.com.br - retornou HTML
+- [x] Testado portal.escoladecripto.com.br - retornou JSON!
+- [x] Atualizado URL no código para portal.escoladecripto.com.br
+- [x] Validar resposta JSON da API - funcionando
+- [ ] Aguardando API key válida do usuário para testar com dados reais
