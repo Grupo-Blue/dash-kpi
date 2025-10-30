@@ -14,6 +14,7 @@ import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDis
 import { IntegrationStatusChecker } from './services/integrationStatus';
 import { NiboKpiCalculator } from './services/niboKpiCalculator';
 import { MetricoolKpiCalculator } from './services/metricoolKpiCalculator';
+import { calculateCademiKpis } from './services/cademiKpiCalculator';
 import { ApiStatusTracker, trackApiStatus } from './services/apiStatusTracker';
 import { ENV } from "./_core/env";
 
@@ -252,6 +253,34 @@ export const appRouter = router({
       }
 
       return statuses;
+    }),
+
+    // Cademi Courses KPIs (Tokeniza Academy)
+    cademiCourses: protectedProcedure.query(async () => {
+      const startTime = Date.now();
+      console.log('[cademiCourses] Starting query...');
+      
+      try {
+        const cademiApiKey = process.env.CADEMI_API_KEY;
+        
+        if (!cademiApiKey) {
+          await trackApiStatus('cademi', false, 'API key not configured');
+          throw new Error('Cademi API não configurada. Configure a chave de API para visualizar dados dos cursos.');
+        }
+
+        const kpis = await calculateCademiKpis();
+        await trackApiStatus('cademi', true);
+        
+        const duration = Date.now() - startTime;
+        console.log(`[cademiCourses] KPIs calculated successfully in ${duration}ms`);
+        
+        return kpis;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        await trackApiStatus('cademi', false, errorMessage);
+        console.error('[cademiCourses] Error:', error);
+        throw error;
+      }
     }),
 
     // Debug endpoint to check environment variables

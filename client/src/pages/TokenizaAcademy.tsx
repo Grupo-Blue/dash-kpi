@@ -15,6 +15,9 @@ export default function TokenizaAcademy() {
   const { data: socialKpis, isLoading: socialLoading } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3893327', // Tokeniza Academy
   });
+  const { data: cademiKpis, isLoading: cademiLoading, error: cademiError } = trpc.kpis.cademiCourses.useQuery(undefined, {
+    retry: false,
+  });
   
   const refreshMutation = trpc.kpis.refresh.useMutation({
     onSuccess: () => {
@@ -122,74 +125,155 @@ export default function TokenizaAcademy() {
   );
 
   // Cursos Tab
-  const cursosTab = (
+  const cursosTab = cademiKpis ? (
     <div className="space-y-6">
+      {/* Main KPI Cards */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total de Alunos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{cademiKpis.totalStudents.toLocaleString('pt-BR')}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className={cademiKpis.studentsVariation >= 0 ? 'text-green-600' : 'text-red-600'}>
+                {cademiKpis.studentsVariation >= 0 ? '+' : ''}{cademiKpis.studentsVariation.toFixed(1)}%
+              </span>
+              {' '}nas últimas 4 semanas
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Certificados Emitidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{cademiKpis.certificatesIssued}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total de certificados</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Interações</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{cademiKpis.interactions}</div>
+            <p className="text-xs text-muted-foreground mt-1">Comentários e compartilhamentos</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Emails Inválidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{cademiKpis.invalidEmails}</div>
+            <p className="text-xs text-muted-foreground mt-1">Precisam de atualização</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Access Distribution */}
       <Card>
         <CardHeader>
-          <CardTitle>Plataforma de Cursos</CardTitle>
-          <CardDescription>Métricas da Tokeniza Academy</CardDescription>
+          <CardTitle>Acessos</CardTitle>
+          <CardDescription>Nos últimos 30 dias</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Users className="w-4 h-4" />
-                <span className="text-sm">Alunos Ativos</span>
-              </div>
-              <div className="text-3xl font-bold">456</div>
-              <p className="text-xs text-muted-foreground">
-                Alunos com acesso ativo aos cursos
-              </p>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-2xl font-bold">{cademiKpis.accessLast30Days}</span>
+              <span className="text-sm text-muted-foreground">Total de acessos</span>
             </div>
-            
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm">Cursos Vendidos (Mês)</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Hoje</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 bg-blue-500 rounded" style={{ width: `${(cademiKpis.accessDistribution.today / cademiKpis.accessLast30Days * 100)}px` }}></div>
+                  <span className="text-sm font-medium">{cademiKpis.accessDistribution.today}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {((cademiKpis.accessDistribution.today / cademiKpis.accessLast30Days) * 100).toFixed(1)}%
+                  </span>
+                </div>
               </div>
-              <div className="text-3xl font-bold">34</div>
-              <p className="text-xs text-muted-foreground">
-                Novos cursos vendidos este mês
-              </p>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-sm">Taxa de Conclusão</span>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">Ontem</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 bg-blue-400 rounded" style={{ width: `${(cademiKpis.accessDistribution.yesterday / cademiKpis.accessLast30Days * 100)}px` }}></div>
+                  <span className="text-sm font-medium">{cademiKpis.accessDistribution.yesterday}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {((cademiKpis.accessDistribution.yesterday / cademiKpis.accessLast30Days) * 100).toFixed(1)}%
+                  </span>
+                </div>
               </div>
-              <div className="text-3xl font-bold">68%</div>
-              <p className="text-xs text-muted-foreground">
-                Alunos que completam os cursos
-              </p>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">2 a 7 dias</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 bg-blue-300 rounded" style={{ width: `${(cademiKpis.accessDistribution.days2to7 / cademiKpis.accessLast30Days * 100)}px` }}></div>
+                  <span className="text-sm font-medium">{cademiKpis.accessDistribution.days2to7}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {((cademiKpis.accessDistribution.days2to7 / cademiKpis.accessLast30Days) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">7 a 14 dias</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 bg-orange-300 rounded" style={{ width: `${(cademiKpis.accessDistribution.days7to14 / cademiKpis.accessLast30Days * 100)}px` }}></div>
+                  <span className="text-sm font-medium">{cademiKpis.accessDistribution.days7to14}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {((cademiKpis.accessDistribution.days7to14 / cademiKpis.accessLast30Days) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm">14 a 30 dias</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-2 bg-red-300 rounded" style={{ width: `${(cademiKpis.accessDistribution.days14to30 / cademiKpis.accessLast30Days * 100)}px` }}></div>
+                  <span className="text-sm font-medium">{cademiKpis.accessDistribution.days14to30}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {((cademiKpis.accessDistribution.days14to30 / cademiKpis.accessLast30Days) * 100).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
+      {/* Never Accessed */}
       <Card>
         <CardHeader>
-          <CardTitle>Status das Integrações</CardTitle>
-          <CardDescription>Configure as APIs para dados em tempo real</CardDescription>
+          <CardTitle>Nunca Acessou</CardTitle>
+          <CardDescription>Alunos que ainda não acessaram a plataforma</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between p-3 border rounded-lg">
-            <div>
-              <p className="font-medium">Discord API</p>
-              <p className="text-sm text-muted-foreground">Configure o bot do Discord para métricas da comunidade</p>
-            </div>
-            <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Pendente</span>
-          </div>
-          <div className="flex items-center justify-between p-3 border rounded-lg">
-            <div>
-              <p className="font-medium">Tokeniza Academy API</p>
-              <p className="text-sm text-muted-foreground">Dados de cursos e alunos</p>
-            </div>
-            <span className="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Pendente</span>
-          </div>
+        <CardContent>
+          <div className="text-3xl font-bold text-red-600">{cademiKpis.neverAccessed}</div>
+          <p className="text-sm text-muted-foreground mt-2">
+            {((cademiKpis.neverAccessed / cademiKpis.totalStudents) * 100).toFixed(1)}% do total de alunos
+          </p>
         </CardContent>
       </Card>
     </div>
+  ) : cademiError ? (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="text-center py-12">
+          <p className="text-lg text-muted-foreground">Erro ao carregar dados da Cademi</p>
+          <p className="text-sm text-red-600 mt-2">{cademiError.message}</p>
+        </div>
+      </CardContent>
+    </Card>
+  ) : (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </CardContent>
+    </Card>
   );
 
   // Redes Sociais Tab

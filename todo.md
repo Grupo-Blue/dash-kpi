@@ -775,3 +775,24 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Exibir animação de três pontos pulsantes (bounce com delays)
 - [x] Mostrar mensagem "Assistente está digitando..."
 - [x] Remover indicador automaticamente quando resposta chegar
+
+
+## 🎓 Integração API Cademi (Tokeniza Academy) - ✅ PARCIALMENTE CONCLUÍDO
+
+### Implementar KPIs da Plataforma de Cursos
+- [x] Criar serviço CademiService para comunicação com API
+- [x] Criar serviço CademiKpiCalculator
+- [x] Implementar endpoint de alunos totais e variação
+- [x] Implementar cálculo de novos alunos por mês
+- [x] Implementar distribuição de acessos (últimos 30 dias)
+- [x] Adicionar métrica de alunos que nunca acessaram
+- [x] Adicionar métrica de emails inválidos
+- [x] Integrar com tRPC router (endpoint cademiCourses)
+- [x] Atualizar página TokenizaAcademy com dados reais
+- [x] Adicionar visualizações de distribuição de acessos
+- [ ] Capturar certificados emitidos (aguardando endpoint da API)
+- [ ] Capturar total de interações (aguardando endpoint da API)
+- [ ] Implementar ranking de pontos (aguardando endpoint da API)
+- [ ] Implementar ranking de engajamento (aguardando endpoint da API)
+- [ ] Adicionar gráfico de novos alunos por mês
+- [ ] Validar API key da Cademi e testar com dados reais
