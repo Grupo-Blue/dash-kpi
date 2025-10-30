@@ -199,9 +199,6 @@ export class MetricoolKpiCalculator {
           const companyData = await db.getCompanyBySlug(companySlug);
           if (companyData) {
             manualTikTokData = await db.getLatestTikTokMetric(companyData.id);
-            if (manualTikTokData) {
-              console.log('[MetricoolKPI] Using manual TikTok data for company:', companySlug);
-            }
           }
         }
       } catch (error) {

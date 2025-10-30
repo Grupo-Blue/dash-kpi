@@ -568,3 +568,11 @@
 - [ ] Adicionar sistema de entrada manual na página Tokeniza
 - [ ] Implementar visualização de histórico de registros manuais
 - [ ] Calcular crescimento de seguidores comparando com registro anterior
+
+
+## Bug Reportado - Dados Manuais TikTok Não Atualizam - ✅ RESOLVIDO
+- [x] Usuário registrou dados do TikTok mas não viu mudanças no dashboard
+- [x] CAUSA IDENTIFICADA: getLatestTikTokMetric ordena por recordDate (data escolhida pelo usuário) em vez de createdAt (data de criação do registro)
+- [x] SOLUÇÃO: Mudado ordenação de recordDate para createdAt para sempre pegar o registro mais recentemente inserido
+- [x] Refetch automático já estava implementado (onSuccess callback)
+- [x] Testado e validado com dados reais do usuário

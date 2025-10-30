@@ -218,9 +218,11 @@ export async function getLatestTikTokMetric(companyId: number): Promise<TikTokMe
   const db = await getDb();
   if (!db) return undefined;
   
+  // Order by createdAt (when record was inserted) instead of recordDate (user-chosen date)
+  // This ensures we always get the most recently inserted record
   const results = await db.select().from(tiktokMetrics)
     .where(eq(tiktokMetrics.companyId, companyId))
-    .orderBy(desc(tiktokMetrics.recordDate))
+    .orderBy(desc(tiktokMetrics.createdAt))
     .limit(1);
   
   return results[0];
