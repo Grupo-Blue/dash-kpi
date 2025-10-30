@@ -16,6 +16,7 @@ export interface SocialMediaKPIs {
     likes: number;
     comments: number;
     shares: number;
+    network: string;
   }>;
   topYouTubeVideos: Array<{
     url: string;
@@ -240,14 +241,33 @@ export class MetricoolKpiCalculator {
         .filter(post => post.engagement && post.engagement > 0)
         .sort((a, b) => (b.engagement || 0) - (a.engagement || 0))
         .slice(0, 5)
-        .map(post => ({
-          url: post.url || post.link || '',
-          content: (post.content || post.text || '').substring(0, 100) + '...',
-          engagement: post.engagement || 0,
-          likes: post.likes || post.reactions || 0,
-          comments: post.comments || 0,
-          shares: post.shares || 0,
-        }));
+        .map(post => {
+          // Tentar múltiplos campos para o conteúdo
+          let content = post.content || post.text || post.message || post.caption || post.description || '';
+          
+          // Se ainda estiver vazio, usar informações do tipo de post
+          if (!content.trim()) {
+            const type = post.type || post.postType || 'Post';
+            const network = post.network || post.source || 'rede social';
+            const date = post.date || post.publishedAt || post.createdAt;
+            content = `${type} em ${network}${date ? ` - ${new Date(date).toLocaleDateString('pt-BR')}` : ''}`;
+          }
+          
+          // Limitar tamanho e adicionar reticências apenas se houver conteúdo
+          if (content.length > 100) {
+            content = content.substring(0, 100) + '...';
+          }
+          
+          return {
+            url: post.url || post.link || '',
+            content: content,
+            engagement: post.engagement || 0,
+            likes: post.likes || post.reactions || 0,
+            comments: post.comments || 0,
+            shares: post.shares || 0,
+            network: post.network || post.source || 'Desconhecido',
+          };
+        });
 
       // Network breakdown
       const instagramEngagement = [

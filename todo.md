@@ -740,3 +740,15 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - Loading states durante processamento
 - Tratamento de erros com mensagens amigáveis
 - Design moderno e responsivo
+
+
+## 🐛 Bugs Reportados
+
+### Top 5 Posts Exibindo "Sem legenda" - ✅ RESOLVIDO
+- [x] Investigar por que campo `content` estava vazio nos posts do Metricool
+- [x] Implementar fallback para exibir outras informações quando content estiver vazio
+- [x] Corrigir inconsistência: backend usava `content`, frontend usava `post.text`
+- [x] Adicionar múltiplos fallbacks: content, text, message, caption, description
+- [x] Fallback final: "Tipo em Rede Social - Data" quando nenhum campo tiver conteúdo
+- [x] Adicionar campo `network` na interface e retorno dos posts
+- [x] Testar em todas as páginas (Tokeniza, Mychel Mendes, Blue Consult, Tokeniza Academy)

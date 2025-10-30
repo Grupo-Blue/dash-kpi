@@ -514,7 +514,7 @@ export default function MychelMendes() {
                       {index + 1}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{post.text || 'Sem legenda'}</p>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{post.content || 'Sem legenda'}</p>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <TrendingUp className="h-3 w-3" />
