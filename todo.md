@@ -766,3 +766,12 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Substituído fetch manual por invokeLLM que já está configurado corretamente
 - [x] Corrigido modelo: de gpt-4o-mini para gemini-2.5-flash (padrão do template)
 - [x] Melhorada extração de conteúdo da resposta (suporte a string e array)
+
+
+## 🎨 Melhorias de UX
+
+### Indicador de "Digitando..." no Chat com IA - ✅ CONCLUÍDO
+- [x] Adicionar indicador visual enquanto IA processa resposta
+- [x] Exibir animação de três pontos pulsantes (bounce com delays)
+- [x] Mostrar mensagem "Assistente está digitando..."
+- [x] Remover indicador automaticamente quando resposta chegar
