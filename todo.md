@@ -349,3 +349,68 @@ Implementar funcionalidade completa de CRUD (Create, Read, Update, Delete) de em
 2. Slug deve ser gerado automaticamente a partir do nome se não fornecido
 3. Não permitir exclusão de empresas com KPIs ou integrações associadas
 4. Empresas inativas não aparecem na navegação principal, mas continuam no banco
+
+
+## 📑 Fase 4: Reestruturação com Abas nas Páginas de Empresas - EM ANDAMENTO
+
+### Objetivo
+Organizar as métricas de redes sociais em abas separadas nas páginas das empresas, melhorando a navegação e experiência do usuário.
+
+### Contexto
+Atualmente, as páginas de empresas (Blue Consult, Tokeniza, Tokeniza Academy) exibem todas as métricas em uma única página longa. Com múltiplas redes sociais (Instagram, TikTok, YouTube, LinkedIn, etc.), a página fica muito extensa e difícil de navegar.
+
+### Tarefas
+- [x] Analisar estrutura atual das páginas de empresas
+  - [ ] Blue Consult (BlueConsult.tsx)
+  - [ ] Tokeniza (Tokeniza.tsx)
+  - [ ] Tokeniza Academy (TokenizaAcademy.tsx)
+  - [x] Mychel Mendes (MychelMendes.tsx) - 688 linhas analisadas
+- [x] Criar componente de abas reutilizável
+  - [x] Componente `SocialMediaTabs.tsx`
+  - [x] Suporte para múltiplas redes sociais
+  - [x] Ícones para cada rede social
+  - [x] Estado de aba ativa
+- [ ] Reestruturar páginas com sistema de abas
+  - [x] Identificar seções de redes sociais em cada página
+  - [x] Agrupar métricas por rede social
+  - [x] Implementar abas em Mychel Mendes (9 abas: Visão Geral + 8 redes)
+  - [x] Manter KPIs principais visíveis (fora das abas)
+  - [ ] Implementar abas em Blue Consult
+  - [ ] Implementar abas em Tokeniza
+  - [x] Implementar abas em Tokeniza Academy (3 abas: Discord, Cursos, Redes Sociais)
+- [ ] Testar navegação entre abas
+- [ ] Validar responsividade mobile
+
+### Estrutura Proposta
+```
+Página da Empresa
+├── Header (nome, descrição)
+├── KPIs Principais (sempre visíveis)
+│   ├── Receita Mensal
+│   ├── Novos Clientes
+│   └── Taxa de Conversão
+└── Abas de Redes Sociais
+    ├── Instagram
+    │   ├── Seguidores
+    │   ├── Engajamento
+    │   └── Posts Recentes
+    ├── TikTok
+    │   ├── Seguidores
+    │   ├── Visualizações
+    │   └── Vídeos Populares
+    ├── YouTube
+    │   ├── Inscritos
+    │   ├── Visualizações
+    │   └── Vídeos Recentes
+    └── LinkedIn
+        ├── Conexões
+        ├── Impressões
+        └── Posts Recentes
+```
+
+### Benefícios
+1. **Melhor Organização**: Métricas agrupadas por rede social
+2. **Navegação Mais Fácil**: Usuário encontra rapidamente o que procura
+3. **Performance**: Carrega apenas a aba ativa
+4. **Escalabilidade**: Fácil adicionar novas redes sociais
+5. **UX Moderna**: Interface mais limpa e profissional
