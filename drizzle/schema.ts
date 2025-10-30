@@ -136,3 +136,21 @@ export const socialMediaMetrics = mysqlTable("socialMediaMetrics", {
 
 export type SocialMediaMetric = typeof socialMediaMetrics.$inferSelect;
 export type InsertSocialMediaMetric = typeof socialMediaMetrics.$inferInsert;
+
+/**
+ * API Status History - Tracks success/failure of API calls
+ */
+export const apiStatus = mysqlTable("apiStatus", {
+  id: int("id").autoincrement().primaryKey(),
+  apiName: varchar("apiName", { length: 100 }).notNull(), // pipedrive, discord, nibo, metricool
+  companyId: int("companyId"), // null for global APIs like metricool
+  status: mysqlEnum("status", ["online", "offline"]).notNull(),
+  endpoint: varchar("endpoint", { length: 255}), // which endpoint was called
+  errorMessage: text("errorMessage"), // error details if failed
+  responseTime: int("responseTime"), // response time in ms
+  lastChecked: timestamp("lastChecked").defaultNow().notNull(),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type ApiStatus = typeof apiStatus.$inferSelect;
+export type InsertApiStatus = typeof apiStatus.$inferInsert;

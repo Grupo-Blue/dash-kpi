@@ -6,7 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
@@ -14,6 +14,7 @@ import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDis
 import { IntegrationStatusChecker } from './services/integrationStatus';
 import { NiboKpiCalculator } from './services/niboKpiCalculator';
 import { MetricoolKpiCalculator } from './services/metricoolKpiCalculator';
+import { ApiStatusTracker, trackApiStatus } from './services/apiStatusTracker';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -70,29 +71,39 @@ export const appRouter = router({
   kpis: router({
     // Blue Consult KPIs
     blueConsult: protectedProcedure.query(async () => {
+      const startTime = Date.now();
       const company = await db.getCompanyBySlug('blue-consult');
       if (!company) throw new Error('Company not found');
 
       const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
       
       if (!pipedriveToken) {
+        await ApiStatusTracker.recordFailure('pipedrive', 'kpis.blueConsult', 'API token not configured', company.id);
         throw new Error('Pipedrive API não configurada. Configure a integração para visualizar dados reais.');
       }
 
-      const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
-      const kpis = {
-        summary: await Promise.all([
-          calculator.calculateMonthlyRevenue(),
-          calculator.calculateNewClients(),
-          calculator.calculateClientsInImplementation(),
-          calculator.calculateConversionRate(),
-        ]),
-        revenueTimeSeries: await calculator.calculateRevenueTimeSeries(),
-        salesFunnel: await calculator.calculateSalesFunnel(),
-        implementationPipeline: await calculator.calculateImplementationPipeline(),
-      };
-      
-      return kpis;
+      try {
+        const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
+        const kpis = {
+          summary: await Promise.all([
+            calculator.calculateMonthlyRevenue(),
+            calculator.calculateNewClients(),
+            calculator.calculateClientsInImplementation(),
+            calculator.calculateConversionRate(),
+          ]),
+          revenueTimeSeries: await calculator.calculateRevenueTimeSeries(),
+          salesFunnel: await calculator.calculateSalesFunnel(),
+          implementationPipeline: await calculator.calculateImplementationPipeline(),
+        };
+        
+        const responseTime = Date.now() - startTime;
+        await ApiStatusTracker.recordSuccess('pipedrive', 'kpis.blueConsult', responseTime, company.id);
+        
+        return kpis;
+      } catch (error) {
+        await ApiStatusTracker.recordFailure('pipedrive', 'kpis.blueConsult', error instanceof Error ? error.message : 'Unknown error', company.id);
+        throw error;
+      }
     }),
 
     // Tokeniza KPIs
@@ -106,6 +117,7 @@ export const appRouter = router({
 
     // Tokeniza Academy KPIs
     tokenizaAcademy: protectedProcedure.query(async () => {
+      const startTime = Date.now();
       const company = await db.getCompanyBySlug('tokeniza-academy');
       if (!company) throw new Error('Company not found');
 
@@ -113,26 +125,35 @@ export const appRouter = router({
       const guildId = process.env.DISCORD_GUILD_ID;
       
       if (!discordToken || !guildId) {
+        await ApiStatusTracker.recordFailure('discord', 'kpis.tokenizaAcademy', 'API token not configured', company.id);
         throw new Error('Discord API não configurada. Configure a integração para visualizar dados reais.');
       }
 
-      const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
-      const kpis = {
-        summary: await Promise.all([
-          calculator.calculateTotalMembers(),
-          calculator.calculateOnlineMembers(),
-          calculator.calculateNewMembers7Days(),
-          calculator.calculateNewMembers30Days(),
-        ]),
-        memberTypeDistribution: await calculator.getMemberTypeDistribution(),
-        additionalMetrics: {
-          activityRate: await calculator.calculateActivityRate(),
-          totalChannels: await calculator.calculateTotalChannels(),
-          memberDistribution: await calculator.calculateMemberDistribution(),
-        },
-      };
-      
-      return kpis;
+      try {
+        const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
+        const kpis = {
+          summary: await Promise.all([
+            calculator.calculateTotalMembers(),
+            calculator.calculateOnlineMembers(),
+            calculator.calculateNewMembers7Days(),
+            calculator.calculateNewMembers30Days(),
+          ]),
+          memberTypeDistribution: await calculator.getMemberTypeDistribution(),
+          additionalMetrics: {
+            activityRate: await calculator.calculateActivityRate(),
+            totalChannels: await calculator.calculateTotalChannels(),
+            memberDistribution: await calculator.calculateMemberDistribution(),
+          },
+        };
+        
+        const responseTime = Date.now() - startTime;
+        await ApiStatusTracker.recordSuccess('discord', 'kpis.tokenizaAcademy', responseTime, company.id);
+        
+        return kpis;
+      } catch (error) {
+        await ApiStatusTracker.recordFailure('discord', 'kpis.tokenizaAcademy', error instanceof Error ? error.message : 'Unknown error', company.id);
+        throw error;
+      }
     }),
 
     // Refresh all KPIs for a company
@@ -148,9 +169,51 @@ export const appRouter = router({
         };
       }),
 
-    // Get integration status
+    // Get integration status from database (based on real API usage)
     integrationStatus: protectedProcedure.query(async () => {
-      const statuses = await IntegrationStatusChecker.checkAll();
+      const database = await getDb();
+      if (!database) {
+        throw new Error('Database not available');
+      }
+
+      // API names and display names
+      const apiConfigs = [
+        { key: 'pipedrive', name: 'Pipedrive' },
+        { key: 'discord', name: 'Discord' },
+        { key: 'nibo', name: 'Nibo' },
+        { key: 'metricool', name: 'Metricool' },
+      ];
+
+      const statuses = [];
+
+      for (const config of apiConfigs) {
+        // Get most recent status entry for this API
+        const result = await database
+          .select()
+          .from(schema.apiStatus)
+          .where(eq(schema.apiStatus.apiName, config.key))
+          .orderBy(desc(schema.apiStatus.lastChecked))
+          .limit(1);
+
+        if (result.length > 0) {
+          const latest = result[0];
+          statuses.push({
+            name: config.name,
+            status: latest.status,
+            lastChecked: latest.lastChecked.toISOString(),
+            error: latest.errorMessage || null,
+          });
+        } else {
+          // No data yet - assume offline
+          statuses.push({
+            name: config.name,
+            status: 'offline' as const,
+            lastChecked: new Date().toISOString(),
+            error: 'Nenhum dado registrado ainda',
+          });
+        }
+      }
+
       return statuses;
     }),
 
@@ -174,6 +237,7 @@ export const appRouter = router({
         console.log('[niboFinancial] Token source:', process.env.NIBO_API_TOKEN ? 'env' : 'hardcoded');
         
         if (!niboToken) {
+          await trackApiStatus('nibo', false, 'Token não configurado');
           throw new Error('Nibo API não configurada. Configure a integração para visualizar dados financeiros.');
         }
 
@@ -192,11 +256,15 @@ export const appRouter = router({
         };
         console.log('[niboFinancial] All KPIs calculated successfully');
         
+        // Track successful API call
+        await trackApiStatus('nibo', true);
+        
         console.log('[niboFinancial] Returning kpis...');
         return kpis;
       } catch (error: any) {
         console.error('[niboFinancial] ERROR:', error.message);
         console.error('[niboFinancial] Stack:', error.stack);
+        await trackApiStatus('nibo', false, error.message);
         throw error;
       }
     }),
@@ -220,6 +288,7 @@ export const appRouter = router({
           console.log('[metricoolSocialMedia] User ID:', metricoolUserId);
           
           if (!metricoolToken) {
+            await trackApiStatus('metricool', false, 'Token não configurado');
             throw new Error('Metricool API não configurada. Configure a integração para visualizar métricas de redes sociais.');
           }
 
@@ -235,10 +304,15 @@ export const appRouter = router({
           const kpis = await calculator.calculateSocialMediaKPIs(input.blogId, from, to);
           
           console.log('[metricoolSocialMedia] KPIs calculated successfully');
+          
+          // Track successful API call
+          await trackApiStatus('metricool', true);
+          
           return kpis;
         } catch (error: any) {
           console.error('[metricoolSocialMedia] ERROR:', error.message);
           console.error('[metricoolSocialMedia] Stack:', error.stack);
+          await trackApiStatus('metricool', false, error.message);
           throw error;
         }
       }),

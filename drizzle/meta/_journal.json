@@ -29,6 +29,20 @@
       "when": 1761824536253,
       "tag": "0003_broad_ironclad",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1761828536707,
+      "tag": "0004_gray_sumo",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1761829299352,
+      "tag": "0005_breezy_magma",
+      "breakpoints": true
     }
   ]
 }
