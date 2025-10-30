@@ -185,8 +185,10 @@ export class MetricoolKpiCalculator {
         isConnected('threads') ? this.metricoolService.getThreadsPosts(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
       ]);
 
-      // Try to get manual TikTok metrics from database
+      // Try to get manual TikTok metrics and other social media metrics from database
       let manualTikTokData = null;
+      let companyData = null;
+      
       try {
         // Find company by blogId to get companyId
         const companySlug = blogId === '3893476' ? 'mychel-mendes' 
@@ -196,7 +198,7 @@ export class MetricoolKpiCalculator {
           : null;
         
         if (companySlug) {
-          const companyData = await db.getCompanyBySlug(companySlug);
+          companyData = await db.getCompanyBySlug(companySlug);
           if (companyData) {
             manualTikTokData = await db.getLatestTikTokMetric(companyData.id);
           }
@@ -372,11 +374,28 @@ export class MetricoolKpiCalculator {
         ytCurrent = extractLatestValue(ytFollowersCurrent);
         ytPrevious = extractLatestValue(ytFollowersPrevious);
       }
-      const twCurrent = extractLatestValue(twFollowersCurrent);
+      // Try to get manual data for Twitter, LinkedIn, Threads
+      let manualTwitterData = null;
+      let manualLinkedInData = null;
+      let manualThreadsData = null;
+      
+      if (companyData) {
+        try {
+          [manualTwitterData, manualLinkedInData, manualThreadsData] = await Promise.all([
+            db.getLatestSocialMediaMetric(companyData.id, 'twitter'),
+            db.getLatestSocialMediaMetric(companyData.id, 'linkedin'),
+            db.getLatestSocialMediaMetric(companyData.id, 'threads'),
+          ]);
+        } catch (error) {
+          console.error('[MetricoolKPI] Error fetching manual social media data:', error);
+        }
+      }
+      
+      const twCurrent = manualTwitterData?.followers || extractLatestValue(twFollowersCurrent);
       const twPrevious = extractLatestValue(twFollowersPrevious);
-      const liCurrent = extractLatestValue(liFollowersCurrent);
+      const liCurrent = manualLinkedInData?.followers || extractLatestValue(liFollowersCurrent);
       const liPrevious = extractLatestValue(liFollowersPrevious);
-      const thCurrent = extractLatestValue(thFollowersCurrent);
+      const thCurrent = manualThreadsData?.followers || extractLatestValue(thFollowersCurrent);
       const thPrevious = extractLatestValue(thFollowersPrevious);
 
       // Get top 5 YouTube videos by views
@@ -520,16 +539,22 @@ export class MetricoolKpiCalculator {
             totalShares: (youtubeVideos.data || []).reduce((sum: number, video: any) => sum + (video.shares || 0), 0),
           },
           twitter: {
-            posts: (twitterPosts.data || []).length,
-            totalEngagement: twitterEngagement,
+            posts: manualTwitterData?.posts || (twitterPosts.data || []).length,
+            totalEngagement: manualTwitterData ? 
+              (manualTwitterData.totalLikes + manualTwitterData.totalComments + manualTwitterData.totalShares) / (manualTwitterData.posts || 1) * 100
+              : twitterEngagement,
           },
           linkedin: {
-            posts: (linkedinPosts.data || []).length,
-            totalEngagement: linkedinEngagement,
+            posts: manualLinkedInData?.posts || (linkedinPosts.data || []).length,
+            totalEngagement: manualLinkedInData ?
+              (manualLinkedInData.totalLikes + manualLinkedInData.totalComments + manualLinkedInData.totalShares) / (manualLinkedInData.posts || 1) * 100
+              : linkedinEngagement,
           },
           threads: {
-            posts: (threadsPosts.data || []).length,
-            totalEngagement: threadsEngagement,
+            posts: manualThreadsData?.posts || (threadsPosts.data || []).length,
+            totalEngagement: manualThreadsData ?
+              (manualThreadsData.totalLikes + manualThreadsData.totalComments + manualThreadsData.totalShares) / (manualThreadsData.posts || 1) * 100
+              : threadsEngagement,
           },
         },
       };

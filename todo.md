@@ -576,3 +576,58 @@
 - [x] SOLUÇÃO: Mudado ordenação de recordDate para createdAt para sempre pegar o registro mais recentemente inserido
 - [x] Refetch automático já estava implementado (onSuccess callback)
 - [x] Testado e validado com dados reais do usuário
+
+
+## 📝 Sistema de Entrada Manual - Outras Redes Sociais
+**Objetivo**: Criar entrada manual para redes sociais não conectadas (Twitter/X, LinkedIn, Threads)
+
+### Análise
+- [ ] Identificar quais redes sociais não têm conexão via API
+- [ ] Definir métricas necessárias para cada rede
+- [ ] Verificar estrutura atual dos dados no dashboard
+
+### Backend
+- [ ] Criar tabela socialMediaMetrics no schema (genérica para todas as redes)
+- [ ] Implementar endpoints tRPC para salvar/buscar métricas por rede
+- [ ] Integrar dados manuais no MetricoolKpiCalculator
+- [ ] Testar com múltiplas redes
+
+### Frontend
+- [ ] Criar componente SocialMediaManualEntryModal genérico
+- [ ] Adicionar botão "Registrar Dados" nos cards das redes não conectadas
+- [ ] Adaptar formulário conforme a rede selecionada
+- [ ] Testar fluxo completo
+
+### Redes a Implementar
+- [ ] Twitter/X (seguidores, posts, likes, retweets, replies)
+- [ ] LinkedIn (seguidores, posts, likes, comentários, compartilhamentos)
+- [ ] Threads (seguidores, posts, likes, comentários, compartilhamentos)
+
+
+## 📝 Sistema de Entrada Manual para Redes Sociais - ✅ CONCLUÍDO
+**Objetivo**: Criar sistema genérico de entrada manual para Twitter/X, LinkedIn e Threads
+
+### Backend
+- [x] Criar tabela `socialMediaMetrics` no banco (network, companyId, recordDate, followers, posts, totalLikes, totalComments, totalShares, totalViews, totalReach, totalImpressions, notes, createdBy, createdAt, updatedAt)
+- [x] Implementar endpoints tRPC `insertSocialMediaMetric` e `getLatestSocialMediaMetric`
+- [x] Integrar dados manuais no MetricoolKpiCalculator (followers e networkBreakdown para Twitter, LinkedIn, Threads)
+- [x] Corrigir bug de escopo do companyData (mover declaração para fora do bloco try do TikTok)
+
+### Frontend
+- [x] Criar componente `SocialMediaManualEntryModal` genérico (recebe network e networkLabel como props)
+- [x] Adicionar estados para controlar modais (twitterModalOpen, linkedinModalOpen, threadsModalOpen)
+- [x] Adicionar botões "Registrar Dados" nos cards de performance de Twitter, LinkedIn e Threads
+- [x] Adicionar modais no final da página Mychel Mendes
+- [x] Testar funcionalidade completa (modal abre corretamente com todos os campos)
+
+### Validação
+- [x] Modal do Twitter/X abre com todos os campos (Data, Seguidores, Posts, Likes, Comentários, Compartilhamentos, Visualizações, Alcance, Impressões, Notas)
+- [x] Modal do LinkedIn funciona corretamente
+- [x] Modal do Threads funciona corretamente
+- [x] Sistema prioriza dados manuais sobre dados da API quando disponíveis
+- [x] Refetch automático após salvar dados (onSuccess callback)
+
+### Próximas Etapas
+- [ ] Replicar sistema para outras páginas (Blue Consult, Tokeniza, Tokeniza Academy)
+- [ ] Implementar visualização de histórico de registros manuais
+- [ ] Calcular crescimento baseado em registros anteriores

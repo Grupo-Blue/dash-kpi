@@ -7,10 +7,14 @@ import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
+import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
 import { useState } from "react";
 
 export default function MychelMendes() {
   const [tiktokModalOpen, setTiktokModalOpen] = useState(false);
+  const [twitterModalOpen, setTwitterModalOpen] = useState(false);
+  const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
+  const [threadsModalOpen, setThreadsModalOpen] = useState(false);
   
   // Get company info
   const { data: company } = trpc.companies.getBySlug.useQuery({ slug: 'mychel-mendes' });
@@ -351,6 +355,14 @@ export default function MychelMendes() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mb-3"
+                    onClick={() => setTwitterModalOpen(true)}
+                  >
+                    Registrar Dados
+                  </Button>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Posts</span>
                     <span className="font-bold">{socialKpis?.networkBreakdown.twitter.posts || 0}</span>
@@ -370,6 +382,14 @@ export default function MychelMendes() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mb-3"
+                    onClick={() => setLinkedinModalOpen(true)}
+                  >
+                    Registrar Dados
+                  </Button>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Posts</span>
                     <span className="font-bold">{socialKpis?.networkBreakdown.linkedin.posts || 0}</span>
@@ -437,6 +457,14 @@ export default function MychelMendes() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full mb-3"
+                    onClick={() => setThreadsModalOpen(true)}
+                  >
+                    Registrar Dados
+                  </Button>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">Posts</span>
                     <span className="font-bold">{socialKpis?.networkBreakdown.threads.posts || 0}</span>
@@ -623,6 +651,36 @@ export default function MychelMendes() {
           companyId={company.id}
           onSuccess={() => refetch()}
         />
+      )}
+      
+      {/* Social Media Manual Entry Modals */}
+      {company && (
+        <>
+          <SocialMediaManualEntryModal 
+            open={twitterModalOpen}
+            onOpenChange={setTwitterModalOpen}
+            companyId={company.id}
+            network="twitter"
+            networkLabel="Twitter/X"
+            onSuccess={() => refetch()}
+          />
+          <SocialMediaManualEntryModal 
+            open={linkedinModalOpen}
+            onOpenChange={setLinkedinModalOpen}
+            companyId={company.id}
+            network="linkedin"
+            networkLabel="LinkedIn"
+            onSuccess={() => refetch()}
+          />
+          <SocialMediaManualEntryModal 
+            open={threadsModalOpen}
+            onOpenChange={setThreadsModalOpen}
+            companyId={company.id}
+            network="threads"
+            networkLabel="Threads"
+            onSuccess={() => refetch()}
+          />
+        </>
       )}
     </DashboardLayout>
   );

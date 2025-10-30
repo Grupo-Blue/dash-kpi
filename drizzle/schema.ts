@@ -110,3 +110,29 @@ export const tiktokMetrics = mysqlTable("tiktokMetrics", {
 
 export type TikTokMetric = typeof tiktokMetrics.$inferSelect;
 export type InsertTikTokMetric = typeof tiktokMetrics.$inferInsert;
+
+/**
+ * Manual social media metrics tracking (generic for all networks)
+ * Allows manual entry of metrics for any social network with date for historical tracking
+ */
+export const socialMediaMetrics = mysqlTable("socialMediaMetrics", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("companyId").notNull(), // which company this data belongs to
+  network: varchar("network", { length: 50 }).notNull(), // twitter, linkedin, threads, etc.
+  recordDate: timestamp("recordDate").notNull(), // date of the metrics snapshot
+  followers: int("followers").default(0).notNull(),
+  posts: int("posts").default(0).notNull(),
+  totalLikes: int("totalLikes").default(0).notNull(),
+  totalComments: int("totalComments").default(0).notNull(),
+  totalShares: int("totalShares").default(0).notNull(),
+  totalViews: int("totalViews").default(0).notNull(),
+  totalReach: int("totalReach").default(0).notNull(),
+  totalImpressions: int("totalImpressions").default(0).notNull(),
+  notes: text("notes"), // optional notes about this record
+  createdBy: int("createdBy"), // user who created this record
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SocialMediaMetric = typeof socialMediaMetrics.$inferSelect;
+export type InsertSocialMediaMetric = typeof socialMediaMetrics.$inferInsert;

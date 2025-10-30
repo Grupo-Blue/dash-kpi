@@ -279,6 +279,83 @@ export const appRouter = router({
     }),
   }),
 
+  socialMediaMetrics: router({
+    // Save manual social media metrics
+    save: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        network: z.string(), // twitter, linkedin, threads, etc.
+        recordDate: z.string(), // ISO date string
+        followers: z.number().default(0),
+        posts: z.number().default(0),
+        totalLikes: z.number().default(0),
+        totalComments: z.number().default(0),
+        totalShares: z.number().default(0),
+        totalViews: z.number().default(0),
+        totalReach: z.number().default(0),
+        totalImpressions: z.number().default(0),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const recordDate = new Date(input.recordDate);
+        
+        await db.insertSocialMediaMetric({
+          companyId: input.companyId,
+          network: input.network,
+          recordDate,
+          followers: input.followers,
+          posts: input.posts,
+          totalLikes: input.totalLikes,
+          totalComments: input.totalComments,
+          totalShares: input.totalShares,
+          totalViews: input.totalViews,
+          totalReach: input.totalReach,
+          totalImpressions: input.totalImpressions,
+          notes: input.notes,
+          createdBy: ctx.user.id,
+        });
+        
+        console.log('[socialMediaMetrics] Saved manual metrics for company:', input.companyId, 'network:', input.network);
+        return { success: true };
+      }),
+
+    // Get latest metrics for a specific network
+    getLatest: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        network: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const latest = await db.getLatestSocialMediaMetric(input.companyId, input.network);
+        console.log('[socialMediaMetrics] Fetched latest for company:', input.companyId, 'network:', input.network, 'found:', !!latest);
+        return latest;
+      }),
+
+    // Get metrics history for a specific network
+    getHistory: protectedProcedure
+      .input(z.object({
+        companyId: z.number(),
+        network: z.string(),
+        limit: z.number().default(30),
+      }))
+      .query(async ({ input }) => {
+        const history = await db.getSocialMediaMetricsHistory(input.companyId, input.network, input.limit);
+        console.log('[socialMediaMetrics] Fetched history for company:', input.companyId, 'network:', input.network, 'records:', history.length);
+        return history;
+      }),
+
+    // Delete a social media metric record
+    delete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteSocialMediaMetric(input.id);
+        console.log('[socialMediaMetrics] Deleted record:', input.id);
+        return { success: true };
+      }),
+  }),
+
   tiktokMetrics: router({
     // Save manual TikTok metrics
     save: protectedProcedure

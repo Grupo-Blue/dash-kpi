@@ -16,7 +16,10 @@ import {
   InsertKpiDefinition,
   tiktokMetrics,
   TikTokMetric,
-  InsertTikTokMetric
+  InsertTikTokMetric,
+  socialMediaMetrics,
+  SocialMediaMetric,
+  InsertSocialMediaMetric
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -233,4 +236,51 @@ export async function deleteTikTokMetric(id: number) {
   if (!db) throw new Error('Database not available');
   
   return db.delete(tiktokMetrics).where(eq(tiktokMetrics.id, id));
+}
+
+
+// ==================== Social Media Metrics ====================
+
+export async function insertSocialMediaMetric(data: InsertSocialMediaMetric) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  return db.insert(socialMediaMetrics).values(data);
+}
+
+export async function getSocialMediaMetricsHistory(companyId: number, network: string, limit: number = 30): Promise<SocialMediaMetric[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return db.select().from(socialMediaMetrics)
+    .where(and(
+      eq(socialMediaMetrics.companyId, companyId),
+      eq(socialMediaMetrics.network, network)
+    ))
+    .orderBy(desc(socialMediaMetrics.recordDate))
+    .limit(limit);
+}
+
+export async function getLatestSocialMediaMetric(companyId: number, network: string): Promise<SocialMediaMetric | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  // Order by createdAt (when record was inserted) instead of recordDate (user-chosen date)
+  // This ensures we always get the most recently inserted record
+  const results = await db.select().from(socialMediaMetrics)
+    .where(and(
+      eq(socialMediaMetrics.companyId, companyId),
+      eq(socialMediaMetrics.network, network)
+    ))
+    .orderBy(desc(socialMediaMetrics.createdAt))
+    .limit(1);
+  
+  return results[0];
+}
+
+export async function deleteSocialMediaMetric(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  return db.delete(socialMediaMetrics).where(eq(socialMediaMetrics.id, id));
 }
