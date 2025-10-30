@@ -752,3 +752,17 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Fallback final: "Tipo em Rede Social - Data" quando nenhum campo tiver conteúdo
 - [x] Adicionar campo `network` na interface e retorno dos posts
 - [x] Testar em todas as páginas (Tokeniza, Mychel Mendes, Blue Consult, Tokeniza Academy)
+
+
+### Chat com IA Retornando Erro "Company not found" - ✅ RESOLVIDO
+- [x] Investigar erro "Company not found" ao fazer perguntas no chat
+- [x] Identificado: IDs das empresas estavam incorretos no código
+- [x] Problema: código usava IDs 30001, 30003, 30005 mas banco tinha IDs 1, 2, 4
+- [x] Corrigido IDs em todas as páginas:
+  - Blue Consult: 30001 → 1
+  - Tokeniza: 30003 → 2
+  - Tokeniza Academy: 30002 → 4
+  - Mychel Mendes: 30004 (já estava correto)
+- [x] Substituído fetch manual por invokeLLM que já está configurado corretamente
+- [x] Corrigido modelo: de gpt-4o-mini para gemini-2.5-flash (padrão do template)
+- [x] Melhorada extração de conteúdo da resposta (suporte a string e array)

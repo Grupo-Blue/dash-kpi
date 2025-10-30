@@ -11,7 +11,7 @@ import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { CompanyChat } from "@/components/CompanyChat";
 
 export default function BlueConsult() {
-  const companyId = 30001; // Blue Consult ID
+  const companyId = 1; // Blue Consult ID
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
   const { data: niboKpis, isLoading: niboLoading, error: niboError } = trpc.kpis.niboFinancial.useQuery(undefined, {
     retry: false,

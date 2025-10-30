@@ -13,7 +13,7 @@ import { CompanyChat } from "@/components/CompanyChat";
 import { useState } from "react";
 
 export default function Tokeniza() {
-  const companyId = 30003; // Tokeniza ID
+  const companyId = 2; // Tokeniza ID
   const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
   const [threadsModalOpen, setThreadsModalOpen] = useState(false);

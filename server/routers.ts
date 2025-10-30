@@ -947,45 +947,37 @@ export const appRouter = router({
             context += `\n`;
           }
 
-          // Call AI API
-          const forgeApiUrl = process.env.BUILT_IN_FORGE_API_URL || 'https://api.manus.im/v1';
-          const forgeApiKey = process.env.BUILT_IN_FORGE_API_KEY;
-
-          if (!forgeApiKey) {
-            throw new Error('BUILT_IN_FORGE_API_KEY not configured');
-          }
-
-          const response = await fetch(`${forgeApiUrl}/chat/completions`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${forgeApiKey}`,
-            },
-            body: JSON.stringify({
-              model: 'gpt-4o-mini',
-              messages: [
-                {
-                  role: 'system',
-                  content: `Você é um assistente de IA especializado em análise de dados e métricas de negócios. Responda perguntas sobre a empresa usando os dados fornecidos no contexto. Seja objetivo, claro e use números quando possível. Responda em português brasileiro.\n\nContexto da empresa:\n${context}`,
-                },
-                {
-                  role: 'user',
-                  content: question,
-                },
-              ],
-              temperature: 0.7,
-              max_tokens: 500,
-            }),
+          // Call AI API using invokeLLM
+          const { invokeLLM } = await import('./_core/llm');
+          
+          const result = await invokeLLM({
+            messages: [
+              {
+                role: 'system',
+                content: `Você é um assistente de IA especializado em análise de dados e métricas de negócios. Responda perguntas sobre a empresa usando os dados fornecidos no contexto. Seja objetivo, claro e use números quando possível. Responda em português brasileiro.\n\nContexto da empresa:\n${context}`,
+              },
+              {
+                role: 'user',
+                content: question,
+              },
+            ],
+            maxTokens: 1000,
           });
 
-          if (!response.ok) {
-            const errorText = await response.text();
-            console.error('[Chat] AI API error:', errorText);
-            throw new Error(`AI API error: ${response.status}`);
+          // Extract answer from result
+          let answer = 'Desculpe, não consegui processar sua pergunta.';
+          if (result.choices && result.choices.length > 0) {
+            const messageContent = result.choices[0].message.content;
+            if (typeof messageContent === 'string') {
+              answer = messageContent;
+            } else if (Array.isArray(messageContent)) {
+              // Se for array de content parts, extrair o texto
+              const textParts = messageContent.filter(part => part.type === 'text');
+              if (textParts.length > 0) {
+                answer = textParts.map(part => 'text' in part ? part.text : '').join('\n');
+              }
+            }
           }
-
-          const data = await response.json();
-          const answer = data.choices[0]?.message?.content || 'Desculpe, não consegui processar sua pergunta.';
 
           return {
             answer,
