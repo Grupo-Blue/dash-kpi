@@ -6,8 +6,16 @@ import { RefreshCw, TrendingUp, Heart, MessageCircle, Share2, Eye, BarChart3, Ex
 import { toast } from "sonner";
 import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
+import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
+import { useState } from "react";
 
 export default function Tokeniza() {
+  const [twitterModalOpen, setTwitterModalOpen] = useState(false);
+  const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
+  const [threadsModalOpen, setThreadsModalOpen] = useState(false);
+  
+  // Get company info
+  const { data: company } = trpc.companies.getBySlug.useQuery({ slug: 'tokeniza' });
   // Tokeniza blogId: 3890487
   const { data: socialKpis, isLoading, error, refetch } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3890487', // Tokeniza
@@ -365,26 +373,88 @@ export default function Tokeniza() {
           )}
 
           {/* Twitter/X Breakdown */}
-          {socialKpis?.networkBreakdown?.twitter && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Twitter/X</CardTitle>
-                <CardDescription>Performance no Twitter/X</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Posts</span>
-                    <span className="font-bold">{socialKpis.networkBreakdown.twitter.posts}</span>
-                  </div>
-                  <div className="flex justify-between items-center pt-2 border-t mt-auto">
-                    <span className="text-sm text-muted-foreground">Engagement Total</span>
-                    <span className="font-bold">{socialKpis.networkBreakdown.twitter.totalEngagement.toFixed(1)}%</span>
-                  </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Twitter/X</CardTitle>
+              <CardDescription>Performance no Twitter/X</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mb-3"
+                  onClick={() => setTwitterModalOpen(true)}
+                >
+                  Registrar Dados
+                </Button>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Posts</span>
+                  <span className="font-bold">{socialKpis?.networkBreakdown?.twitter?.posts || 0}</span>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+                <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                  <span className="text-sm text-muted-foreground">Engagement Total</span>
+                  <span className="font-bold">{(socialKpis?.networkBreakdown?.twitter?.totalEngagement || 0).toFixed(1)}%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* LinkedIn Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle>LinkedIn</CardTitle>
+              <CardDescription>Performance no LinkedIn</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mb-3"
+                  onClick={() => setLinkedinModalOpen(true)}
+                >
+                  Registrar Dados
+                </Button>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Posts</span>
+                  <span className="font-bold">{socialKpis?.networkBreakdown?.linkedin?.posts || 0}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                  <span className="text-sm text-muted-foreground">Engagement Total</span>
+                  <span className="font-bold">{(socialKpis?.networkBreakdown?.linkedin?.totalEngagement || 0).toFixed(1)}%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Threads Breakdown */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Threads</CardTitle>
+              <CardDescription>Performance no Threads</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mb-3"
+                  onClick={() => setThreadsModalOpen(true)}
+                >
+                  Registrar Dados
+                </Button>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Posts</span>
+                  <span className="font-bold">{socialKpis?.networkBreakdown?.threads?.posts || 0}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t mt-auto">
+                  <span className="text-sm text-muted-foreground">Engagement Total</span>
+                  <span className="font-bold">{(socialKpis?.networkBreakdown?.threads?.totalEngagement || 0).toFixed(1)}%</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Top Posts */}
@@ -550,6 +620,36 @@ export default function Tokeniza() {
           </Card>
         )}
       </div>
+      
+      {/* Social Media Manual Entry Modals */}
+      {company && (
+        <>
+          <SocialMediaManualEntryModal 
+            open={twitterModalOpen}
+            onOpenChange={setTwitterModalOpen}
+            companyId={company.id}
+            network="twitter"
+            networkLabel="Twitter/X"
+            onSuccess={() => refetch()}
+          />
+          <SocialMediaManualEntryModal 
+            open={linkedinModalOpen}
+            onOpenChange={setLinkedinModalOpen}
+            companyId={company.id}
+            network="linkedin"
+            networkLabel="LinkedIn"
+            onSuccess={() => refetch()}
+          />
+          <SocialMediaManualEntryModal 
+            open={threadsModalOpen}
+            onOpenChange={setThreadsModalOpen}
+            companyId={company.id}
+            network="threads"
+            networkLabel="Threads"
+            onSuccess={() => refetch()}
+          />
+        </>
+      )}
     </DashboardLayout>
   );
 }
