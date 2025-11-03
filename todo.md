@@ -855,3 +855,46 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Testar filtros em todas as páginas no navegador
 - [x] Validado: Filtro aparecendo na página Home
 - [x] NOTA: APIs externas não suportam dados históricos - filtro funciona como seletor visual
+
+
+## 📊 Sistema de Snapshots Diários de KPIs
+
+### Criar Banco de Dados Histórico
+- [ ] Criar tabela `kpi_snapshots` no schema do banco
+- [ ] Campos: id, company_id, snapshot_date, kpi_type, kpi_data (JSON), created_at
+- [ ] Criar índices para otimizar consultas por company_id e snapshot_date
+- [ ] Push schema para banco de dados
+
+### Implementar Serviço de Snapshot
+- [ ] Criar `snapshotService.ts` para coletar dados de todas as APIs
+- [ ] Função para snapshot de Pipedrive (faturamento, negócios)
+- [ ] Função para snapshot de Nibo (receitas, despesas)
+- [ ] Função para snapshot de Discord (membros, mensagens)
+- [ ] Função para snapshot de Metricool (seguidores, engajamento, posts)
+- [ ] Função para snapshot de Cademi (alunos, acessos, cursos)
+- [ ] Função principal que executa todos os snapshots e salva no banco
+
+### Criar Job Diário Automatizado
+- [ ] Implementar job usando node-cron ou similar
+- [ ] Configurar para executar diariamente às 00:00 (meia-noite)
+- [ ] Adicionar logs de execução do job
+- [ ] Implementar tratamento de erros e retry
+- [ ] Garantir que job não execute múltiplas vezes no mesmo dia
+
+### Atualizar Endpoints tRPC
+- [ ] Criar endpoint `kpis.historical` que consulta snapshots
+- [ ] Aceitar parâmetros: company_id, startDate, endDate, kpi_type
+- [ ] Retornar dados agregados por período
+- [ ] Implementar fallback para APIs quando não houver dados históricos
+
+### Integrar com Frontend
+- [ ] Atualizar queries para usar dados históricos quando filtro de período for alterado
+- [ ] Manter dados em tempo real quando período for "Mês Atual"
+- [ ] Usar snapshots quando período for histórico
+- [ ] Adicionar indicador visual de dados históricos vs tempo real
+
+### Testes e Validação
+- [ ] Executar snapshot manualmente para gerar dados iniciais
+- [ ] Validar dados salvos no banco
+- [ ] Testar consultas históricas no frontend
+- [ ] Validar job diário executando corretamente

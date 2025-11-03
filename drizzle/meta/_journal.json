@@ -43,6 +43,13 @@
       "when": 1761829299352,
       "tag": "0005_breezy_magma",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1762196422942,
+      "tag": "0006_loose_slyde",
+      "breakpoints": true
     }
   ]
 }

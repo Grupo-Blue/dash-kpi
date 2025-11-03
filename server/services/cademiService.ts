@@ -207,3 +207,14 @@ export async function fetchAllUsers(): Promise<CademiUser[]> {
     throw error;
   }
 }
+
+// Export class for compatibility
+export class CademiService {
+  static async getAllUsers() {
+    return fetchAllUsers();
+  }
+
+  static async getAllProducts() {
+    return getAllProducts();
+  }
+}

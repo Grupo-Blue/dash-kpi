@@ -16,6 +16,8 @@ import { NiboKpiCalculator } from './services/niboKpiCalculator';
 import { MetricoolKpiCalculator } from './services/metricoolKpiCalculator';
 import { calculateCademiKpis } from './services/cademiKpiCalculator';
 import { ApiStatusTracker, trackApiStatus } from './services/apiStatusTracker';
+import { executeSnapshotManually } from './jobs/dailySnapshot';
+import { kpiSnapshots } from '../drizzle/schema';
 import { ENV } from "./_core/env";
 
 export const appRouter = router({
@@ -632,31 +634,6 @@ export const appRouter = router({
       }),
   }),
 
-  // Companies router
-  companies: router({
-    getAll: protectedProcedure
-      .query(async () => {
-        const db = await getDb();
-        if (!db) return [];
-        const companies = await db.select().from(schema.companies);
-        console.log('[companies] Fetched all companies:', companies.length);
-        return companies;
-      }),
-
-    getBySlug: protectedProcedure
-      .input(z.object({ slug: z.string() }))
-      .query(async ({ input }) => {
-        const db = await getDb();
-        if (!db) return null;
-        const [company] = await db
-          .select()
-          .from(schema.companies)
-          .where(eq(schema.companies.slug, input.slug))
-          .limit(1);
-        return company || null;
-      }),
-  }),
-
   consolidatedKpis: router({
     overview: protectedProcedure
       .input(z.object({
@@ -1024,6 +1001,90 @@ export const appRouter = router({
           console.error('[Chat] Error processing question:', error);
           throw new Error(`Erro ao processar pergunta: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
+      }),
+  }),
+
+  snapshots: router({
+    // Execute snapshot manually (for testing)
+    executeManual: protectedProcedure.mutation(async () => {
+      try {
+        const result = await executeSnapshotManually();
+        return {
+          success: true,
+          ...result,
+        };
+      } catch (error) {
+        console.error('[snapshots.executeManual] Error:', error);
+        throw new Error('Failed to execute snapshot');
+      }
+    }),
+
+    // Get historical snapshots by company and date range
+    getHistorical: protectedProcedure
+      .input(z.object({
+        companyId: z.number().optional(),
+        startDate: z.string(), // ISO date string
+        endDate: z.string(), // ISO date string
+        kpiType: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const database = await getDb();
+        if (!database) {
+          throw new Error('Database not available');
+        }
+
+        const conditions = [];
+        if (input.companyId) {
+          conditions.push(eq(kpiSnapshots.companyId, input.companyId));
+        }
+        if (input.kpiType) {
+          conditions.push(eq(kpiSnapshots.kpiType, input.kpiType));
+        }
+
+        const results = await database
+          .select()
+          .from(kpiSnapshots)
+          .where(conditions.length > 0 ? conditions[0] : undefined)
+          .orderBy(desc(kpiSnapshots.snapshotDate));
+
+        // Filter by date range in JavaScript (since we can't easily do date comparison in Drizzle)
+        const startDate = new Date(input.startDate);
+        const endDate = new Date(input.endDate);
+        
+        return results.filter(snapshot => {
+          const snapshotDate = new Date(snapshot.snapshotDate);
+          return snapshotDate >= startDate && snapshotDate <= endDate;
+        });
+      }),
+
+    // Get latest snapshot for a company
+    getLatest: protectedProcedure
+      .input(z.object({
+        companyId: z.number().optional(),
+        kpiType: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const database = await getDb();
+        if (!database) {
+          throw new Error('Database not available');
+        }
+
+        const conditions = [];
+        if (input.companyId) {
+          conditions.push(eq(kpiSnapshots.companyId, input.companyId));
+        }
+        if (input.kpiType) {
+          conditions.push(eq(kpiSnapshots.kpiType, input.kpiType));
+        }
+
+        const results = await database
+          .select()
+          .from(kpiSnapshots)
+          .where(conditions.length > 0 ? conditions[0] : undefined)
+          .orderBy(desc(kpiSnapshots.snapshotDate))
+          .limit(1);
+
+        return results[0] || null;
       }),
   }),
 });

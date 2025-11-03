@@ -48,7 +48,6 @@ export const KPI_DESCRIPTIONS = {
   'Total de Posts': 'Número total de publicações realizadas em todas as redes sociais conectadas.',
   'Interações': 'Soma de curtidas, comentários, compartilhamentos e outras interações em todos os posts.',
   'Engagement Médio': 'Taxa média de engajamento calculada como (Interações / Alcance) × 100.',
-  'Alcance Total': 'Número total de pessoas únicas que visualizaram o conteúdo publicado.',
   'Impressões': 'Número total de vezes que o conteúdo foi exibido (uma pessoa pode gerar múltiplas impressões).',
   
   // Redes Sociais - Métricas Específicas

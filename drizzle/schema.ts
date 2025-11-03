@@ -154,3 +154,20 @@ export const apiStatus = mysqlTable("apiStatus", {
 
 export type ApiStatus = typeof apiStatus.$inferSelect;
 export type InsertApiStatus = typeof apiStatus.$inferInsert;
+
+/**
+ * KPI Snapshots - Historical daily snapshots of all KPIs
+ * Allows querying historical data without depending on external APIs
+ */
+export const kpiSnapshots = mysqlTable("kpiSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  companyId: int("companyId"), // null for consolidated/global snapshots
+  snapshotDate: timestamp("snapshotDate").notNull(), // date of the snapshot (usually midnight)
+  kpiType: varchar("kpiType", { length: 100 }).notNull(), // pipedrive_revenue, discord_members, metricool_followers, etc
+  source: varchar("source", { length: 100 }).notNull(), // pipedrive, nibo, discord, metricool, cademi
+  data: json("data").$type<Record<string, any>>().notNull(), // complete KPI data as JSON
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type KpiSnapshot = typeof kpiSnapshots.$inferSelect;
+export type InsertKpiSnapshot = typeof kpiSnapshots.$inferInsert;
