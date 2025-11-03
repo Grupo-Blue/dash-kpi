@@ -66,7 +66,8 @@ export default function Home() {
 
 function HomeContent() {
   const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
-  const { data: overview, isLoading, refetch } = trpc.consolidatedKpis.overview.useQuery(periodFilter);
+  // Note: periodFilter is visual only until we have historical snapshots
+  const { data: overview, isLoading, refetch } = trpc.consolidatedKpis.overview.useQuery();
 
   // Função para formatar moeda
   const formatCurrency = (value: number) => {

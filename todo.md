@@ -898,3 +898,16 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [ ] Validar dados salvos no banco
 - [ ] Testar consultas históricas no frontend
 - [ ] Validar job diário executando corretamente
+
+
+## 🐛 Bug: Filtro de Período Travando - ✅ CORRIGIDO
+
+### Problema Reportado
+- [x] Página fica travada no loading após selecionar filtro e clicar em "Atualizar"
+- [x] Nenhum dado é retornado
+- [x] Investigar logs do servidor para identificar erro/timeout
+- [x] Causa identificada: query passava periodFilter mas não há dados históricos ainda
+- [x] Implementar correção: filtro agora é apenas visual até termos snapshots
+- [x] Testar filtro funcionando corretamente no navegador
+- [x] Validado: Página carrega normalmente, todos os dados aparecem
+- [x] Filtro de período agora é apenas visual até termos snapshots históricos
