@@ -9,9 +9,12 @@ import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { CompanyChat } from "@/components/CompanyChat";
+import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
+import { useState } from "react";
 
 export default function BlueConsult() {
   const companyId = 1; // Blue Consult ID
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
   const { data: niboKpis, isLoading: niboLoading, error: niboError } = trpc.kpis.niboFinancial.useQuery(undefined, {
     retry: false,
@@ -423,10 +426,13 @@ export default function BlueConsult() {
               KPIs de vendas e marketing - IR Cripto
             </p>
           </div>
-          <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-            Atualizar Dados
-          </Button>
+          <div className="flex items-center gap-2">
+            <PeriodFilter value={periodFilter} onChange={setPeriodFilter} />
+            <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+              Atualizar Dados
+            </Button>
+          </div>
         </div>
 
         {/* Summary KPIs - Sempre visíveis */}

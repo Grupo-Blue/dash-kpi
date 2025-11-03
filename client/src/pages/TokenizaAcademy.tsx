@@ -8,9 +8,12 @@ import { KpiCardWithTooltip } from "@/components/KpiCardWithTooltip";
 import { getKpiDescription } from "@/lib/kpiDescriptions";
 import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { CompanyChat } from "@/components/CompanyChat";
+import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
+import { useState } from "react";
 
 export default function TokenizaAcademy() {
   const companyId = 4; // Tokeniza Academy ID
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const { data: kpis, isLoading, refetch } = trpc.kpis.tokenizaAcademy.useQuery();
   const { data: socialKpis, isLoading: socialLoading } = trpc.kpis.metricoolSocialMedia.useQuery({
     blogId: '3893327', // Tokeniza Academy
@@ -448,10 +451,13 @@ export default function TokenizaAcademy() {
               Tokeniza Academy - KPIs de cursos e comunidade Discord
             </p>
           </div>
-          <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-            Atualizar Dados
-          </Button>
+          <div className="flex items-center gap-2">
+            <PeriodFilter value={periodFilter} onChange={setPeriodFilter} />
+            <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+              Atualizar Dados
+            </Button>
+          </div>
         </div>
 
         {/* Summary KPIs - Sempre visíveis */}

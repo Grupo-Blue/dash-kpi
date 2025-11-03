@@ -10,10 +10,12 @@ import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { SocialMediaManualEntryModal } from "@/components/SocialMediaManualEntryModal";
 import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
 import { CompanyChat } from "@/components/CompanyChat";
+import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
 import { useState } from "react";
 
 export default function MychelMendes() {
   const companyId = 30004; // Mychel Mendes ID
+  const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
   const [threadsModalOpen, setThreadsModalOpen] = useState(false);
@@ -447,10 +449,13 @@ export default function MychelMendes() {
               Métricas de Redes Sociais e Marketing Digital
             </p>
           </div>
-          <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-            Atualizar Dados
-          </Button>
+          <div className="flex items-center gap-2">
+            <PeriodFilter value={periodFilter} onChange={setPeriodFilter} />
+            <Button onClick={handleRefresh} disabled={refreshMutation.isPending}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+              Atualizar Dados
+            </Button>
+          </div>
         </div>
 
         {/* Summary KPIs - Sempre visíveis */}
