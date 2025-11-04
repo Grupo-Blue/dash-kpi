@@ -945,3 +945,19 @@ O ApiStatusTracker estava usando `const db = getDb()` sem `await`, então `db` e
 - ✅ Tokeniza Academy: Carregando corretamente
 - ✅ Mychel Mendes: Carregando corretamente
 - ✅ Todas as APIs online (Pipedrive, Discord, Nibo, Metricool)
+
+
+## 📊 Planilha Modelo para Importação de Dados Históricos
+
+**Objetivo:** Criar planilha Excel modelo para o usuário preencher manualmente com dados históricos e popular a tabela kpiSnapshots
+
+**Tarefas:**
+- [x] Analisar estrutura da tabela kpiSnapshots no schema
+- [x] Identificar todos os campos que precisam ser preenchidos
+- [x] Criar planilha Excel (.xlsx) com colunas correspondentes
+- [x] Adicionar linha de exemplo com dados fictícios
+- [x] Adicionar instruções de preenchimento na planilha
+- [x] Criar script Python para importar Excel e popular banco
+- [x] Testar importação com dados de exemplo
+- [x] Documentar processo de importação
+- [x] Entregar planilha modelo e script ao usuário
