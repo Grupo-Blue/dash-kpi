@@ -911,3 +911,37 @@ Implementar sistema de chat com inteligência artificial em cada página de empr
 - [x] Testar filtro funcionando corretamente no navegador
 - [x] Validado: Página carrega normalmente, todos os dados aparecem
 - [x] Filtro de período agora é apenas visual até termos snapshots históricos
+
+
+## 🐛 BUG CRÍTICO: Página Blue Consult Travando no Loading
+
+**Reportado pelo usuário em 03/11/2025:** Página Blue Consult fica apenas carregando (loading infinito)
+
+**Observação:** Página Home funciona corretamente após correção do filtro de período
+
+**Tarefas de Investigação:**
+- [x] Verificar logs do servidor quando acessa /blue-consult
+- [x] Identificar qual query está travando (blueConsultKpis, niboFinancial, metricoolSocialMedia)
+- [x] Verificar se há timeout ou erro não tratado
+- [x] Comparar com página Home que funciona corretamente
+- [x] Verificar se o problema é similar ao bug do filtro de período
+- [x] Implementar correção
+- [x] Testar página carregando corretamente
+
+**CAUSA RAIZ IDENTIFICADA:**
+O ApiStatusTracker estava usando `const db = getDb()` sem `await`, então `db` era uma Promise ao invés do objeto do banco de dados. Isso causava erro "db.insert is not a function" em todas as chamadas.
+
+**CORREÇÃO APLICADA:**
+- Modificado ApiStatusTracker para usar `const db = await getDb()` em todos os métodos
+- Adicionado verificação `if (!db)` para evitar erros quando banco não está disponível
+- Corrigido imports para incluir `eq, and, desc` do drizzle-orm
+- Corrigido campo `status` para usar 'online'/'offline' ao invés de 'success'/'failure'
+- Adicionado campo `lastChecked` em todas as inserções
+
+**VALIDAÇÃO:**
+- ✅ Home: Carregando corretamente
+- ✅ Blue Consult: Carregando corretamente (RESOLVIDO!)
+- ✅ Tokeniza: Carregando corretamente
+- ✅ Tokeniza Academy: Carregando corretamente
+- ✅ Mychel Mendes: Carregando corretamente
+- ✅ Todas as APIs online (Pipedrive, Discord, Nibo, Metricool)

@@ -1,7 +1,6 @@
 import { getDb } from '../db';
 import * as schema from '../../drizzle/schema';
-
-const db = getDb();
+import { eq, and, desc } from 'drizzle-orm';
 
 /**
  * Helper function to track API status
@@ -43,14 +42,21 @@ export class ApiStatusTracker {
     responseTime: number,
     companyId?: number
   ) {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[ApiStatusTracker] Database not available');
+      return;
+    }
+
     try {
       await db.insert(schema.apiStatus).values({
         apiName,
         companyId: companyId || null,
-        status: 'success',
+        status: 'online',
         endpoint,
         responseTime,
         errorMessage: null,
+        lastChecked: new Date(),
       });
     } catch (error) {
       console.error(`[ApiStatusTracker] Failed to record success for ${apiName}:`, error);
@@ -66,14 +72,21 @@ export class ApiStatusTracker {
     errorMessage: string,
     companyId?: number
   ) {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[ApiStatusTracker] Database not available');
+      return;
+    }
+
     try {
       await db.insert(schema.apiStatus).values({
         apiName,
         companyId: companyId || null,
-        status: 'failure',
+        status: 'offline',
         endpoint,
         errorMessage,
         responseTime: null,
+        lastChecked: new Date(),
       });
     } catch (error) {
       console.error(`[ApiStatusTracker] Failed to record failure for ${apiName}:`, error);
@@ -84,19 +97,24 @@ export class ApiStatusTracker {
    * Get latest status for an API
    */
   static async getLatestStatus(apiName: string, companyId?: number) {
+    const db = await getDb();
+    if (!db) {
+      console.warn('[ApiStatusTracker] Database not available');
+      return null;
+    }
+
     try {
-      const query = db
+      const conditions = companyId
+        ? and(eq(schema.apiStatus.apiName, apiName), eq(schema.apiStatus.companyId, companyId))
+        : eq(schema.apiStatus.apiName, apiName);
+
+      const result = await db
         .select()
         .from(schema.apiStatus)
-        .where(
-          companyId
-            ? schema.apiStatus.apiName.eq(apiName).and(schema.apiStatus.companyId.eq(companyId))
-            : schema.apiStatus.apiName.eq(apiName)
-        )
-        .orderBy(schema.apiStatus.timestamp.desc())
+        .where(conditions)
+        .orderBy(desc(schema.apiStatus.lastChecked))
         .limit(1);
 
-      const result = await query;
       return result[0] || null;
     } catch (error) {
       console.error(`[ApiStatusTracker] Failed to get latest status for ${apiName}:`, error);
@@ -117,7 +135,7 @@ export class ApiStatusTracker {
           return {
             apiName,
             status: latest?.status || 'unknown',
-            timestamp: latest?.timestamp || null,
+            lastChecked: latest?.lastChecked || null,
             errorMessage: latest?.errorMessage || null,
           };
         })
