@@ -11,8 +11,27 @@ import TokenizaAcademy from "./pages/TokenizaAcademy";
 import MychelMendes from "./pages/MychelMendes";
 import Admin from "./pages/Admin";
 import LeadAnalysis from "./pages/LeadAnalysis";
+import Login from "./pages/Login";
+import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
+  const { isAuthenticated, loading } = useAuth();
+
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Se não autenticado, mostrar apenas página de login
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Se autenticado, mostrar rotas normais
   return (
     <Switch>
       <Route path={"/"} component={Home} />

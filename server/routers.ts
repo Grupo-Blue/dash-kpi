@@ -22,12 +22,80 @@ import { ENV } from "./_core/env";
 import { leadJourneyService } from './services/leadJourneyService';
 import { getLeadJourneyHistory, getLeadJourneyCache, saveLeadJourneyCache } from './db/leadJourneyDb';
 import { leadJourneyAI } from './services/leadJourneyAI';
+import { authenticateUser, createLocalUser } from './services/localAuth';
+import { sign } from 'jsonwebtoken';
 
 export const appRouter = router({
   system: systemRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    // Login com email e senha
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await authenticateUser(input);
+        
+        if (!user) {
+          throw new Error('Invalid credentials');
+        }
+
+        // Criar JWT token
+        const token = sign(
+          { userId: user.id, email: user.email, role: user.role },
+          ENV.jwtSecret,
+          { expiresIn: '7d' }
+        );
+
+        // Definir cookie de sessão
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, {
+          ...cookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        });
+
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        };
+      }),
+    
+    // Criar novo usuário (apenas admin)
+    register: protectedProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string().min(2),
+        role: z.enum(['user', 'admin']).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas admin pode criar usuários
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized');
+        }
+
+        const user = await createLocalUser(input);
+        
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        };
+      }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
