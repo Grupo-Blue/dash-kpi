@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `mauticPages` (\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\n  `mauticId` INT NOT NULL UNIQUE,\n  `title` VARCHAR(255) NOT NULL,\n  `alias` VARCHAR(255),\n  `url` TEXT,\n  `category` VARCHAR(100),\n  `language` VARCHAR(10),\n  `isPublished` BOOLEAN DEFAULT TRUE,\n  `publishUp` TIMESTAMP NULL,\n  `publishDown` TIMESTAMP NULL,\n  `hits` INT DEFAULT 0,\n  `uniqueHits` INT DEFAULT 0,\n  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `syncedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute CREATE TABLE IF NOT EXISTS `mauticPages` (\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\n  `mauticId` INT NOT NULL UNIQUE,\n  `title` VARCHAR(255) NOT NULL,\n  `alias` VARCHAR(255),\n  `url` TEXT,\n  `category` VARCHAR(100),\n  `language` VARCHAR(10),\n  `isPublished` BOOLEAN DEFAULT TRUE,\n  `publishUp` TIMESTAMP NULL,\n  `publishDown` TIMESTAMP NULL,\n  `hits` INT DEFAULT 0,\n  `uniqueHits` INT DEFAULT 0,\n  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `updatedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n  `syncedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 50
+}

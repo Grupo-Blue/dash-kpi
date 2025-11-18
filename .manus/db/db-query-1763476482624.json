@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS `mauticStages` (\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\n  `mauticId` INT NOT NULL UNIQUE,\n  `name` VARCHAR(255) NOT NULL,\n  `description` TEXT,\n  `weight` INT DEFAULT 0,\n  `isPublished` BOOLEAN DEFAULT TRUE,\n  `createdAt` TIMESTAMP NULL,\n  `syncedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute CREATE TABLE IF NOT EXISTS `mauticStages` (\n  `id` INT AUTO_INCREMENT PRIMARY KEY,\n  `mauticId` INT NOT NULL UNIQUE,\n  `name` VARCHAR(255) NOT NULL,\n  `description` TEXT,\n  `weight` INT DEFAULT 0,\n  `isPublished` BOOLEAN DEFAULT TRUE,\n  `createdAt` TIMESTAMP NULL,\n  `syncedAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n)",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 53
+}

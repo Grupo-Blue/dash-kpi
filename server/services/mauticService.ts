@@ -150,6 +150,48 @@ class MauticService {
   }
 
   /**
+   * Buscar todos os e-mails do Mautic (dados brutos)
+   */
+  async getAllEmailsRaw(limit: number = 500): Promise<any[]> {
+    try {
+      const response = await this.client.get('/api/emails', {
+        params: {
+          limit,
+          orderBy: 'id',
+          orderByDir: 'DESC',
+        },
+      });
+
+      const emails = response.data.emails || {};
+      return Object.values(emails);
+    } catch (error: any) {
+      console.error('[Mautic] Error fetching emails:', error.response?.data || error.message);
+      throw new Error(`Failed to get all emails: ${error.message}`);
+    }
+  }
+
+  /**
+   * Buscar todas as páginas do Mautic
+   */
+  async getAllPages(limit: number = 500): Promise<any[]> {
+    try {
+      const response = await this.client.get('/api/pages', {
+        params: {
+          limit,
+          orderBy: 'id',
+          orderByDir: 'DESC',
+        },
+      });
+
+      const pages = response.data.pages || {};
+      return Object.values(pages);
+    } catch (error: any) {
+      console.error('[Mautic] Error fetching pages:', error.response?.data || error.message);
+      throw new Error(`Failed to get all pages: ${error.message}`);
+    }
+  }
+
+  /**
    * Buscar contato por e-mail
    */
   async searchContactByEmail(email: string): Promise<MauticContact | null> {

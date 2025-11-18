@@ -132,20 +132,12 @@ class MauticCacheService {
       console.log('[MauticCache] Starting email sync...');
       
       // Buscar e-mails da API do Mautic
-      const response = await mauticService['client'].get('/api/emails', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const emails = response.data.emails || {};
+      const emails = await mauticService.getAllEmailsRaw(limit);
       let synced = 0;
       let errors = 0;
 
       // Inserir ou atualizar cada e-mail
-      for (const [id, emailData] of Object.entries(emails)) {
+      for (const emailData of emails) {
         try {
           const email: any = emailData;
           const emailRecord: InsertMauticEmail = {
@@ -207,20 +199,12 @@ class MauticCacheService {
       console.log('[MauticCache] Starting page sync...');
       
       // Buscar páginas da API do Mautic
-      const response = await mauticService['client'].get('/api/pages', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const pages = response.data.pages || {};
+      const pages = await mauticService.getAllPages(limit);
       let synced = 0;
       let errors = 0;
 
       // Inserir ou atualizar cada página
-      for (const [id, pageData] of Object.entries(pages)) {
+      for (const pageData of pages) {
         try {
           const page: any = pageData;
           const pageRecord: InsertMauticPage = {

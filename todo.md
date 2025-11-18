@@ -1131,3 +1131,4 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [ ] Atualizar leadJourneyService para usar cache completo
 - [ ] Adicionar sincronização de segmentos/campanhas/estágios na interface admin
 - [ ] Testar com dados reais e validar todos os nomes
+- [x] Adicionar DashboardLayout nas páginas MauticCacheAdmin e LeadAnalysis para exibir menu lateral

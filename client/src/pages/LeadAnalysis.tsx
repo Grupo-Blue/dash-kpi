@@ -10,6 +10,7 @@ import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import TimelineVisual from "@/components/TimelineVisual";
 import AcquisitionAnalysis from "@/components/AcquisitionAnalysis";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function LeadAnalysis() {
   const [email, setEmail] = useState("");
@@ -58,6 +59,7 @@ export default function LeadAnalysis() {
   };
 
   return (
+    <DashboardLayout>
     <div className="container mx-auto py-8 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Análise de Jornada de Leads</h1>
@@ -707,5 +709,6 @@ export default function LeadAnalysis() {
         </Card>
       )}
     </div>
+    </DashboardLayout>
   );
 }

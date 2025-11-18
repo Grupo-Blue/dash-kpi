@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Database, Mail, FileText, CheckCircle2, XCircle, Loader2, Users, Megaphone, GitBranch } from 'lucide-react';
 import { toast } from 'sonner';
+import DashboardLayout from '@/components/DashboardLayout';
 
 export default function MauticCacheAdmin() {
   const [syncing, setSyncing] = useState(false);
@@ -23,7 +24,7 @@ export default function MauticCacheAdmin() {
       setLastSync(result);
       refetchStats();
       toast.success('Sincronização concluída!', {
-        description: `E-mails: ${result.emails.synced} sincronizados. Páginas: ${result.pages.synced} sincronizadas.`,
+        description: `E-mails: ${result.emails.synced}, Páginas: ${result.pages.synced}, Segmentos: ${result.segments.synced}, Campanhas: ${result.campaigns.synced}, Estágios: ${result.stages.synced}`,
       });
       setSyncing(false);
     },
@@ -119,7 +120,8 @@ export default function MauticCacheAdmin() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <DashboardLayout>
+    <div className="p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div>
@@ -434,5 +436,6 @@ export default function MauticCacheAdmin() {
         </Card>
       </div>
     </div>
+    </DashboardLayout>
   );
 }
