@@ -145,7 +145,7 @@ class LeadJourneyService {
         email,
         mauticData: mauticData as any,
         pipedriveData: pipedriveData as any,
-        aiAnalysis: null, // Será preenchido depois
+        aiAnalysis: "", // Será preenchido depois
         cachedAt: now,
         expiresAt,
       });

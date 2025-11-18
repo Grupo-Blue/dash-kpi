@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import {
   leadJourneySearches,
@@ -8,6 +8,71 @@ import {
   LeadJourneySearch,
   LeadJourneyCache,
 } from "../../drizzle/schema";
+
+const ISO_DATE_REGEX =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+function formatMysqlDate(date: Date): string {
+  return date.toISOString().slice(0, 19).replace("T", " ");
+}
+
+function normalizeDateString(value: string): string {
+  if (!ISO_DATE_REGEX.test(value)) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return formatMysqlDate(parsed);
+}
+
+function normalizeJsonDates<T>(value: T): T {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeJsonDates(item)) as unknown as T;
+  }
+
+  if (value instanceof Date) {
+    return formatMysqlDate(value) as unknown as T;
+  }
+
+  if (typeof value === "object") {
+    const normalizedEntries = Object.entries(value as Record<string, unknown>).reduce(
+      (acc, [key, entryValue]) => {
+        acc[key] = normalizeJsonDates(entryValue);
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
+
+    return normalizedEntries as unknown as T;
+  }
+
+  if (typeof value === "string") {
+    return normalizeDateString(value) as unknown as T;
+  }
+
+  return value;
+}
+
+function normalizeDateValue(value: string | number | Date): Date {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`[Database] Invalid date value provided: ${value}`);
+  }
+
+  return parsed;
+}
 
 /**
  * Salvar uma busca de lead no histórico
@@ -83,7 +148,12 @@ export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCac
       return null;
     }
 
-    return cache;
+    // Fazer parse dos campos JSON que agora são TEXT
+    return {
+      ...cache,
+      mauticData: cache.mauticData ? JSON.parse(cache.mauticData) : null,
+      pipedriveData: cache.pipedriveData ? JSON.parse(cache.pipedriveData) : null,
+    };
   } catch (error) {
     console.error("[Database] Failed to get lead journey cache:", error);
     return null;
@@ -93,36 +163,6 @@ export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCac
 /**
  * Salvar ou atualizar cache de dados de um lead
  */
-/**
- * Normalizar datas em objetos JSON para evitar problemas com timezone
- * Converte strings ISO com +00:00 para formato MySQL
- */
-function normalizeDates(obj: any): any {
-  if (obj === null || obj === undefined) return obj;
-  
-  if (typeof obj === 'string') {
-    // Se é uma string de data ISO, normalizar
-    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}/.test(obj)) {
-      return obj.replace('T', ' ').replace(/\.\d{3}Z?$/, '').replace(/[+-]\d{2}:\d{2}$/, '');
-    }
-    return obj;
-  }
-  
-  if (Array.isArray(obj)) {
-    return obj.map(normalizeDates);
-  }
-  
-  if (typeof obj === 'object') {
-    const normalized: any = {};
-    for (const key in obj) {
-      normalized[key] = normalizeDates(obj[key]);
-    }
-    return normalized;
-  }
-  
-  return obj;
-}
-
 export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promise<void> {
   const db = await getDb();
   if (!db) {
@@ -131,46 +171,62 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
   }
 
   try {
-    console.log('[DEBUG] Saving cache with data:', {
-      email: data.email,
-      cachedAt: data.cachedAt,
-      cachedAtType: typeof data.cachedAt,
-      expiresAt: data.expiresAt,
-      expiresAtType: typeof data.expiresAt
-    });
+    // Normalizar e forçar serialização JSON para remover TODOS os objetos Date
+    const mauticNormalized = normalizeJsonDates(data.mauticData ?? {});
+    const pipedriveNormalized = normalizeJsonDates(data.pipedriveData ?? {});
     
-    // Normalizar datas antes de salvar
-    const normalizedData = {
-      email: data.email,
-      mauticData: normalizeDates(data.mauticData),
-      pipedriveData: normalizeDates(data.pipedriveData),
-      aiAnalysis: data.aiAnalysis || '', // Garantir que nunca seja null
-      cachedAt: data.cachedAt instanceof Date ? data.cachedAt : new Date(data.cachedAt),
-      expiresAt: data.expiresAt instanceof Date ? data.expiresAt : new Date(data.expiresAt),
+    // Converter para strings JSON manualmente
+    const mauticDataStr = JSON.stringify(mauticNormalized);
+    const pipedriveDataStr = JSON.stringify(pipedriveNormalized);
+    const aiAnalysisStr = data.aiAnalysis ?? "";
+    const cachedAtDate = normalizeDateValue(data.cachedAt ?? new Date());
+    const expiresAtDate = normalizeDateValue(data.expiresAt ?? new Date());
+
+    // Formatar datas para MySQL (YYYY-MM-DD HH:MM:SS)
+    const formatMysqlDateTime = (date: Date): string => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+             `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
     };
+
+    const cachedAtStr = formatMysqlDateTime(cachedAtDate);
+    const expiresAtStr = formatMysqlDateTime(expiresAtDate);
+
+    console.log("[DEBUG] Usando SQL RAW para bypass do Drizzle ORM");
+    console.log("[DEBUG] - email:", data.email);
+    console.log("[DEBUG] - mauticData length:", mauticDataStr.length);
+    console.log("[DEBUG] - pipedriveData length:", pipedriveDataStr.length);
+    console.log("[DEBUG] - cachedAt:", cachedAtStr);
+    console.log("[DEBUG] - expiresAt:", expiresAtStr);
+
+    // Usar SQL RAW para bypass completo do Drizzle ORM
+    // Acessar o client mysql2 diretamente
+    const client = (db as any).$client;
     
-    // Tentar inserir, se já existir, atualizar
-    await db
-      .insert(leadJourneyCache)
-      .values(normalizedData)
-      .onDuplicateKeyUpdate({
-        set: {
-          mauticData: normalizedData.mauticData,
-          pipedriveData: normalizedData.pipedriveData,
-          aiAnalysis: normalizedData.aiAnalysis,
-          cachedAt: normalizedData.cachedAt,
-          expiresAt: normalizedData.expiresAt,
-        },
-      });
-  } catch (error: any) {
-    console.error("[Database] Failed to save lead journey cache:", {
-      message: error.message,
-      code: error.code,
-      errno: error.errno,
-      sql: error.sql,
-      sqlMessage: error.sqlMessage,
-      stack: error.stack
-    });
+    const query = `
+      INSERT INTO leadJourneyCache 
+        (email, mauticData, pipedriveData, aiAnalysis, cachedAt, expiresAt)
+      VALUES 
+        (?, ?, ?, ?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        mauticData = VALUES(mauticData),
+        pipedriveData = VALUES(pipedriveData),
+        aiAnalysis = VALUES(aiAnalysis),
+        cachedAt = VALUES(cachedAt),
+        expiresAt = VALUES(expiresAt)
+    `;
+
+    // Executar SQL raw diretamente no client mysql2
+    await client.execute(query, [
+      data.email,
+      mauticDataStr,
+      pipedriveDataStr,
+      aiAnalysisStr,
+      cachedAtStr,
+      expiresAtStr,
+    ]);
+  } catch (error) {
+    console.error("[Database] Failed to save lead journey cache:", error);
     throw error;
   }
 }
