@@ -1,13 +1,13 @@
 /**
  * Página de administração do cache do Mautic
- * Permite sincronizar e-mails e páginas manualmente
+ * Permite sincronizar e-mails, páginas, segmentos, campanhas e estágios manualmente
  */
 
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Database, Mail, FileText, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { RefreshCw, Database, Mail, FileText, CheckCircle2, XCircle, Loader2, Users, Megaphone, GitBranch } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function MauticCacheAdmin() {
@@ -65,6 +65,51 @@ export default function MauticCacheAdmin() {
     },
   });
 
+  // Mutation para sincronizar segmentos
+  const syncSegmentsMutation = trpc.mauticCache.syncSegments.useMutation({
+    onSuccess: (result) => {
+      refetchStats();
+      toast.success('Segmentos sincronizados!', {
+        description: `${result.count} segmentos sincronizados.`,
+      });
+    },
+    onError: (error) => {
+      toast.error('Erro ao sincronizar segmentos', {
+        description: error.message,
+      });
+    },
+  });
+
+  // Mutation para sincronizar campanhas
+  const syncCampaignsMutation = trpc.mauticCache.syncCampaigns.useMutation({
+    onSuccess: (result) => {
+      refetchStats();
+      toast.success('Campanhas sincronizadas!', {
+        description: `${result.count} campanhas sincronizadas.`,
+      });
+    },
+    onError: (error) => {
+      toast.error('Erro ao sincronizar campanhas', {
+        description: error.message,
+      });
+    },
+  });
+
+  // Mutation para sincronizar estágios
+  const syncStagesMutation = trpc.mauticCache.syncStages.useMutation({
+    onSuccess: (result) => {
+      refetchStats();
+      toast.success('Estágios sincronizados!', {
+        description: `${result.count} estágios sincronizados.`,
+      });
+    },
+    onError: (error) => {
+      toast.error('Erro ao sincronizar estágios', {
+        description: error.message,
+      });
+    },
+  });
+
   const handleSyncAll = async () => {
     setSyncing(true);
     toast.info('Sincronizando...', {
@@ -75,7 +120,7 @@ export default function MauticCacheAdmin() {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
@@ -83,7 +128,7 @@ export default function MauticCacheAdmin() {
             Administração do Cache do Mautic
           </h1>
           <p className="text-muted-foreground mt-2">
-            Gerencie o cache de e-mails e páginas do Mautic para melhorar a performance da análise de leads.
+            Gerencie o cache de e-mails, páginas, segmentos, campanhas e estágios do Mautic para melhorar a performance da análise de leads.
           </p>
         </div>
 
@@ -94,19 +139,40 @@ export default function MauticCacheAdmin() {
             <CardDescription>Dados atualmente armazenados no banco de dados</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div className="flex items-center gap-3 p-4 border rounded-lg">
                 <Mail className="w-8 h-8 text-blue-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats?.emailsCount || 0}</p>
-                  <p className="text-sm text-muted-foreground">E-mails em cache</p>
+                  <p className="text-sm text-muted-foreground">E-mails</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-4 border rounded-lg">
                 <FileText className="w-8 h-8 text-green-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats?.pagesCount || 0}</p>
-                  <p className="text-sm text-muted-foreground">Páginas em cache</p>
+                  <p className="text-sm text-muted-foreground">Páginas</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 border rounded-lg">
+                <Users className="w-8 h-8 text-purple-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats?.segmentsCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">Segmentos</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 border rounded-lg">
+                <Megaphone className="w-8 h-8 text-orange-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats?.campaignsCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">Campanhas</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 border rounded-lg">
+                <GitBranch className="w-8 h-8 text-pink-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats?.stagesCount || 0}</p>
+                  <p className="text-sm text-muted-foreground">Estágios</p>
                 </div>
               </div>
             </div>
@@ -126,7 +192,7 @@ export default function MauticCacheAdmin() {
                 <RefreshCw className="w-6 h-6 text-purple-500" />
                 <div>
                   <p className="font-semibold">Sincronizar Tudo</p>
-                  <p className="text-sm text-muted-foreground">E-mails e páginas (recomendado)</p>
+                  <p className="text-sm text-muted-foreground">E-mails, páginas, segmentos, campanhas e estágios (recomendado)</p>
                 </div>
               </div>
               <Button
@@ -205,6 +271,93 @@ export default function MauticCacheAdmin() {
                 )}
               </Button>
             </div>
+
+            {/* Sincronizar Segmentos */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <Users className="w-6 h-6 text-purple-500" />
+                <div>
+                  <p className="font-semibold">Sincronizar Segmentos</p>
+                  <p className="text-sm text-muted-foreground">Segmentos/listas do Mautic</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => syncSegmentsMutation.mutate()}
+                disabled={syncSegmentsMutation.isPending}
+                variant="outline"
+                className="gap-2"
+              >
+                {syncSegmentsMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <Users className="w-4 h-4" />
+                    Sincronizar
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Sincronizar Campanhas */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <Megaphone className="w-6 h-6 text-orange-500" />
+                <div>
+                  <p className="font-semibold">Sincronizar Campanhas</p>
+                  <p className="text-sm text-muted-foreground">Campanhas do Mautic</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => syncCampaignsMutation.mutate()}
+                disabled={syncCampaignsMutation.isPending}
+                variant="outline"
+                className="gap-2"
+              >
+                {syncCampaignsMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <Megaphone className="w-4 h-4" />
+                    Sincronizar
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Sincronizar Estágios */}
+            <div className="flex items-center justify-between p-4 border rounded-lg">
+              <div className="flex items-center gap-3">
+                <GitBranch className="w-6 h-6 text-pink-500" />
+                <div>
+                  <p className="font-semibold">Sincronizar Estágios</p>
+                  <p className="text-sm text-muted-foreground">Estágios do funil do Mautic</p>
+                </div>
+              </div>
+              <Button
+                onClick={() => syncStagesMutation.mutate()}
+                disabled={syncStagesMutation.isPending}
+                variant="outline"
+                className="gap-2"
+              >
+                {syncStagesMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <GitBranch className="w-4 h-4" />
+                    Sincronizar
+                  </>
+                )}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -266,16 +419,16 @@ export default function MauticCacheAdmin() {
           </CardHeader>
           <CardContent className="space-y-2 text-sm text-muted-foreground">
             <p>
-              • O cache armazena nomes de e-mails e páginas do Mautic no banco de dados local.
+              • O cache armazena nomes de e-mails, páginas, segmentos, campanhas e estágios do Mautic no banco de dados local.
             </p>
             <p>
-              • Isso melhora significativamente a performance da análise de leads, evitando chamadas repetidas à API.
+              • Isso melhora significativamente a performance da análise de leads e elimina campos "Desconhecido" na timeline.
             </p>
             <p>
-              • Recomenda-se sincronizar diariamente ou quando novos e-mails/páginas forem criados no Mautic.
+              • Recomenda-se sincronizar diariamente ou quando novos itens forem criados no Mautic.
             </p>
             <p>
-              • A sincronização busca até 500 itens mais recentes de cada tipo.
+              • A sincronização busca até 500 itens mais recentes de e-mails e páginas, e todos os segmentos, campanhas e estágios ativos.
             </p>
           </CardContent>
         </Card>
