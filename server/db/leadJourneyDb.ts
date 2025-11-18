@@ -93,6 +93,36 @@ export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCac
 /**
  * Salvar ou atualizar cache de dados de um lead
  */
+/**
+ * Normalizar datas em objetos JSON para evitar problemas com timezone
+ * Converte strings ISO com +00:00 para formato MySQL
+ */
+function normalizeDates(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  
+  if (typeof obj === 'string') {
+    // Se é uma string de data ISO, normalizar
+    if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}/.test(obj)) {
+      return obj.replace('T', ' ').replace(/\.\d{3}Z?$/, '').replace(/[+-]\d{2}:\d{2}$/, '');
+    }
+    return obj;
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(normalizeDates);
+  }
+  
+  if (typeof obj === 'object') {
+    const normalized: any = {};
+    for (const key in obj) {
+      normalized[key] = normalizeDates(obj[key]);
+    }
+    return normalized;
+  }
+  
+  return obj;
+}
+
 export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promise<void> {
   const db = await getDb();
   if (!db) {
@@ -101,21 +131,46 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
   }
 
   try {
+    console.log('[DEBUG] Saving cache with data:', {
+      email: data.email,
+      cachedAt: data.cachedAt,
+      cachedAtType: typeof data.cachedAt,
+      expiresAt: data.expiresAt,
+      expiresAtType: typeof data.expiresAt
+    });
+    
+    // Normalizar datas antes de salvar
+    const normalizedData = {
+      email: data.email,
+      mauticData: normalizeDates(data.mauticData),
+      pipedriveData: normalizeDates(data.pipedriveData),
+      aiAnalysis: data.aiAnalysis || '', // Garantir que nunca seja null
+      cachedAt: data.cachedAt instanceof Date ? data.cachedAt : new Date(data.cachedAt),
+      expiresAt: data.expiresAt instanceof Date ? data.expiresAt : new Date(data.expiresAt),
+    };
+    
     // Tentar inserir, se já existir, atualizar
     await db
       .insert(leadJourneyCache)
-      .values(data)
+      .values(normalizedData)
       .onDuplicateKeyUpdate({
         set: {
-          mauticData: data.mauticData,
-          pipedriveData: data.pipedriveData,
-          aiAnalysis: data.aiAnalysis,
-          cachedAt: data.cachedAt,
-          expiresAt: data.expiresAt,
+          mauticData: normalizedData.mauticData,
+          pipedriveData: normalizedData.pipedriveData,
+          aiAnalysis: normalizedData.aiAnalysis,
+          cachedAt: normalizedData.cachedAt,
+          expiresAt: normalizedData.expiresAt,
         },
       });
-  } catch (error) {
-    console.error("[Database] Failed to save lead journey cache:", error);
+  } catch (error: any) {
+    console.error("[Database] Failed to save lead journey cache:", {
+      message: error.message,
+      code: error.code,
+      errno: error.errno,
+      sql: error.sql,
+      sqlMessage: error.sqlMessage,
+      stack: error.stack
+    });
     throw error;
   }
 }

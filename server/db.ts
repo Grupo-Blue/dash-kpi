@@ -27,6 +27,7 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
+    console.log('[Database] Connecting with URL:', process.env.DATABASE_URL?.replace(/:([^:@]+)@/, ':****@')); // Hide password
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
