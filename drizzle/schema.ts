@@ -5,9 +5,10 @@ import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } f
  */
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
-  openId: varchar("openId", { length: 64 }).notNull().unique(),
+  openId: varchar("openId", { length: 64 }).unique(), // Agora opcional para suportar auth local
   name: text("name"),
-  email: varchar("email", { length: 320 }),
+  email: varchar("email", { length: 320 }).unique(), // Email único para login
+  password: varchar("password", { length: 255 }), // Hash da senha (bcrypt)
   loginMethod: varchar("loginMethod", { length: 64 }),
   role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -171,3 +172,89 @@ export const kpiSnapshots = mysqlTable("kpiSnapshots", {
 
 export type KpiSnapshot = typeof kpiSnapshots.$inferSelect;
 export type InsertKpiSnapshot = typeof kpiSnapshots.$inferInsert;
+
+/**
+ * Lead Journey Searches - Historical record of lead searches
+ * Tracks all searches performed by users for lead journey analysis
+ */
+export const leadJourneySearches = mysqlTable("leadJourneySearches", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull(),
+  leadName: varchar("leadName", { length: 255 }),
+  mauticId: int("mauticId"), // Mautic contact ID
+  pipedrivePersonId: int("pipedrivePersonId"), // Pipedrive person ID
+  pipedriveDealId: int("pipedriveDealId"), // Pipedrive deal ID (if converted)
+  conversionStatus: mysqlEnum("conversionStatus", ["lead", "negotiating", "won", "lost"]).default("lead").notNull(),
+  dealValue: int("dealValue"), // Deal value in cents (if converted)
+  daysInBase: int("daysInBase"), // Days since first contact
+  daysToConversion: int("daysToConversion"), // Days from first contact to conversion (if converted)
+  searchedAt: timestamp("searchedAt").defaultNow().notNull(),
+  searchedBy: int("searchedBy").notNull(), // FK -> users.id
+});
+
+export type LeadJourneySearch = typeof leadJourneySearches.$inferSelect;
+export type InsertLeadJourneySearch = typeof leadJourneySearches.$inferInsert;
+
+/**
+ * Lead Journey Cache - Cached data from Mautic and Pipedrive
+ * Improves performance by caching API responses
+ */
+export const leadJourneyCache = mysqlTable("leadJourneyCache", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  mauticData: json("mauticData").$type<Record<string, any>>(), // Complete Mautic data (contact + activities + campaigns + segments)
+  pipedriveData: json("pipedriveData").$type<Record<string, any>>(), // Complete Pipedrive data (person + deals)
+  aiAnalysis: text("aiAnalysis"), // AI-generated analysis and insights
+  cachedAt: timestamp("cachedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // Cache expiration (24 hours)
+});
+
+export type LeadJourneyCache = typeof leadJourneyCache.$inferSelect;
+export type InsertLeadJourneyCache = typeof leadJourneyCache.$inferInsert;
+
+/**
+ * Mautic Emails Cache - Cache de e-mails do Mautic
+ * Armazena informações de e-mails para evitar chamadas repetidas à API
+ */
+export const mauticEmails = mysqlTable("mauticEmails", {
+  id: int("id").autoincrement().primaryKey(),
+  mauticId: int("mauticId").notNull().unique(), // ID do e-mail no Mautic
+  name: varchar("name", { length: 255 }), // Nome do e-mail
+  subject: text("subject"), // Assunto do e-mail
+  category: varchar("category", { length: 100 }), // Categoria
+  language: varchar("language", { length: 10 }), // Idioma (pt_BR, en, etc)
+  isPublished: boolean("isPublished").default(true), // Se está publicado
+  publishUp: timestamp("publishUp"), // Data de publicação
+  publishDown: timestamp("publishDown"), // Data de despublicação
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(), // Última sincronização com Mautic
+});
+
+export type MauticEmail = typeof mauticEmails.$inferSelect;
+export type InsertMauticEmail = typeof mauticEmails.$inferInsert;
+
+/**
+ * Mautic Pages Cache - Cache de páginas do Mautic
+ * Armazena informações de landing pages para facilitar análise
+ */
+export const mauticPages = mysqlTable("mauticPages", {
+  id: int("id").autoincrement().primaryKey(),
+  mauticId: int("mauticId").notNull().unique(), // ID da página no Mautic
+  title: varchar("title", { length: 255 }).notNull(), // Título da página
+  alias: varchar("alias", { length: 255 }), // Slug/alias da página
+  url: text("url"), // URL completa
+  category: varchar("category", { length: 100 }), // Categoria
+  language: varchar("language", { length: 10 }), // Idioma
+  isPublished: boolean("isPublished").default(true), // Se está publicada
+  publishUp: timestamp("publishUp"), // Data de publicação
+  publishDown: timestamp("publishDown"), // Data de despublicação
+  hits: int("hits").default(0), // Número de visitas
+  uniqueHits: int("uniqueHits").default(0), // Visitas únicas
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(), // Última sincronização com Mautic
+});
+
+export type MauticPage = typeof mauticPages.$inferSelect;
+export type InsertMauticPage = typeof mauticPages.$inferInsert;

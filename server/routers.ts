@@ -19,12 +19,85 @@ import { ApiStatusTracker, trackApiStatus } from './services/apiStatusTracker';
 import { executeSnapshotManually } from './jobs/dailySnapshot';
 import { kpiSnapshots } from '../drizzle/schema';
 import { ENV } from "./_core/env";
+import { leadJourneyService } from './services/leadJourneyService';
+import { getLeadJourneyHistory, getLeadJourneyCache, saveLeadJourneyCache } from './db/leadJourneyDb';
+import { leadJourneyAI } from './services/leadJourneyAI';
+import { authenticateUser, createLocalUser } from './services/localAuth';
+import { mauticCacheRouter } from './routers/mauticCacheRouter';
+import jwt from 'jsonwebtoken';
 
 export const appRouter = router({
   system: systemRouter,
+  mauticCache: mauticCacheRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
+    
+    // Login com email e senha
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await authenticateUser(input);
+        
+        if (!user) {
+          throw new Error('Invalid credentials');
+        }
+
+        // Criar JWT token
+        const token = jwt.sign(
+          { userId: user.id, email: user.email, role: user.role },
+          ENV.jwtSecret,
+          { expiresIn: '7d' }
+        );
+
+        // Definir cookie de sessão
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, token, {
+          ...cookieOptions,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
+        });
+
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        };
+      }),
+    
+    // Criar novo usuário (apenas admin)
+    register: protectedProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        name: z.string().min(2),
+        role: z.enum(['user', 'admin']).optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Apenas admin pode criar usuários
+        if (ctx.user?.role !== 'admin') {
+          throw new Error('Unauthorized');
+        }
+
+        const user = await createLocalUser(input);
+        
+        return {
+          success: true,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          },
+        };
+      }),
+    
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -1085,6 +1158,81 @@ export const appRouter = router({
           .limit(1);
 
         return results[0] || null;
+      }),
+  }),
+
+  // Lead Journey Analysis (Mautic + Pipedrive)
+  leadJourney: router({
+    // Buscar jornada de um lead por e-mail
+    search: protectedProcedure
+      .input(z.object({
+        email: z.string().email(),
+        useCache: z.boolean().optional().default(true),
+      }))
+      .query(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error('User not authenticated');
+        }
+
+        const journey = await leadJourneyService.getLeadJourney(
+          input.email,
+          ctx.user.id,
+          input.useCache
+        );
+
+        return journey;
+      }),
+
+    // Obter histórico de pesquisas
+    getHistory: protectedProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+      }))
+      .query(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error('User not authenticated');
+        }
+
+        const history = await getLeadJourneyHistory(ctx.user.id, input.limit);
+        return history;
+      }),
+
+    // Gerar análise por IA de um lead
+    generateAIAnalysis: protectedProcedure
+      .input(z.object({
+        email: z.string().email(),
+      }))
+      .mutation(async ({ input }) => {
+        // Buscar dados do cache
+        const cache = await getLeadJourneyCache(input.email);
+        
+        if (!cache || !cache.mauticData || !cache.pipedriveData) {
+          throw new Error('Lead não encontrado no cache. Busque o lead primeiro.');
+        }
+
+        // Construir dados da jornada
+        const journeyData = {
+          mautic: cache.mauticData as any,
+          pipedrive: cache.pipedriveData as any,
+          metrics: {} as any, // Será calculado pelo serviço
+        };
+
+        // Gerar análise por IA
+        const analysis = await leadJourneyAI.analyzeLeadJourney(journeyData as any);
+
+        // Atualizar cache com análise
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        await saveLeadJourneyCache({
+          email: input.email,
+          mauticData: cache.mauticData,
+          pipedriveData: cache.pipedriveData,
+          aiAnalysis: analysis,
+          cachedAt: now,
+          expiresAt,
+        });
+
+        return { analysis };
       }),
   }),
 });

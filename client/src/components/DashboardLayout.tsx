@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Building2, GraduationCap, TrendingUp, User, Settings } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, Building2, GraduationCap, TrendingUp, User, Settings, Search } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -33,6 +33,7 @@ const menuItems = [
   { icon: TrendingUp, label: "Tokeniza", path: "/tokeniza" },
   { icon: GraduationCap, label: "Tokeniza Academy", path: "/tokeniza-academy" },
   { icon: User, label: "Mychel Mendes", path: "/mychel-mendes" },
+  { icon: Search, label: "Análise de Leads", path: "/lead-analysis" },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -49,50 +50,12 @@ export default function DashboardLayout({
     const saved = localStorage.getItem(SIDEBAR_WIDTH_KEY);
     return saved ? parseInt(saved, 10) : DEFAULT_WIDTH;
   });
-  const { loading, user } = useAuth();
+  // Authentication temporarily disabled
+  // const { loading, user } = useAuth();
 
   useEffect(() => {
     localStorage.setItem(SIDEBAR_WIDTH_KEY, sidebarWidth.toString());
   }, [sidebarWidth]);
-
-  if (loading) {
-    return <DashboardLayoutSkeleton />
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-8 p-8 max-w-md w-full">
-          <div className="flex flex-col items-center gap-6">
-            <div className="relative group">
-              <div className="relative">
-                <img
-                  src={APP_LOGO}
-                  alt={APP_TITLE}
-                  className="h-20 w-20 rounded-xl object-cover shadow"
-                />
-              </div>
-            </div>
-            <div className="text-center space-y-2">
-              <h1 className="text-2xl font-bold tracking-tight">{APP_TITLE}</h1>
-              <p className="text-sm text-muted-foreground">
-                Please sign in to continue
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              window.location.href = getLoginUrl();
-            }}
-            size="lg"
-            className="w-full shadow-lg hover:shadow-xl transition-all"
-          >
-            Sign in
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <SidebarProvider
@@ -118,7 +81,10 @@ function DashboardLayoutContent({
   children,
   setSidebarWidth,
 }: DashboardLayoutContentProps) {
-  const { user, logout } = useAuth();
+  // Authentication temporarily disabled
+  // const { user, logout } = useAuth();
+  const user = { name: 'Admin', email: 'admin@grupoblue.com.br' };
+  const logout = () => {};
   const [location, setLocation] = useLocation();
   const { state, toggleSidebar } = useSidebar();
   const isCollapsed = state === "collapsed";

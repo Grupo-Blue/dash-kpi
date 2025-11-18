@@ -961,3 +961,149 @@ O ApiStatusTracker estava usando `const db = getDb()` sem `await`, então `db` e
 - [x] Testar importação com dados de exemplo
 - [x] Documentar processo de importação
 - [x] Entregar planilha modelo e script ao usuário
+
+
+## 🎯 Nova Funcionalidade: Análise de Jornada de Leads (Mautic + Pipedrive + IA)
+
+### Objetivo
+Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzando dados do Mautic (marketing) com Pipedrive (vendas), incluindo análise por IA para identificar padrões de conversão.
+
+### Credenciais Mautic (OAuth2)
+- URL: https://mautic.grupoblue.com.br/
+- Client ID: 8_16au3ocbjzvkcgk4w4ww4w8kwck0wok8gk8ow80gs8g04c8ooo
+- Client Secret: 5tkzuzbxq7wg8wsowcs4k8cgwccwwooc0kosc4k8o04og8gs0s
+- Redirect URI: https://kpidash-cez8gocw.manus.space/
+
+### Backend
+- [x] Criar serviço de integração com Mautic API (OAuth2)
+- [x] Implementar endpoints para buscar lead por e-mail no Mautic
+- [x] Implementar endpoint para buscar timeline de atividades do lead
+- [x] Implementar lógica de cruzamento Mautic ↔ Pipedrive por e-mail
+- [x] Criar schema do banco: tabela `leadJourneySearches` para histórico
+- [x] Criar schema do banco: tabela `leadJourneyCache` para cache de dados
+- [x] Implementar serviço de análise por IA (LLM) dos dados da jornada
+- [x] Criar endpoints tRPC: `leadJourney.search`, `leadJourney.getHistory`, `leadJourney.generateAIAnalysis`
+
+### Frontend
+- [x] Criar página "Análise de Leads" no menu
+- [x] Implementar campo de busca por e-mail
+- [x] Criar componente de visualização de dados do lead (Mautic)
+- [x] Criar componente de timeline de atividades (marketing)
+- [x] Criar componente de dados de vendas (Pipedrive)
+- [x] Criar componente de análise por IA (insights e padrões)
+- [x] Implementar lista de histórico de pesquisas recentes
+- [x] Adicionar indicadores visuais: "Lead", "Em negociação", "Convertido", "Perdido"
+- [x] Implementar loading states e tratamento de erros
+
+### Funcionalidades
+- [x] Busca de lead por e-mail
+- [x] Visualização de dados básicos (nome, pontos, data de criação, última atividade)
+- [x] Timeline de atividades do Mautic (e-mails, páginas, formulários, downloads, vídeos)
+- [x] Cruzamento com Pipedrive (identificar se converteu, valor da venda, status)
+- [x] Cálculo de tempo na base e tempo até conversão
+- [x] Análise por IA: padrões de comportamento, insights, recomendações
+- [x] Histórico de pesquisas (últimas 50 buscas)
+- [x] Cache de dados para performance (24 horas)
+
+### Análise de Padrões (IA)
+- [x] Identificar tipos de conteúdo consumidos
+- [x] Identificar campanhas que participou
+- [x] Calcular pontos médios antes da conversão
+- [x] Identificar páginas mais visitadas
+- [x] Identificar e-mails com maior engajamento
+- [x] Comparar com padrão de leads convertidos
+- [x] Gerar insights e recomendações
+
+
+## 🔐 Implementar Autenticação Simples com Usuário/Senha (Deploy Standalone)
+
+**Objetivo**: Substituir OAuth do Manus por sistema de login com usuário e senha para funcionar no servidor standalone.
+
+### Backend
+- [ ] Instalar bcrypt para hash de senhas
+- [ ] Modificar schema do banco: adicionar campos `password` e `salt` na tabela `users`
+- [ ] Criar endpoint de login com validação de senha
+- [ ] Criar endpoint de registro de usuário (apenas admin)
+- [ ] Modificar middleware de autenticação para aceitar JWT sem OAuth
+- [ ] Criar script de criação de usuário admin inicial
+
+### Frontend
+- [ ] Criar página de login customizada com campos usuário/senha
+- [ ] Remover botão "Entrar com Google"
+- [ ] Implementar formulário de login com validação
+- [ ] Adicionar tratamento de erros de login
+- [ ] Atualizar fluxo de autenticação no frontend
+
+### Deploy
+- [ ] Fazer commit das mudanças no GitHub
+- [ ] Fazer deploy no servidor
+- [ ] Executar script de criação de usuário admin
+- [ ] Testar login completo
+- [ ] Documentar credenciais de acesso
+
+
+---
+
+## 🔬 Análise Avançada de Leads v1.0 - EM DESENVOLVIMENTO
+
+### Objetivo
+Implementar análise profunda da jornada do lead para otimizar estratégias de marketing e vendas.
+
+### Backend - Enriquecimento de Dados
+- [x] Extrair UTMs (source, medium, campaign, content, term) das atividades do Mautic
+- [x] Identificar landing page de entrada do lead
+- [x] Capturar dados de descadastro (unsubscribe) do Mautic
+- [x] Adicionar campos de análise avançada na interface LeadJourneyData
+- [x] Criar função para análise de padrões de comportamento
+- [x] Processar timeline completa de eventos (e-mails, páginas, downloads, vídeos)
+
+### Frontend - Timeline Visual
+- [x] Criar componente TimelineEvent para eventos da jornada
+- [x] Implementar linha do tempo interativa com ícones por tipo de evento
+- [x] Adicionar filtros por tipo de evento (e-mails, páginas, downloads, etc.)
+- [x] Mostrar detalhes ao expandir cada evento
+- [x] Adicionar indicadores visuais de picos de atividade
+
+### Frontend - Análise de UTMs e Origem
+- [x] Criar seção de Origem de Tráfego
+- [x] Mostrar UTM source, medium, campaign da primeira conversão
+- [x] Exibir landing page de entrada
+- [x] Mostrar dispositivo e horário da primeira interação
+- [x] Criar card de "Primeira Interação" com todos os detalhes
+
+### Frontend - Comparação Won vs Lost
+- [ ] Criar card comparativo de métricas
+- [ ] Mostrar diferenças de comportamento (tempo, touchpoints, engajamento)
+- [ ] Destacar padrões de leads que convertem
+- [ ] Adicionar gráficos comparativos (barras lado a lado)
+
+### Frontend - Gráfico de Funil
+- [ ] Implementar visualização de funil de conversão
+- [ ] Mostrar taxas de conversão entre etapas
+- [ ] Adicionar tempo médio em cada etapa
+- [ ] Criar tooltip com detalhes de cada etapa
+
+### Deploy e Testes
+- [x] Testar com dados reais de leads (viniciusdeoa@gmail.com, etc.)
+- [x] Validar todas as métricas e visualizações
+- [ ] Verificar performance com grandes volumes de dados
+- [x] Deploy no servidor de produção
+- [ ] Documentar insights descobertos
+
+## 🔧 Melhorias na Timeline de Leads
+
+- [x] Adicionar mapeamento para evento stage.changed
+- [x] Implementar busca de e-mails do Mautic via API
+- [x] Criar cache de nomes de e-mails, campanhas e páginas
+- [x] Mapear todos os IDs para nomes reais
+- [x] Garantir que todos os links sejam clicáveis
+
+## 💾 Cache de E-mails e Páginas do Mautic
+
+- [x] Criar tabela mautic_emails no banco
+- [x] Criar tabela mautic_pages no banco
+- [x] Implementar serviço de cache com busca e atualização
+- [x] Criar script para sincronizar dados do Mautic
+- [x] Atualizar leadJourneyService para usar cache
+- [ ] Executar primeira sincronização no servidor
+- [x] Deploy no servidor

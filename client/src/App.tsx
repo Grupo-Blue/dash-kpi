@@ -10,8 +10,15 @@ import Tokeniza from "./pages/Tokeniza";
 import TokenizaAcademy from "./pages/TokenizaAcademy";
 import MychelMendes from "./pages/MychelMendes";
 import Admin from "./pages/Admin";
+import LeadAnalysis from "./pages/LeadAnalysis";
+import MauticCacheAdmin from "./pages/MauticCacheAdmin";
+import Login from "./pages/Login";
+import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
+  // Authentication temporarily disabled - direct access enabled
+  // const { isAuthenticated, loading } = useAuth();
+
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -20,6 +27,8 @@ function Router() {
       <Route path={"/tokeniza-academy"} component={TokenizaAcademy} />
       <Route path={"/mychel-mendes"} component={MychelMendes} />
       <Route path={"/admin"} component={Admin} />
+      <Route path={"/lead-analysis"} component={LeadAnalysis} />
+      <Route path={"/mautic-cache-admin"} component={MauticCacheAdmin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
