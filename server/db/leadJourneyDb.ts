@@ -9,6 +9,71 @@ import {
   LeadJourneyCache,
 } from "../../drizzle/schema";
 
+const ISO_DATE_REGEX =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+
+function formatMysqlDate(date: Date): string {
+  return date.toISOString().slice(0, 19).replace("T", " ");
+}
+
+function normalizeDateString(value: string): string {
+  if (!ISO_DATE_REGEX.test(value)) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return formatMysqlDate(parsed);
+}
+
+function normalizeJsonDates<T>(value: T): T {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(item => normalizeJsonDates(item)) as unknown as T;
+  }
+
+  if (value instanceof Date) {
+    return formatMysqlDate(value) as unknown as T;
+  }
+
+  if (typeof value === "object") {
+    const normalizedEntries = Object.entries(value as Record<string, unknown>).reduce(
+      (acc, [key, entryValue]) => {
+        acc[key] = normalizeJsonDates(entryValue);
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
+
+    return normalizedEntries as unknown as T;
+  }
+
+  if (typeof value === "string") {
+    return normalizeDateString(value) as unknown as T;
+  }
+
+  return value;
+}
+
+function normalizeDateValue(value: string | number | Date): Date {
+  if (value instanceof Date) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new Error(`[Database] Invalid date value provided: ${value}`);
+  }
+
+  return parsed;
+}
+
 /**
  * Salvar uma busca de lead no histórico
  */
@@ -101,17 +166,26 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
   }
 
   try {
+    const normalizedData: InsertLeadJourneyCache = {
+      email: data.email,
+      mauticData: normalizeJsonDates(data.mauticData ?? {}),
+      pipedriveData: normalizeJsonDates(data.pipedriveData ?? {}),
+      aiAnalysis: data.aiAnalysis ?? "",
+      cachedAt: normalizeDateValue(data.cachedAt ?? new Date()),
+      expiresAt: normalizeDateValue(data.expiresAt ?? new Date()),
+    };
+
     // Tentar inserir, se já existir, atualizar
     await db
       .insert(leadJourneyCache)
-      .values(data)
+      .values(normalizedData)
       .onDuplicateKeyUpdate({
         set: {
-          mauticData: data.mauticData,
-          pipedriveData: data.pipedriveData,
-          aiAnalysis: data.aiAnalysis,
-          cachedAt: data.cachedAt,
-          expiresAt: data.expiresAt,
+          mauticData: normalizedData.mauticData,
+          pipedriveData: normalizedData.pipedriveData,
+          aiAnalysis: normalizedData.aiAnalysis,
+          cachedAt: normalizedData.cachedAt,
+          expiresAt: normalizedData.expiresAt,
         },
       });
   } catch (error) {
