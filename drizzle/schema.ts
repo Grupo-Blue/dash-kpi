@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, mediumtext, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -202,8 +202,8 @@ export type InsertLeadJourneySearch = typeof leadJourneySearches.$inferInsert;
 export const leadJourneyCache = mysqlTable("leadJourneyCache", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
-  mauticData: text("mauticData"), // Complete Mautic data (contact + activities + campaigns + segments) - stored as JSON string
-  pipedriveData: text("pipedriveData"), // Complete Pipedrive data (person + deals) - stored as JSON string
+  mauticData: mediumtext("mauticData"), // Complete Mautic data (contact + activities + campaigns + segments) - stored as JSON string
+  pipedriveData: mediumtext("pipedriveData"), // Complete Pipedrive data (person + deals) - stored as JSON string
   aiAnalysis: text("aiAnalysis"), // AI-generated analysis and insights
   cachedAt: timestamp("cachedAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(), // Cache expiration (24 hours)

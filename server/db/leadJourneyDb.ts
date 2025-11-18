@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, lt, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import {
   leadJourneySearches,
@@ -68,7 +68,9 @@ function normalizeDateValue(value: string | number | Date): Date {
 
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) {
-    throw new Error(`[Database] Invalid date value provided: ${value}`);
+    // Em vez de quebrar tudo, loga e usa agora:
+    console.warn('[Database] Invalid date value provided, using now():', value);
+    return new Date();
   }
 
   return parsed;
@@ -171,60 +173,27 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
   }
 
   try {
-    // Normalizar e forçar serialização JSON para remover TODOS os objetos Date
-    const mauticNormalized = normalizeJsonDates(data.mauticData ?? {});
-    const pipedriveNormalized = normalizeJsonDates(data.pipedriveData ?? {});
-    
-    // Converter para strings JSON manualmente
-    const mauticDataStr = JSON.stringify(mauticNormalized);
-    const pipedriveDataStr = JSON.stringify(pipedriveNormalized);
-    const aiAnalysisStr = data.aiAnalysis ?? "";
-    const cachedAtDate = normalizeDateValue(data.cachedAt ?? new Date());
-    const expiresAtDate = normalizeDateValue(data.expiresAt ?? new Date());
-
-    // Formatar datas para MySQL (YYYY-MM-DD HH:MM:SS)
-    const formatMysqlDateTime = (date: Date): string => {
-      const pad = (n: number) => String(n).padStart(2, '0');
-      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
-             `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    const normalizedData: InsertLeadJourneyCache = {
+      email: data.email,
+      mauticData: normalizeJsonDates(data.mauticData ?? {}),
+      pipedriveData: normalizeJsonDates(data.pipedriveData ?? {}),
+      aiAnalysis: data.aiAnalysis ?? "",
+      cachedAt: normalizeDateValue(data.cachedAt ?? new Date()),
+      expiresAt: normalizeDateValue(data.expiresAt ?? new Date()),
     };
 
-    const cachedAtStr = formatMysqlDateTime(cachedAtDate);
-    const expiresAtStr = formatMysqlDateTime(expiresAtDate);
-
-    console.log("[DEBUG] Usando SQL RAW para bypass do Drizzle ORM");
-    console.log("[DEBUG] - email:", data.email);
-    console.log("[DEBUG] - mauticData length:", mauticDataStr.length);
-    console.log("[DEBUG] - pipedriveData length:", pipedriveDataStr.length);
-    console.log("[DEBUG] - cachedAt:", cachedAtStr);
-    console.log("[DEBUG] - expiresAt:", expiresAtStr);
-
-    // Usar SQL RAW para bypass completo do Drizzle ORM
-    // Acessar o client mysql2 diretamente
-    const client = (db as any).$client;
-    
-    const query = `
-      INSERT INTO leadJourneyCache 
-        (email, mauticData, pipedriveData, aiAnalysis, cachedAt, expiresAt)
-      VALUES 
-        (?, ?, ?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE
-        mauticData = VALUES(mauticData),
-        pipedriveData = VALUES(pipedriveData),
-        aiAnalysis = VALUES(aiAnalysis),
-        cachedAt = VALUES(cachedAt),
-        expiresAt = VALUES(expiresAt)
-    `;
-
-    // Executar SQL raw diretamente no client mysql2
-    await client.execute(query, [
-      data.email,
-      mauticDataStr,
-      pipedriveDataStr,
-      aiAnalysisStr,
-      cachedAtStr,
-      expiresAtStr,
-    ]);
+    await db
+      .insert(leadJourneyCache)
+      .values(normalizedData)
+      .onDuplicateKeyUpdate({
+        set: {
+          mauticData: normalizedData.mauticData,
+          pipedriveData: normalizedData.pipedriveData,
+          aiAnalysis: normalizedData.aiAnalysis,
+          cachedAt: normalizedData.cachedAt,
+          expiresAt: normalizedData.expiresAt,
+        },
+      });
   } catch (error) {
     console.error("[Database] Failed to save lead journey cache:", error);
     throw error;
@@ -245,7 +214,7 @@ export async function cleanExpiredCache(): Promise<number> {
     const now = new Date();
     const result = await db
       .delete(leadJourneyCache)
-      .where(eq(leadJourneyCache.expiresAt, now));
+      .where(lt(leadJourneyCache.expiresAt, now)); // Corrigido: usar lt (menor que) ao invés de eq (igualdade)
 
     return 0; // MySQL não retorna quantidade de linhas deletadas facilmente
   } catch (error) {
