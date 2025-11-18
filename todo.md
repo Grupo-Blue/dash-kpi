@@ -1107,3 +1107,27 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Atualizar leadJourneyService para usar cache
 - [ ] Executar primeira sincronização no servidor
 - [x] Deploy no servidor
+
+
+---
+
+## 🔍 Mapeamento Completo de Campos Desconhecidos na Timeline de Leads
+
+### Problemas Identificados no PDF:
+- [ ] "Origem: desconhecida" - Mapear origem do lead
+- [ ] "Segmento desconhecido" - Buscar nomes reais dos segmentos
+- [ ] "Campanha desconhecida" - Buscar nomes reais das campanhas
+- [ ] "E-mail" sem nome/assunto - Melhorar busca de e-mails
+- [ ] Estágios ("anterior" → "Estágio") - Mapear nomes dos estágios
+
+### Implementações Necessárias:
+- [ ] Adicionar tabela mautic_segments ao banco
+- [ ] Adicionar tabela mautic_campaigns ao banco
+- [ ] Adicionar tabela mautic_stages ao banco
+- [ ] Implementar busca de segmentos na API do Mautic
+- [ ] Implementar busca de campanhas na API do Mautic
+- [ ] Implementar busca de estágios na API do Mautic
+- [ ] Atualizar mauticCacheService com novos métodos
+- [ ] Atualizar leadJourneyService para usar cache completo
+- [ ] Adicionar sincronização de segmentos/campanhas/estágios na interface admin
+- [ ] Testar com dados reais e validar todos os nomes

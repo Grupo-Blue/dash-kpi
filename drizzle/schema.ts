@@ -258,3 +258,56 @@ export const mauticPages = mysqlTable("mauticPages", {
 
 export type MauticPage = typeof mauticPages.$inferSelect;
 export type InsertMauticPage = typeof mauticPages.$inferInsert;
+
+/**
+ * Mautic Segments Cache - Cache de segmentos do Mautic
+ */
+export const mauticSegments = mysqlTable("mauticSegments", {
+  id: int("id").autoincrement().primaryKey(),
+  mauticId: int("mauticId").notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  alias: varchar("alias", { length: 255 }),
+  description: text("description"),
+  isPublished: boolean("isPublished").default(true),
+  isGlobal: boolean("isGlobal").default(false),
+  createdAt: timestamp("createdAt"),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+});
+
+export type MauticSegment = typeof mauticSegments.$inferSelect;
+export type InsertMauticSegment = typeof mauticSegments.$inferInsert;
+
+/**
+ * Mautic Campaigns Cache - Cache de campanhas do Mautic
+ */
+export const mauticCampaigns = mysqlTable("mauticCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  mauticId: int("mauticId").notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  isPublished: boolean("isPublished").default(true),
+  publishUp: timestamp("publishUp"),
+  publishDown: timestamp("publishDown"),
+  createdAt: timestamp("createdAt"),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+});
+
+export type MauticCampaign = typeof mauticCampaigns.$inferSelect;
+export type InsertMauticCampaign = typeof mauticCampaigns.$inferInsert;
+
+/**
+ * Mautic Stages Cache - Cache de estágios do Mautic
+ */
+export const mauticStages = mysqlTable("mauticStages", {
+  id: int("id").autoincrement().primaryKey(),
+  mauticId: int("mauticId").notNull().unique(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  weight: int("weight").default(0),
+  isPublished: boolean("isPublished").default(true),
+  createdAt: timestamp("createdAt"),
+  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
+});
+
+export type MauticStage = typeof mauticStages.$inferSelect;
+export type InsertMauticStage = typeof mauticStages.$inferInsert;

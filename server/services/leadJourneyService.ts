@@ -365,17 +365,27 @@ class LeadJourneyService {
     campaigns: MauticCampaign[],
     segments: MauticSegment[]
   ): Promise<LeadJourneyData['timeline']> {
-    // Criar mapas de IDs para nomes
-    const campaignMap = new Map(campaigns.map(c => [c.id, c.name]));
-    const segmentMap = new Map(segments.map(s => [s.id, s.name]));
-    
-    // Buscar e-mails do cache (banco de dados)
-    // Fallback: se cache estiver vazio, busca da API
+    // Buscar todos os dados do cache (banco de dados)
+    // Fallback: se cache estiver vazio, usa dados do lead
     let emailMap = await mauticCacheService.getAllEmailsMap();
+    let segmentMap = await mauticCacheService.getAllSegmentsMap();
+    let campaignMap = await mauticCacheService.getAllCampaignsMap();
+    let stageMap = await mauticCacheService.getAllStagesMap();
     
+    // Fallback: se cache estiver vazio, usa dados do lead
     if (emailMap.size === 0) {
       console.log('[LeadJourney] Email cache empty, fetching from API...');
       emailMap = await mauticService.getAllEmails(200);
+    }
+    
+    if (segmentMap.size === 0) {
+      console.log('[LeadJourney] Segment cache empty, using lead segments...');
+      segmentMap = new Map(segments.map(s => [s.id, s.name]));
+    }
+    
+    if (campaignMap.size === 0) {
+      console.log('[LeadJourney] Campaign cache empty, using lead campaigns...');
+      campaignMap = new Map(campaigns.map(c => [c.id, c.name]));
     }
     
     // Mapear atividades para eventos da timeline
@@ -456,8 +466,10 @@ class LeadJourneyService {
         description = details?.description || '';
       } else if (activity.event === 'stage.changed') {
         type = 'page_visit';
-        const stageName = details?.stage_name || details?.name || 'Estágio';
-        const oldStage = details?.old_stage || 'anterior';
+        const stageId = details?.stage_id || details?.id;
+        const oldStageId = details?.old_stage_id;
+        const stageName = stageId ? (stageMap.get(Number(stageId)) || details?.stage_name || details?.name || `Estágio #${stageId}`) : (details?.stage_name || details?.name || 'Estágio');
+        const oldStage = oldStageId ? (stageMap.get(Number(oldStageId)) || details?.old_stage || 'anterior') : (details?.old_stage || 'anterior');
         title = `Mudou de estágio: "${oldStage}" → "${stageName}"`;
         description = '';
       } else if (activity.event === 'lead.donotcontact') {

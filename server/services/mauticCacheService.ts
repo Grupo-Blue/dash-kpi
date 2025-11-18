@@ -5,7 +5,18 @@
 
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db';
-import { mauticEmails, mauticPages, InsertMauticEmail, InsertMauticPage } from '../../drizzle/schema';
+import { 
+  mauticEmails, 
+  mauticPages, 
+  mauticSegments, 
+  mauticCampaigns, 
+  mauticStages,
+  InsertMauticEmail, 
+  InsertMauticPage,
+  InsertMauticSegment,
+  InsertMauticCampaign,
+  InsertMauticStage
+} from '../../drizzle/schema';
 import { mauticService } from './mauticService';
 
 class MauticCacheService {
@@ -264,19 +275,353 @@ class MauticCacheService {
   }
 
   /**
-   * Sincronizar tudo (e-mails + páginas)
+   * Buscar segmento por ID do Mautic (do cache)
    */
-  async syncAll(): Promise<{ emails: { synced: number; errors: number }; pages: { synced: number; errors: number } }> {
+  async getSegmentById(mauticId: number): Promise<string | null> {
+    const db = await getDb();
+    if (!db) return null;
+
+    try {
+      const result = await db
+        .select()
+        .from(mauticSegments)
+        .where(eq(mauticSegments.mauticId, mauticId))
+        .limit(1);
+
+      if (result.length > 0) {
+        return result[0].name;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[MauticCache] Error getting segment:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Buscar campanha por ID do Mautic (do cache)
+   */
+  async getCampaignById(mauticId: number): Promise<string | null> {
+    const db = await getDb();
+    if (!db) return null;
+
+    try {
+      const result = await db
+        .select()
+        .from(mauticCampaigns)
+        .where(eq(mauticCampaigns.mauticId, mauticId))
+        .limit(1);
+
+      if (result.length > 0) {
+        return result[0].name;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[MauticCache] Error getting campaign:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Buscar estágio por ID do Mautic (do cache)
+   */
+  async getStageById(mauticId: number): Promise<string | null> {
+    const db = await getDb();
+    if (!db) return null;
+
+    try {
+      const result = await db
+        .select()
+        .from(mauticStages)
+        .where(eq(mauticStages.mauticId, mauticId))
+        .limit(1);
+
+      if (result.length > 0) {
+        return result[0].name;
+      }
+
+      return null;
+    } catch (error) {
+      console.error('[MauticCache] Error getting stage:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Buscar todos os segmentos do cache como Map
+   */
+  async getAllSegmentsMap(): Promise<Map<number, string>> {
+    const db = await getDb();
+    if (!db) return new Map();
+
+    try {
+      const results = await db.select().from(mauticSegments);
+      const segmentMap = new Map<number, string>();
+
+      results.forEach((segment) => {
+        if (segment.mauticId && segment.name) {
+          segmentMap.set(segment.mauticId, segment.name);
+        }
+      });
+
+      return segmentMap;
+    } catch (error) {
+      console.error('[MauticCache] Error getting all segments:', error);
+      return new Map();
+    }
+  }
+
+  /**
+   * Buscar todas as campanhas do cache como Map
+   */
+  async getAllCampaignsMap(): Promise<Map<number, string>> {
+    const db = await getDb();
+    if (!db) return new Map();
+
+    try {
+      const results = await db.select().from(mauticCampaigns);
+      const campaignMap = new Map<number, string>();
+
+      results.forEach((campaign) => {
+        if (campaign.mauticId && campaign.name) {
+          campaignMap.set(campaign.mauticId, campaign.name);
+        }
+      });
+
+      return campaignMap;
+    } catch (error) {
+      console.error('[MauticCache] Error getting all campaigns:', error);
+      return new Map();
+    }
+  }
+
+  /**
+   * Buscar todos os estágios do cache como Map
+   */
+  async getAllStagesMap(): Promise<Map<number, string>> {
+    const db = await getDb();
+    if (!db) return new Map();
+
+    try {
+      const results = await db.select().from(mauticStages);
+      const stageMap = new Map<number, string>();
+
+      results.forEach((stage) => {
+        if (stage.mauticId && stage.name) {
+          stageMap.set(stage.mauticId, stage.name);
+        }
+      });
+
+      return stageMap;
+    } catch (error) {
+      console.error('[MauticCache] Error getting all stages:', error);
+      return new Map();
+    }
+  }
+
+  /**
+   * Sincronizar segmentos do Mautic para o cache
+   */
+  async syncSegments(limit: number = 500): Promise<{ synced: number; errors: number }> {
+    const db = await getDb();
+    if (!db) {
+      console.error('[MauticCache] Database not available');
+      return { synced: 0, errors: 1 };
+    }
+
+    try {
+      console.log('[MauticCache] Starting segment sync...');
+      
+      const segments = await mauticService.getAllSegments(limit);
+      let synced = 0;
+      let errors = 0;
+
+      for (const segment of segments) {
+        try {
+          const segmentRecord: InsertMauticSegment = {
+            mauticId: segment.id,
+            name: segment.name,
+            alias: segment.alias || null,
+            description: segment.description || null,
+            isPublished: segment.isPublished || false,
+            isGlobal: (segment as any).isGlobal || false,
+            createdAt: segment.dateAdded ? new Date(segment.dateAdded) : null,
+            syncedAt: new Date(),
+          };
+
+          await db
+            .insert(mauticSegments)
+            .values(segmentRecord)
+            .onDuplicateKeyUpdate({
+              set: {
+                name: segmentRecord.name,
+                alias: segmentRecord.alias,
+                description: segmentRecord.description,
+                isPublished: segmentRecord.isPublished,
+                isGlobal: segmentRecord.isGlobal,
+                syncedAt: segmentRecord.syncedAt,
+              },
+            });
+
+          synced++;
+        } catch (error) {
+          console.error(`[MauticCache] Error syncing segment ${segment.id}:`, error);
+          errors++;
+        }
+      }
+
+      console.log(`[MauticCache] Segment sync completed: ${synced} synced, ${errors} errors`);
+      return { synced, errors };
+    } catch (error) {
+      console.error('[MauticCache] Error syncing segments:', error);
+      return { synced: 0, errors: 1 };
+    }
+  }
+
+  /**
+   * Sincronizar campanhas do Mautic para o cache
+   */
+  async syncCampaigns(limit: number = 500): Promise<{ synced: number; errors: number }> {
+    const db = await getDb();
+    if (!db) {
+      console.error('[MauticCache] Database not available');
+      return { synced: 0, errors: 1 };
+    }
+
+    try {
+      console.log('[MauticCache] Starting campaign sync...');
+      
+      const campaigns = await mauticService.getAllCampaigns(limit);
+      let synced = 0;
+      let errors = 0;
+
+      for (const campaign of campaigns) {
+        try {
+          const campaignRecord: InsertMauticCampaign = {
+            mauticId: campaign.id,
+            name: campaign.name,
+            description: campaign.description || null,
+            isPublished: campaign.isPublished || false,
+            publishUp: (campaign as any).publishUp ? new Date((campaign as any).publishUp) : null,
+            publishDown: (campaign as any).publishDown ? new Date((campaign as any).publishDown) : null,
+            createdAt: campaign.dateAdded ? new Date(campaign.dateAdded) : null,
+            syncedAt: new Date(),
+          };
+
+          await db
+            .insert(mauticCampaigns)
+            .values(campaignRecord)
+            .onDuplicateKeyUpdate({
+              set: {
+                name: campaignRecord.name,
+                description: campaignRecord.description,
+                isPublished: campaignRecord.isPublished,
+                publishUp: campaignRecord.publishUp,
+                publishDown: campaignRecord.publishDown,
+                syncedAt: campaignRecord.syncedAt,
+              },
+            });
+
+          synced++;
+        } catch (error) {
+          console.error(`[MauticCache] Error syncing campaign ${campaign.id}:`, error);
+          errors++;
+        }
+      }
+
+      console.log(`[MauticCache] Campaign sync completed: ${synced} synced, ${errors} errors`);
+      return { synced, errors };
+    } catch (error) {
+      console.error('[MauticCache] Error syncing campaigns:', error);
+      return { synced: 0, errors: 1 };
+    }
+  }
+
+  /**
+   * Sincronizar estágios do Mautic para o cache
+   */
+  async syncStages(limit: number = 500): Promise<{ synced: number; errors: number }> {
+    const db = await getDb();
+    if (!db) {
+      console.error('[MauticCache] Database not available');
+      return { synced: 0, errors: 1 };
+    }
+
+    try {
+      console.log('[MauticCache] Starting stage sync...');
+      
+      const stages = await mauticService.getAllStages(limit);
+      let synced = 0;
+      let errors = 0;
+
+      for (const stage of stages) {
+        try {
+          const stageRecord: InsertMauticStage = {
+            mauticId: stage.id,
+            name: stage.name,
+            description: stage.description || null,
+            weight: stage.weight || 0,
+            isPublished: stage.isPublished || false,
+            createdAt: stage.dateAdded ? new Date(stage.dateAdded) : null,
+            syncedAt: new Date(),
+          };
+
+          await db
+            .insert(mauticStages)
+            .values(stageRecord)
+            .onDuplicateKeyUpdate({
+              set: {
+                name: stageRecord.name,
+                description: stageRecord.description,
+                weight: stageRecord.weight,
+                isPublished: stageRecord.isPublished,
+                syncedAt: stageRecord.syncedAt,
+              },
+            });
+
+          synced++;
+        } catch (error) {
+          console.error(`[MauticCache] Error syncing stage ${stage.id}:`, error);
+          errors++;
+        }
+      }
+
+      console.log(`[MauticCache] Stage sync completed: ${synced} synced, ${errors} errors`);
+      return { synced, errors };
+    } catch (error) {
+      console.error('[MauticCache] Error syncing stages:', error);
+      return { synced: 0, errors: 1 };
+    }
+  }
+
+  /**
+   * Sincronizar tudo (e-mails + páginas + segmentos + campanhas + estágios)
+   */
+  async syncAll(): Promise<{ 
+    emails: { synced: number; errors: number }; 
+    pages: { synced: number; errors: number };
+    segments: { synced: number; errors: number };
+    campaigns: { synced: number; errors: number };
+    stages: { synced: number; errors: number };
+  }> {
     console.log('[MauticCache] Starting full sync...');
     
     const emailsResult = await this.syncEmails();
     const pagesResult = await this.syncPages();
+    const segmentsResult = await this.syncSegments();
+    const campaignsResult = await this.syncCampaigns();
+    const stagesResult = await this.syncStages();
 
     console.log('[MauticCache] Full sync completed');
     
     return {
       emails: emailsResult,
       pages: pagesResult,
+      segments: segmentsResult,
+      campaigns: campaignsResult,
+      stages: stagesResult,
     };
   }
 }

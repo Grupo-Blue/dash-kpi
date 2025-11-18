@@ -71,6 +71,13 @@
       "when": 1763464949441,
       "tag": "0009_quick_garia",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1763466059186,
+      "tag": "0010_jazzy_eternals",
+      "breakpoints": true
     }
   ]
 }

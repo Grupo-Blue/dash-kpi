@@ -319,6 +319,81 @@ class MauticService {
   }
 
   /**
+   * Buscar todos os segmentos do Mautic
+   */
+  async getAllSegments(limit: number = 500): Promise<MauticSegment[]> {
+    try {
+      const response = await this.client.get('/api/segments', {
+        params: {
+          limit,
+          orderBy: 'id',
+          orderByDir: 'DESC',
+        },
+      });
+
+      const segments = response.data.lists;
+      if (!segments || Object.keys(segments).length === 0) {
+        return [];
+      }
+
+      return Object.values(segments);
+    } catch (error: any) {
+      console.error('[Mautic] Error getting all segments:', error.response?.data || error.message);
+      throw new Error(`Failed to get all segments: ${error.message}`);
+    }
+  }
+
+  /**
+   * Buscar todas as campanhas do Mautic
+   */
+  async getAllCampaigns(limit: number = 500): Promise<MauticCampaign[]> {
+    try {
+      const response = await this.client.get('/api/campaigns', {
+        params: {
+          limit,
+          orderBy: 'id',
+          orderByDir: 'DESC',
+        },
+      });
+
+      const campaigns = response.data.campaigns;
+      if (!campaigns || Object.keys(campaigns).length === 0) {
+        return [];
+      }
+
+      return Object.values(campaigns);
+    } catch (error: any) {
+      console.error('[Mautic] Error getting all campaigns:', error.response?.data || error.message);
+      throw new Error(`Failed to get all campaigns: ${error.message}`);
+    }
+  }
+
+  /**
+   * Buscar todos os estágios do Mautic
+   */
+  async getAllStages(limit: number = 500): Promise<any[]> {
+    try {
+      const response = await this.client.get('/api/stages', {
+        params: {
+          limit,
+          orderBy: 'id',
+          orderByDir: 'DESC',
+        },
+      });
+
+      const stages = response.data.stages;
+      if (!stages || Object.keys(stages).length === 0) {
+        return [];
+      }
+
+      return Object.values(stages);
+    } catch (error: any) {
+      console.error('[Mautic] Error getting all stages:', error.response?.data || error.message);
+      throw new Error(`Failed to get all stages: ${error.message}`);
+    }
+  }
+
+  /**
    * Obter dados completos de um lead (contato + atividades + campanhas + segmentos)
    */
   async getLeadJourney(email: string): Promise<{
