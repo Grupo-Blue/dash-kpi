@@ -24,6 +24,7 @@ export default function LeadAnalysis() {
   const [email, setEmail] = useState("");
   const [searchEmail, setSearchEmail] = useState<string | null>(null);
   const [useCache, setUseCache] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Query para buscar jornada do lead
   const { data: journey, isLoading, error, refetch } = trpc.leadJourney.search.useQuery(
@@ -185,7 +186,7 @@ export default function LeadAnalysis() {
             </CardContent>
           </Card>
 
-          <Tabs defaultValue="overview" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Visão Geral</TabsTrigger>
             <TabsTrigger value="advanced">Análise Avançada</TabsTrigger>

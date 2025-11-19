@@ -1163,3 +1163,25 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [ ] Mostrar quando o lead foi adicionado aos 11 segmentos
 - [ ] Exibir breakdown das 160 atividades por tipo
 
+
+
+---
+
+## 🐛 Bug: Troca de Abas Não Funciona na Análise de Leads
+
+**Problema Reportado:** Ao clicar na aba "Análise Avançada", a interface não muda - permanece mostrando "Visão Geral"
+
+**Tarefas de Investigação:**
+- [x] Analisar componente de abas (Tabs do shadcn/ui)
+- [x] Verificar estado do React (useState/useEffect)
+- [x] Checar se há conflito de cache do navegador
+- [x] Testar localmente para reproduzir o problema
+- [x] Identificar causa raiz (estado, evento, renderização)
+
+**Causa Raiz Identificada:** Componente Tabs usando apenas `defaultValue` sem controle de estado (`value` + `onValueChange`)
+
+**Tarefas de Correção:**
+- [x] Implementar correção no código (adicionado estado `activeTab`)
+- [ ] Testar correção localmente
+- [ ] Deploy da correção para produção
+- [ ] Validar funcionamento em produção
