@@ -173,15 +173,30 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
   }
 
   try {
+    console.log('[saveLeadJourneyCache] ✅ Starting save operation for email:', data.email);
+    console.log('[saveLeadJourneyCache] 🔍 DB instance exists:', !!db);
+    console.log('[saveLeadJourneyCache] 🔍 DB type:', typeof db);
+    
+    // Normalizar datas dentro dos objetos JSON e converter para string
+    const mauticNormalized = normalizeJsonDates(data.mauticData ?? {});
+    const pipedriveNormalized = normalizeJsonDates(data.pipedriveData ?? {});
+    
     const normalizedData: InsertLeadJourneyCache = {
       email: data.email,
-      mauticData: normalizeJsonDates(data.mauticData ?? {}),
-      pipedriveData: normalizeJsonDates(data.pipedriveData ?? {}),
+      mauticData: JSON.stringify(mauticNormalized) as any,
+      pipedriveData: JSON.stringify(pipedriveNormalized) as any,
       aiAnalysis: data.aiAnalysis ?? "",
       cachedAt: normalizeDateValue(data.cachedAt ?? new Date()),
       expiresAt: normalizeDateValue(data.expiresAt ?? new Date()),
     };
-
+    
+    console.log('[saveLeadJourneyCache] 📦 Normalized data prepared');
+    console.log('[saveLeadJourneyCache] - mauticData type:', typeof normalizedData.mauticData);
+    console.log('[saveLeadJourneyCache] - pipedriveData type:', typeof normalizedData.pipedriveData);
+    console.log('[saveLeadJourneyCache] - cachedAt:', normalizedData.cachedAt);
+    console.log('[saveLeadJourneyCache] - expiresAt:', normalizedData.expiresAt);
+    
+    console.log('[saveLeadJourneyCache] 🚀 Attempting INSERT...');
     await db
       .insert(leadJourneyCache)
       .values(normalizedData)
@@ -194,8 +209,17 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
           expiresAt: normalizedData.expiresAt,
         },
       });
-  } catch (error) {
-    console.error("[Database] Failed to save lead journey cache:", error);
+    
+    console.log('[saveLeadJourneyCache] ✅ INSERT successful!');
+  } catch (error: any) {
+    console.error('[saveLeadJourneyCache] ❌ ERROR occurred!');
+    console.error('[saveLeadJourneyCache] Error type:', error?.constructor?.name);
+    console.error('[saveLeadJourneyCache] Error message:', error?.message);
+    console.error('[saveLeadJourneyCache] Error code:', error?.code);
+    console.error('[saveLeadJourneyCache] Error errno:', error?.errno);
+    console.error('[saveLeadJourneyCache] Error sqlState:', error?.sqlState);
+    console.error('[saveLeadJourneyCache] Error sqlMessage:', error?.sqlMessage);
+    console.error('[saveLeadJourneyCache] Full error:', JSON.stringify(error, null, 2));
     throw error;
   }
 }

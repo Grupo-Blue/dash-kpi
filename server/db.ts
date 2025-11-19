@@ -26,11 +26,23 @@ import { ENV } from './_core/env';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
+    const dbUrl = process.env.DATABASE_URL;
+    console.log('[Database] DATABASE_URL exists:', !!dbUrl);
+    console.log('[Database] DATABASE_URL length:', dbUrl?.length || 0);
+    
+    if (!dbUrl) {
+      console.error('[Database] ❌ DATABASE_URL is not defined! Cannot connect to database.');
+      console.error('[Database] Please set DATABASE_URL environment variable.');
+      return null;
+    }
+    
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      console.log('[Database] Attempting to connect...');
+      _db = drizzle(dbUrl);
+      console.log('[Database] ✅ Connection created successfully');
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      console.error("[Database] ❌ Failed to connect:", error);
       _db = null;
     }
   }
