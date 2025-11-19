@@ -26,6 +26,11 @@ export default function LeadAnalysis() {
   const [useCache, setUseCache] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
+  // Debug: log quando a aba mudar
+  useEffect(() => {
+    console.log('Active tab changed to:', activeTab);
+  }, [activeTab]);
+
   // Query para buscar jornada do lead
   const { data: journey, isLoading, error, refetch } = trpc.leadJourney.search.useQuery(
     { email: searchEmail!, useCache },
@@ -186,13 +191,31 @@ export default function LeadAnalysis() {
             </CardContent>
           </Card>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs value={activeTab} onValueChange={(value) => {
+            console.log('Tab change requested:', value);
+            setActiveTab(value);
+          }} className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="advanced">Análise Avançada</TabsTrigger>
-            <TabsTrigger value="timeline">Timeline</TabsTrigger>
-            <TabsTrigger value="conversion">Conversão</TabsTrigger>
-            <TabsTrigger value="ai-analysis">Análise IA</TabsTrigger>
+            <TabsTrigger value="overview" onClick={() => {
+              console.log('TabsTrigger onClick: overview');
+              setActiveTab('overview');
+            }}>Visão Geral</TabsTrigger>
+            <TabsTrigger value="advanced" onClick={() => {
+              console.log('TabsTrigger onClick: advanced');
+              setActiveTab('advanced');
+            }}>Análise Avançada</TabsTrigger>
+            <TabsTrigger value="timeline" onClick={() => {
+              console.log('TabsTrigger onClick: timeline');
+              setActiveTab('timeline');
+            }}>Timeline</TabsTrigger>
+            <TabsTrigger value="conversion" onClick={() => {
+              console.log('TabsTrigger onClick: conversion');
+              setActiveTab('conversion');
+            }}>Conversão</TabsTrigger>
+            <TabsTrigger value="ai-analysis" onClick={() => {
+              console.log('TabsTrigger onClick: ai-analysis');
+              setActiveTab('ai-analysis');
+            }}>Análise IA</TabsTrigger>
           </TabsList>
 
           {/* Aba: Visão Geral */}
