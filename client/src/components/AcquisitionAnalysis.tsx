@@ -1,6 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Globe, MousePointerClick, Calendar, Smartphone, ExternalLink } from "lucide-react";
+import { Globe, MousePointerClick, Calendar, Smartphone, ExternalLink, HelpCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AcquisitionData {
   firstTouch: {
@@ -63,7 +69,19 @@ export default function AcquisitionAnalysis({ data }: AcquisitionAnalysisProps) 
 
           {/* UTMs */}
           <div className="space-y-2">
-            <p className="text-sm font-medium">Parâmetros UTM</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium">Parâmetros UTM</p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    <p>Parâmetros UTM são códigos adicionados às URLs para rastrear a origem do tráfego e campanhas de marketing.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <div className="grid grid-cols-2 gap-2">
               {firstTouch.utmSource && (
                 <div>
@@ -97,7 +115,12 @@ export default function AcquisitionAnalysis({ data }: AcquisitionAnalysisProps) 
               )}
             </div>
             {!firstTouch.utmSource && !firstTouch.utmMedium && !firstTouch.utmCampaign && (
-              <p className="text-sm text-muted-foreground italic">Nenhum parâmetro UTM capturado</p>
+              <div className="col-span-2">
+                <p className="text-sm text-muted-foreground italic">Nenhum parâmetro UTM capturado</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  💡 Isso pode indicar tráfego direto, orgânico ou que os UTMs não foram configurados na landing page.
+                </p>
+              </div>
             )}
           </div>
 

@@ -1,16 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Search, Mail, Calendar, TrendingUp, Activity, Target, Users, FileText, RefreshCw, Clock, ExternalLink } from "lucide-react";
+import { Loader2, Search, Mail, Calendar, TrendingUp, Activity, Target, Users, FileText, RefreshCw, Clock, ExternalLink, HelpCircle, Sparkles } from "lucide-react";
 import { Streamdown } from "streamdown";
 import { toast } from "sonner";
 import TimelineVisual from "@/components/TimelineVisual";
 import AcquisitionAnalysis from "@/components/AcquisitionAnalysis";
 import DashboardLayout from "@/components/DashboardLayout";
+import EmailHistoryList from "@/components/EmailHistoryList";
+import { translateEvent, fieldTooltips } from "@/lib/eventTranslations";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function LeadAnalysis() {
   const [email, setEmail] = useState("");
@@ -37,11 +45,24 @@ export default function LeadAnalysis() {
   });
 
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [autoGenerateAI, setAutoGenerateAI] = useState(true);
+
+  // Auto-gerar análise por IA quando journey carregar
+  useEffect(() => {
+    if (journey && autoGenerateAI && !aiAnalysis && !generateAI.isPending) {
+      handleGenerateAI();
+    }
+  }, [journey, autoGenerateAI]);
 
   const handleGenerateAI = async () => {
     if (!searchEmail) return;
-    const result = await generateAI.mutateAsync({ email: searchEmail });
-    setAiAnalysis(result.analysis);
+    try {
+      const result = await generateAI.mutateAsync({ email: searchEmail });
+      setAiAnalysis(result.analysis);
+    } catch (error) {
+      console.error('Erro ao gerar análise IA:', error);
+      // Não mostrar toast de erro aqui pois já é tratado no mutation
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -195,10 +216,22 @@ export default function LeadAnalysis() {
                   <p className="text-sm text-muted-foreground">E-mail</p>
                   <p className="font-medium">{journey.mautic.contact?.fields.all.email || "N/A"}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Pontos</p>
-                  <p className="font-medium">{journey.mautic.contact?.points || 0}</p>
-                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="cursor-help">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          Pontos
+                          <HelpCircle className="h-3 w-3" />
+                        </p>
+                        <p className="font-medium">{journey.mautic.contact?.points || 0}</p>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs">{fieldTooltips.points}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
                   <Badge
@@ -224,24 +257,34 @@ export default function LeadAnalysis() {
 
             {/* Métricas de engajamento */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    E-mails
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{journey.metrics.emailsOpened}</div>
-                  <p className="text-xs text-muted-foreground">
-                    de {journey.metrics.emailsSent} enviados (
-                    {journey.metrics.emailsSent > 0
-                      ? ((journey.metrics.emailsOpened / journey.metrics.emailsSent) * 100).toFixed(1)
-                      : 0}
-                    %)
-                  </p>
-                </CardContent>
-              </Card>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Card className="cursor-help">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          E-mails
+                          <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{journey.metrics.emailsOpened}</div>
+                        <p className="text-xs text-muted-foreground">
+                          de {journey.metrics.emailsSent} enviados (
+                          {journey.metrics.emailsSent > 0
+                            ? ((journey.metrics.emailsOpened / journey.metrics.emailsSent) * 100).toFixed(1)
+                            : 0}
+                          %)
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs">{fieldTooltips.emailsOpened}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
               <Card>
                 <CardHeader className="pb-3">
@@ -327,6 +370,13 @@ export default function LeadAnalysis() {
 
           {/* Aba: Análise Avançada */}
           <TabsContent value="advanced" className="space-y-6">
+            {/* Histórico de E-mails */}
+            <EmailHistoryList 
+              activities={journey.mautic.activities}
+              emailsSent={journey.metrics.emailsSent}
+              emailsOpened={journey.metrics.emailsOpened}
+            />
+
             {/* Origem e Aquisição */}
             {journey.acquisition && (
               <div>
@@ -492,23 +542,38 @@ export default function LeadAnalysis() {
               <CardContent>
                 <div className="space-y-4">
                   {journey.mautic.activities.length > 0 ? (
-                    journey.mautic.activities.map((activity, index) => (
-                      <div key={index} className="flex gap-4 border-l-2 border-muted pl-4 pb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="secondary">{activity.eventType}</Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {new Date(activity.timestamp).toLocaleString("pt-BR")}
-                            </span>
+                    journey.mautic.activities.map((activity, index) => {
+                      const translation = translateEvent(activity.eventType);
+                      return (
+                        <div key={index} className="flex gap-4 border-l-2 border-muted pl-4 pb-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Badge variant="secondary" className="cursor-help">
+                                      {translation.icon} {translation.label}
+                                    </Badge>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">{translation.description}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">Técnico: {activity.eventType}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              <span className="text-xs text-muted-foreground">
+                                {new Date(activity.timestamp).toLocaleString("pt-BR")}
+                              </span>
+                            </div>
+                            {activity.details && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {JSON.stringify(activity.details)}
+                              </p>
+                            )}
                           </div>
-                          {activity.details && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {JSON.stringify(activity.details)}
-                            </p>
-                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <p className="text-muted-foreground">Nenhuma atividade registrada</p>
                   )}
@@ -608,29 +673,34 @@ export default function LeadAnalysis() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
+                  <Sparkles className="h-5 w-5 text-purple-600" />
                   Análise por Inteligência Artificial
                 </CardTitle>
-                <CardDescription>Insights e recomendações gerados automaticamente</CardDescription>
+                <CardDescription>
+                  Insights e recomendações gerados automaticamente ao carregar os dados do lead
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {!aiAnalysis && (
+                {generateAI.isPending && !aiAnalysis && (
+                  <div className="flex flex-col items-center gap-4 py-8">
+                    <Loader2 className="h-12 w-12 animate-spin text-purple-600" />
+                    <div className="text-center space-y-2">
+                      <p className="font-medium">Gerando análise inteligente...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Analisando jornada do lead, padrões de comportamento e oportunidades
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {!aiAnalysis && !generateAI.isPending && (
                   <div className="flex flex-col items-center gap-4 py-8">
                     <p className="text-muted-foreground text-center">
-                      Clique no botão abaixo para gerar uma análise detalhada por IA sobre este lead
+                      A análise por IA é gerada automaticamente. Clique abaixo se precisar regenerar.
                     </p>
                     <Button onClick={handleGenerateAI} disabled={generateAI.isPending}>
-                      {generateAI.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Gerando análise...
-                        </>
-                      ) : (
-                        <>
-                          <TrendingUp className="mr-2 h-4 w-4" />
-                          Gerar Análise por IA
-                        </>
-                      )}
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Gerar Análise por IA
                     </Button>
                   </div>
                 )}

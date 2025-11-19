@@ -1134,3 +1134,32 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Adicionar DashboardLayout nas páginas MauticCacheAdmin e LeadAnalysis para exibir menu lateral
 - [ ] Corrigir erro 500 ao buscar lead - investigar logs e identificar causa raiz
 - [x] Corrigir erro de formato de data no leadJourneyCache (dateModified com +00:00 ao invés de espaço)
+
+---
+
+## 🔍 Melhorias na Página "Análise Avançada" de Leads
+
+### Alta Prioridade (Impacto Alto + Esforço Baixo)
+- [x] Traduzir eventos técnicos para linguagem amigável (ex: "campaign.event.scheduled" → "E-mail agendado")
+- [x] Adicionar tooltips explicativos em todos os campos da Análise Avançada
+- [x] Gerar análise por IA automaticamente ao carregar a página (sem precisar clicar)
+- [x] Mostrar lista detalhada de e-mails enviados com status visual (aberto/não aberto/clicou)
+
+### Média Prioridade (Impacto Alto + Esforço Médio)
+- [ ] Adicionar seção "Métricas de Engajamento" com gráficos (taxa de abertura, CTR, tempo de sessão)
+- [ ] Integrar dados do Pipedrive na Análise Avançada (negócios, valor total, responsável)
+- [ ] Adicionar Score de Qualificação do lead (MQL/SQL/Cold) com badge visual
+- [ ] Melhorar captura de parâmetros UTM nas landing pages
+
+### Baixa Prioridade (Impacto Médio + Esforço Alto)
+- [ ] Implementar comparação de métricas do lead com média da base (percentil)
+- [ ] Adicionar funcionalidade de exportação de análise (PDF/Excel)
+- [ ] Mostrar breakdown de 160 atividades por tipo
+- [ ] Adicionar seção "Próximas Ações Recomendadas" baseada em IA
+
+### Dados Disponíveis Mas Não Exibidos
+- [ ] Mostrar lista de 0 páginas visitadas (com URLs)
+- [ ] Expandir detalhes de 1 campanha ativa
+- [ ] Mostrar quando o lead foi adicionado aos 11 segmentos
+- [ ] Exibir breakdown das 160 atividades por tipo
+
