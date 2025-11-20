@@ -1185,3 +1185,16 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [ ] Testar correção localmente
 - [ ] Deploy da correção para produção
 - [ ] Validar funcionamento em produção
+
+
+---
+
+## 🔧 Correções Críticas de Banco de Dados (19/11/2025)
+
+### Prioridade CRÍTICA (Implementar AGORA)
+- [x] Mudar `text()` para `longtext()` em `mauticData` e `pipedriveData` no schema ✅ JÁ ESTAVA IMPLEMENTADO (mediumtext)
+- [x] Corrigir `cleanExpiredCache` para usar `lt()` em vez de `eq()` ✅ JÁ ESTAVA IMPLEMENTADO
+- [x] Adicionar `dateStrings: false` na configuração do pool MySQL ✅ IMPLEMENTADO AGORA
+- [x] Verificar e corrigir serialização JSON (adicionar JSON.stringify se necessário) ✅ JÁ ESTAVA IMPLEMENTADO
+- [x] Testar em ambiente local ✅ Servidor rodando sem erros
+- [ ] Deploy para produção

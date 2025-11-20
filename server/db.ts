@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 import { 
   InsertUser, 
   users, 
@@ -23,6 +24,7 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
+let pool: mysql.Pool | null = null;
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
@@ -38,12 +40,25 @@ export async function getDb() {
     }
     
     try {
-      console.log('[Database] Attempting to connect...');
-      _db = drizzle(dbUrl);
-      console.log('[Database] ✅ Connection created successfully');
+      console.log('[Database] Attempting to create connection pool...');
+      
+      // Criar pool de conexões com configurações otimizadas
+      pool = mysql.createPool({
+        uri: dbUrl,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        dateStrings: false, // CORREÇÃO CRÍTICA: Retornar datas como Date objects, não strings
+        supportBigNumbers: true,
+        bigNumberStrings: false,
+      });
+      
+      _db = drizzle(pool);
+      console.log('[Database] ✅ Connection pool created successfully');
     } catch (error) {
       console.error("[Database] ❌ Failed to connect:", error);
       _db = null;
+      pool = null;
     }
   }
   return _db;
