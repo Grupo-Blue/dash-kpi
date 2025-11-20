@@ -1197,4 +1197,4 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Adicionar `dateStrings: false` na configuração do pool MySQL ✅ IMPLEMENTADO AGORA
 - [x] Verificar e corrigir serialização JSON (adicionar JSON.stringify se necessário) ✅ JÁ ESTAVA IMPLEMENTADO
 - [x] Testar em ambiente local ✅ Servidor rodando sem erros
-- [ ] Deploy para produção
+- [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos
