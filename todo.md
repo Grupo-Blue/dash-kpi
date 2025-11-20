@@ -1217,4 +1217,4 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Corrigir chamada de syncStages.mutate() → syncStages.mutate({})
 - [x] Corrigir chamada de syncAll.mutate() → syncAll.mutate({}) (bônus)
 - [x] Testar localmente ✅ Servidor rodando sem erros
-- [ ] Deploy para produção
+- [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos
