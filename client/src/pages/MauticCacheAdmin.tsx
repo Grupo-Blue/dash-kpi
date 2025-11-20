@@ -116,7 +116,7 @@ export default function MauticCacheAdmin() {
     toast.info('Sincronizando...', {
       description: 'Buscando dados do Mautic. Isso pode levar alguns segundos.',
     });
-    syncAllMutation.mutate();
+    syncAllMutation.mutate({});
   };
 
   return (
@@ -284,7 +284,7 @@ export default function MauticCacheAdmin() {
                 </div>
               </div>
               <Button
-                onClick={() => syncSegmentsMutation.mutate()}
+                onClick={() => syncSegmentsMutation.mutate({})}
                 disabled={syncSegmentsMutation.isPending}
                 variant="outline"
                 className="gap-2"
@@ -313,7 +313,7 @@ export default function MauticCacheAdmin() {
                 </div>
               </div>
               <Button
-                onClick={() => syncCampaignsMutation.mutate()}
+                onClick={() => syncCampaignsMutation.mutate({})}
                 disabled={syncCampaignsMutation.isPending}
                 variant="outline"
                 className="gap-2"
@@ -342,7 +342,7 @@ export default function MauticCacheAdmin() {
                 </div>
               </div>
               <Button
-                onClick={() => syncStagesMutation.mutate()}
+                onClick={() => syncStagesMutation.mutate({})}
                 disabled={syncStagesMutation.isPending}
                 variant="outline"
                 className="gap-2"

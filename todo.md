@@ -1198,3 +1198,23 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Verificar e corrigir serialização JSON (adicionar JSON.stringify se necessário) ✅ JÁ ESTAVA IMPLEMENTADO
 - [x] Testar em ambiente local ✅ Servidor rodando sem erros
 - [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos
+
+
+---
+
+## 🐛 Bug: Sincronização de Segmentos/Campanhas/Estágios (19/11/2025)
+
+**Erro:** `Invalid input: expected object, received undefined`
+
+**Causa:** Frontend chama `.mutate()` sem argumentos, enviando `undefined` ao backend que espera um objeto
+
+**Solução:** Mudar `.mutate()` para `.mutate({})` em todos os botões de sincronização
+
+### Tarefas
+- [x] Localizar componente com botões de sincronização ✅ MauticCacheAdmin.tsx
+- [x] Corrigir chamada de syncSegments.mutate() → syncSegments.mutate({})
+- [x] Corrigir chamada de syncCampaigns.mutate() → syncCampaigns.mutate({})
+- [x] Corrigir chamada de syncStages.mutate() → syncStages.mutate({})
+- [x] Corrigir chamada de syncAll.mutate() → syncAll.mutate({}) (bônus)
+- [x] Testar localmente ✅ Servidor rodando sem erros
+- [ ] Deploy para produção
