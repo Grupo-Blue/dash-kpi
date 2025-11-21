@@ -1202,12 +1202,35 @@ export const appRouter = router({
       .input(z.object({
         email: z.string().email(),
       }))
-      .mutation(async ({ input }) => {
-        // Buscar dados do cache
-        const cache = await getLeadJourneyCache(input.email);
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error('User not authenticated');
+        }
+
+        // Tentar buscar dados do cache primeiro
+        let cache = await getLeadJourneyCache(input.email);
         
+        // Se não encontrar no cache ou cache incompleto, buscar dados novamente
         if (!cache || !cache.mauticData || !cache.pipedriveData) {
-          throw new Error('Lead não encontrado no cache. Busque o lead primeiro.');
+          console.log('[generateAIAnalysis] Cache not found or incomplete, fetching fresh data...');
+          
+          // Buscar jornada completa (isso vai salvar no cache automaticamente)
+          const journey = await leadJourneyService.getLeadJourney(
+            input.email,
+            ctx.user.id,
+            false // Não usar cache, forçar busca nova
+          );
+          
+          if (!journey) {
+            throw new Error('Lead não encontrado no Mautic ou Pipedrive.');
+          }
+          
+          // Buscar cache novamente (agora deve existir)
+          cache = await getLeadJourneyCache(input.email);
+          
+          if (!cache || !cache.mauticData || !cache.pipedriveData) {
+            throw new Error('Erro ao salvar dados no cache.');
+          }
         }
 
         // Construir dados da jornada
