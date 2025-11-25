@@ -291,7 +291,11 @@ class LeadJourneyService {
         pointsGained,
       },
       // 🆕 ANÁLISE AVANÇADA
-      acquisition: this.analyzeAcquisition(mauticData.activities, mauticData.contact),
+      acquisition: (() => {
+        const result = this.analyzeAcquisition(mauticData.activities, mauticData.contact);
+        console.log('[getLeadJourney] acquisition result:', JSON.stringify(result, null, 2));
+        return result;
+      })(),
       timeline: await this.buildTimeline(mauticData.activities, mauticData.campaigns, mauticData.segments),
       behavior: this.analyzeBehavior(mauticData.activities, mauticData.contact),
       unsubscribe: this.analyzeUnsubscribe(mauticData.activities, mauticData.contact),
@@ -347,6 +351,11 @@ class LeadJourneyService {
     
     const firstHit = (firstPageHit?.details as any)?.hit;
     const lastHit = (lastActivity?.details as any)?.hit;
+    
+    console.log('[analyzeAcquisition] firstHit exists?', !!firstHit);
+    if (firstHit) {
+      console.log('[analyzeAcquisition] firstHit FULL CONTENT:', JSON.stringify(firstHit, null, 2));
+    }
 
     return {
       firstTouch: {
