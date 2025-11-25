@@ -202,8 +202,8 @@ export type InsertLeadJourneySearch = typeof leadJourneySearches.$inferInsert;
 export const leadJourneyCache = mysqlTable("leadJourneyCache", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
-  mauticData: mediumtext("mauticData"), // Complete Mautic data (contact + activities + campaigns + segments) - stored as JSON string
-  pipedriveData: mediumtext("pipedriveData"), // Complete Pipedrive data (person + deals) - stored as JSON string
+  mauticData: json("mauticData").$type<any>(), // Complete Mautic data (contact + activities + campaigns + segments)
+  pipedriveData: json("pipedriveData").$type<any>(), // Complete Pipedrive data (person + deals)
   aiAnalysis: text("aiAnalysis"), // AI-generated analysis and insights
   cachedAt: timestamp("cachedAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(), // Cache expiration (24 hours)

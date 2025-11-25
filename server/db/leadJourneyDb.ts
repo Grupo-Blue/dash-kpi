@@ -1,4 +1,4 @@
-import { eq, lt, sql } from "drizzle-orm";
+import { eq, lt, sql, desc } from "drizzle-orm";
 import { getDb } from "../db";
 import {
   leadJourneySearches,
@@ -150,12 +150,8 @@ export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCac
       return null;
     }
 
-    // Fazer parse dos campos JSON que agora são TEXT
-    return {
-      ...cache,
-      mauticData: cache.mauticData ? JSON.parse(cache.mauticData) : null,
-      pipedriveData: cache.pipedriveData ? JSON.parse(cache.pipedriveData) : null,
-    };
+    // Retornar cache (campos JSON já vem como objetos)
+    return cache;
   } catch (error) {
     console.error("[Database] Failed to get lead journey cache:", error);
     return null;
@@ -177,14 +173,14 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
     console.log('[saveLeadJourneyCache] 🔍 DB instance exists:', !!db);
     console.log('[saveLeadJourneyCache] 🔍 DB type:', typeof db);
     
-    // Normalizar datas dentro dos objetos JSON e converter para string
+    // Normalizar datas dentro dos objetos JSON
     const mauticNormalized = normalizeJsonDates(data.mauticData ?? {});
     const pipedriveNormalized = normalizeJsonDates(data.pipedriveData ?? {});
     
     const normalizedData: InsertLeadJourneyCache = {
       email: data.email,
-      mauticData: JSON.stringify(mauticNormalized) as any,
-      pipedriveData: JSON.stringify(pipedriveNormalized) as any,
+      mauticData: mauticNormalized as any,
+      pipedriveData: pipedriveNormalized as any,
       aiAnalysis: data.aiAnalysis ?? "",
       cachedAt: normalizeDateValue(data.cachedAt ?? new Date()),
       expiresAt: normalizeDateValue(data.expiresAt ?? new Date()),
