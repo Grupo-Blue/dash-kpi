@@ -1,0 +1,8 @@
+{
+  "query": "SELECT email, LENGTH(mauticData) as mautic_size, mauticData LIKE '%acquisition%' as has_acquisition, createdAt FROM lead_journey_cache ORDER BY createdAt DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute SELECT email, LENGTH(mauticData) as mautic_size, mauticData LIKE '%acquisition%' as has_acquisition, createdAt FROM lead_journey_cache ORDER BY createdAt DESC LIMIT 10;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'cez8gocwtdf6vga5y5nn9x.lead_journey_cache' doesn't exist"
+  ]
+}

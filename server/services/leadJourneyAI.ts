@@ -1,21 +1,11 @@
-import OpenAI from 'openai';
+import { invokeLLM } from '../_core/llm';
 import { LeadJourneyData } from './leadJourneyService';
 
 /**
  * Serviço de análise por IA da jornada de leads
- * Usa OpenAI para gerar insights e recomendações
+ * Usa LLM para gerar insights e recomendações
  */
 export class LeadJourneyAI {
-  private openai: OpenAI;
-
-  constructor() {
-    // Inicializar cliente OpenAI
-    // A API key será passada via variável de ambiente OPENAI_API_KEY
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || '',
-    });
-  }
-
   /**
    * Analisar jornada de um lead e gerar insights
    */
@@ -24,9 +14,8 @@ export class LeadJourneyAI {
       // Preparar dados para o LLM
       const prompt = this.buildAnalysisPrompt(journeyData);
 
-      // Chamar OpenAI
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o-mini', // Modelo mais econômico e rápido
+      // Chamar LLM
+      const response = await invokeLLM({
         messages: [
           {
             role: 'system',
@@ -37,15 +26,13 @@ export class LeadJourneyAI {
             content: prompt,
           },
         ],
-        temperature: 0.7,
-        max_tokens: 2000,
       });
 
       const analysis = response.choices[0].message.content;
       return analysis || 'Não foi possível gerar análise.';
     } catch (error: any) {
       console.error('[LeadJourneyAI] Error analyzing lead journey:', error.message);
-      throw new Error(`Erro ao gerar análise por IA: ${error.message}`);
+      return 'Erro ao gerar análise por IA.';
     }
   }
 

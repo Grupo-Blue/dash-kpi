@@ -11,14 +11,27 @@ import TokenizaAcademy from "./pages/TokenizaAcademy";
 import MychelMendes from "./pages/MychelMendes";
 import Admin from "./pages/Admin";
 import LeadAnalysis from "./pages/LeadAnalysis";
-import MauticCacheAdmin from "./pages/MauticCacheAdmin";
 import Login from "./pages/Login";
 import { useAuth } from "./_core/hooks/useAuth";
 
 function Router() {
-  // Authentication temporarily disabled - direct access enabled
-  // const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
+  // Mostrar loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Se não autenticado, mostrar apenas página de login
+  if (!isAuthenticated) {
+    return <Login />;
+  }
+
+  // Se autenticado, mostrar rotas normais
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -28,7 +41,6 @@ function Router() {
       <Route path={"/mychel-mendes"} component={MychelMendes} />
       <Route path={"/admin"} component={Admin} />
       <Route path={"/lead-analysis"} component={LeadAnalysis} />
-      <Route path={"/mautic-cache-admin"} component={MauticCacheAdmin} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -1015,206 +1015,40 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [x] Gerar insights e recomendações
 
 
-## 🔐 Implementar Autenticação Simples com Usuário/Senha (Deploy Standalone)
-
-**Objetivo**: Substituir OAuth do Manus por sistema de login com usuário e senha para funcionar no servidor standalone.
-
-### Backend
-- [ ] Instalar bcrypt para hash de senhas
-- [ ] Modificar schema do banco: adicionar campos `password` e `salt` na tabela `users`
-- [ ] Criar endpoint de login com validação de senha
-- [ ] Criar endpoint de registro de usuário (apenas admin)
-- [ ] Modificar middleware de autenticação para aceitar JWT sem OAuth
-- [ ] Criar script de criação de usuário admin inicial
-
-### Frontend
-- [ ] Criar página de login customizada com campos usuário/senha
-- [ ] Remover botão "Entrar com Google"
-- [ ] Implementar formulário de login com validação
-- [ ] Adicionar tratamento de erros de login
-- [ ] Atualizar fluxo de autenticação no frontend
-
-### Deploy
-- [ ] Fazer commit das mudanças no GitHub
-- [ ] Fazer deploy no servidor
-- [ ] Executar script de criação de usuário admin
-- [ ] Testar login completo
-- [ ] Documentar credenciais de acesso
-
-
 ---
 
-## 🔬 Análise Avançada de Leads v1.0 - EM DESENVOLVIMENTO
+## 🔴 BUG CRÍTICO: Campo acquisition NULL no Banco (Em Investigação)
 
-### Objetivo
-Implementar análise profunda da jornada do lead para otimizar estratégias de marketing e vendas.
+### Contexto
+- Campo `acquisition` (UTM params) está presente no objeto antes do save
+- Logs confirmam: `[DEBUG] - has acquisition? true`
+- Query SQL retorna NULL: `SELECT JSON_EXTRACT(mauticData, '$.acquisition.utm_source')`
+- Hipótese inicial: `normalizeDates()` removendo o campo - **REFUTADA**
 
-### Backend - Enriquecimento de Dados
-- [x] Extrair UTMs (source, medium, campaign, content, term) das atividades do Mautic
-- [x] Identificar landing page de entrada do lead
-- [x] Capturar dados de descadastro (unsubscribe) do Mautic
-- [x] Adicionar campos de análise avançada na interface LeadJourneyData
-- [x] Criar função para análise de padrões de comportamento
-- [x] Processar timeline completa de eventos (e-mails, páginas, downloads, vídeos)
+### Análise Técnica (Documento Recebido)
+1. ✅ `normalizeDates()` **NÃO remove campos** - apenas copia recursivamente todas as chaves
+2. ✅ `saveLeadJourneyCache()` stringifica o objeto inteiro - sem filtros
+3. ⚠️ `JSON.stringify()` omite propriedades `undefined` (mas preserva `null`)
+4. ⚠️ Possível causa: `acquisition` está `undefined` no momento do save
+5. ⚠️ Verificar se estamos inspecionando a tabela/coluna correta
 
-### Frontend - Timeline Visual
-- [x] Criar componente TimelineEvent para eventos da jornada
-- [x] Implementar linha do tempo interativa com ícones por tipo de evento
-- [x] Adicionar filtros por tipo de evento (e-mails, páginas, downloads, etc.)
-- [x] Mostrar detalhes ao expandir cada evento
-- [x] Adicionar indicadores visuais de picos de atividade
+### Tarefas de Investigação
+- [ ] Adicionar logs detalhados ANTES do `JSON.stringify()`:
+  - [ ] Log de `Object.keys(normalizedMautic)` para ver todas as chaves
+  - [ ] Log de `normalizedMautic.acquisition` para ver o valor exato
+  - [ ] Log do resultado de `JSON.stringify()` para ver o JSON final
+- [ ] Executar query SQL no servidor de produção:
+  - [ ] `SELECT email, mauticData FROM leadJourneyCache WHERE email='mychel@blueconsult.com.br'`
+  - [ ] Procurar string `"acquisition"` dentro do JSON bruto
+- [ ] Verificar se `analyzeAcquisition()` está retornando `undefined` ao invés de `null`
+- [ ] Verificar se o spread operator está funcionando corretamente:
+  - [ ] `const mauticDataWithAcquisition = { ...mauticData, acquisition: ... }`
+- [ ] Confirmar que estamos salvando a variável correta (não outra versão sem acquisition)
 
-### Frontend - Análise de UTMs e Origem
-- [x] Criar seção de Origem de Tráfego
-- [x] Mostrar UTM source, medium, campaign da primeira conversão
-- [x] Exibir landing page de entrada
-- [x] Mostrar dispositivo e horário da primeira interação
-- [x] Criar card de "Primeira Interação" com todos os detalhes
+### Próximos Passos
+1. Adicionar logs de debug detalhados em `leadJourneyDb.ts` antes do save
+2. Testar no servidor de produção com lead real
+3. Analisar JSON bruto do banco de dados
+4. Identificar ponto exato onde acquisition vira undefined
+5. Aplicar correção baseada em evidências (não suposições)
 
-### Frontend - Comparação Won vs Lost
-- [ ] Criar card comparativo de métricas
-- [ ] Mostrar diferenças de comportamento (tempo, touchpoints, engajamento)
-- [ ] Destacar padrões de leads que convertem
-- [ ] Adicionar gráficos comparativos (barras lado a lado)
-
-### Frontend - Gráfico de Funil
-- [ ] Implementar visualização de funil de conversão
-- [ ] Mostrar taxas de conversão entre etapas
-- [ ] Adicionar tempo médio em cada etapa
-- [ ] Criar tooltip com detalhes de cada etapa
-
-### Deploy e Testes
-- [x] Testar com dados reais de leads (viniciusdeoa@gmail.com, etc.)
-- [x] Validar todas as métricas e visualizações
-- [ ] Verificar performance com grandes volumes de dados
-- [x] Deploy no servidor de produção
-- [ ] Documentar insights descobertos
-
-## 🔧 Melhorias na Timeline de Leads
-
-- [x] Adicionar mapeamento para evento stage.changed
-- [x] Implementar busca de e-mails do Mautic via API
-- [x] Criar cache de nomes de e-mails, campanhas e páginas
-- [x] Mapear todos os IDs para nomes reais
-- [x] Garantir que todos os links sejam clicáveis
-
-## 💾 Cache de E-mails e Páginas do Mautic
-
-- [x] Criar tabela mautic_emails no banco
-- [x] Criar tabela mautic_pages no banco
-- [x] Implementar serviço de cache com busca e atualização
-- [x] Criar script para sincronizar dados do Mautic
-- [x] Atualizar leadJourneyService para usar cache
-- [ ] Executar primeira sincronização no servidor
-- [x] Deploy no servidor
-
-
----
-
-## 🔍 Mapeamento Completo de Campos Desconhecidos na Timeline de Leads
-
-### Problemas Identificados no PDF:
-- [ ] "Origem: desconhecida" - Mapear origem do lead
-- [ ] "Segmento desconhecido" - Buscar nomes reais dos segmentos
-- [ ] "Campanha desconhecida" - Buscar nomes reais das campanhas
-- [ ] "E-mail" sem nome/assunto - Melhorar busca de e-mails
-- [ ] Estágios ("anterior" → "Estágio") - Mapear nomes dos estágios
-
-### Implementações Necessárias:
-- [ ] Adicionar tabela mautic_segments ao banco
-- [ ] Adicionar tabela mautic_campaigns ao banco
-- [ ] Adicionar tabela mautic_stages ao banco
-- [ ] Implementar busca de segmentos na API do Mautic
-- [ ] Implementar busca de campanhas na API do Mautic
-- [ ] Implementar busca de estágios na API do Mautic
-- [ ] Atualizar mauticCacheService com novos métodos
-- [ ] Atualizar leadJourneyService para usar cache completo
-- [ ] Adicionar sincronização de segmentos/campanhas/estágios na interface admin
-- [ ] Testar com dados reais e validar todos os nomes
-- [x] Adicionar DashboardLayout nas páginas MauticCacheAdmin e LeadAnalysis para exibir menu lateral
-- [ ] Corrigir erro 500 ao buscar lead - investigar logs e identificar causa raiz
-- [x] Corrigir erro de formato de data no leadJourneyCache (dateModified com +00:00 ao invés de espaço)
-
----
-
-## 🔍 Melhorias na Página "Análise Avançada" de Leads
-
-### Alta Prioridade (Impacto Alto + Esforço Baixo)
-- [x] Traduzir eventos técnicos para linguagem amigável (ex: "campaign.event.scheduled" → "E-mail agendado")
-- [x] Adicionar tooltips explicativos em todos os campos da Análise Avançada
-- [x] Gerar análise por IA automaticamente ao carregar a página (sem precisar clicar)
-- [x] Mostrar lista detalhada de e-mails enviados com status visual (aberto/não aberto/clicou)
-
-### Média Prioridade (Impacto Alto + Esforço Médio)
-- [ ] Adicionar seção "Métricas de Engajamento" com gráficos (taxa de abertura, CTR, tempo de sessão)
-- [ ] Integrar dados do Pipedrive na Análise Avançada (negócios, valor total, responsável)
-- [ ] Adicionar Score de Qualificação do lead (MQL/SQL/Cold) com badge visual
-- [ ] Melhorar captura de parâmetros UTM nas landing pages
-
-### Baixa Prioridade (Impacto Médio + Esforço Alto)
-- [ ] Implementar comparação de métricas do lead com média da base (percentil)
-- [ ] Adicionar funcionalidade de exportação de análise (PDF/Excel)
-- [ ] Mostrar breakdown de 160 atividades por tipo
-- [ ] Adicionar seção "Próximas Ações Recomendadas" baseada em IA
-
-### Dados Disponíveis Mas Não Exibidos
-- [ ] Mostrar lista de 0 páginas visitadas (com URLs)
-- [ ] Expandir detalhes de 1 campanha ativa
-- [ ] Mostrar quando o lead foi adicionado aos 11 segmentos
-- [ ] Exibir breakdown das 160 atividades por tipo
-
-
-
----
-
-## 🐛 Bug: Troca de Abas Não Funciona na Análise de Leads
-
-**Problema Reportado:** Ao clicar na aba "Análise Avançada", a interface não muda - permanece mostrando "Visão Geral"
-
-**Tarefas de Investigação:**
-- [x] Analisar componente de abas (Tabs do shadcn/ui)
-- [x] Verificar estado do React (useState/useEffect)
-- [x] Checar se há conflito de cache do navegador
-- [x] Testar localmente para reproduzir o problema
-- [x] Identificar causa raiz (estado, evento, renderização)
-
-**Causa Raiz Identificada:** Componente Tabs usando apenas `defaultValue` sem controle de estado (`value` + `onValueChange`)
-
-**Tarefas de Correção:**
-- [x] Implementar correção no código (adicionado estado `activeTab`)
-- [ ] Testar correção localmente
-- [ ] Deploy da correção para produção
-- [ ] Validar funcionamento em produção
-
-
----
-
-## 🔧 Correções Críticas de Banco de Dados (19/11/2025)
-
-### Prioridade CRÍTICA (Implementar AGORA)
-- [x] Mudar `text()` para `longtext()` em `mauticData` e `pipedriveData` no schema ✅ JÁ ESTAVA IMPLEMENTADO (mediumtext)
-- [x] Corrigir `cleanExpiredCache` para usar `lt()` em vez de `eq()` ✅ JÁ ESTAVA IMPLEMENTADO
-- [x] Adicionar `dateStrings: false` na configuração do pool MySQL ✅ IMPLEMENTADO AGORA
-- [x] Verificar e corrigir serialização JSON (adicionar JSON.stringify se necessário) ✅ JÁ ESTAVA IMPLEMENTADO
-- [x] Testar em ambiente local ✅ Servidor rodando sem erros
-- [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos
-
-
----
-
-## 🐛 Bug: Sincronização de Segmentos/Campanhas/Estágios (19/11/2025)
-
-**Erro:** `Invalid input: expected object, received undefined`
-
-**Causa:** Frontend chama `.mutate()` sem argumentos, enviando `undefined` ao backend que espera um objeto
-
-**Solução:** Mudar `.mutate()` para `.mutate({})` em todos os botões de sincronização
-
-### Tarefas
-- [x] Localizar componente com botões de sincronização ✅ MauticCacheAdmin.tsx
-- [x] Corrigir chamada de syncSegments.mutate() → syncSegments.mutate({})
-- [x] Corrigir chamada de syncCampaigns.mutate() → syncCampaigns.mutate({})
-- [x] Corrigir chamada de syncStages.mutate() → syncStages.mutate({})
-- [x] Corrigir chamada de syncAll.mutate() → syncAll.mutate({}) (bônus)
-- [x] Testar localmente ✅ Servidor rodando sem erros
-- [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos

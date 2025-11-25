@@ -1,6 +1,5 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
 import { 
   InsertUser, 
   users, 
@@ -24,41 +23,15 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
-let pool: mysql.Pool | null = null;
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
-  if (!_db) {
-    const dbUrl = process.env.DATABASE_URL;
-    console.log('[Database] DATABASE_URL exists:', !!dbUrl);
-    console.log('[Database] DATABASE_URL length:', dbUrl?.length || 0);
-    
-    if (!dbUrl) {
-      console.error('[Database] ❌ DATABASE_URL is not defined! Cannot connect to database.');
-      console.error('[Database] Please set DATABASE_URL environment variable.');
-      return null;
-    }
-    
+  if (!_db && process.env.DATABASE_URL) {
     try {
-      console.log('[Database] Attempting to create connection pool...');
-      
-      // Criar pool de conexões com configurações otimizadas
-      pool = mysql.createPool({
-        uri: dbUrl,
-        waitForConnections: true,
-        connectionLimit: 10,
-        queueLimit: 0,
-        dateStrings: false, // CORREÇÃO CRÍTICA: Retornar datas como Date objects, não strings
-        supportBigNumbers: true,
-        bigNumberStrings: false,
-      });
-      
-      _db = drizzle(pool);
-      console.log('[Database] ✅ Connection pool created successfully');
+      _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.error("[Database] ❌ Failed to connect:", error);
+      console.warn("[Database] Failed to connect:", error);
       _db = null;
-      pool = null;
     }
   }
   return _db;

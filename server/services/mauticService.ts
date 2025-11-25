@@ -100,10 +100,10 @@ class MauticService {
   private password: string;
 
   constructor() {
-    // Credenciais de autenticação básica do Mautic
+    // Credenciais OAuth2 do Mautic
     this.baseURL = 'https://mautic.grupoblue.com.br';
-    this.username = 'admin';
-    this.password = 'frt-epu_NRW.mgh1auz';
+    this.username = '8_16au3ocbjzvkcgk4w4ww4w8kwck0wok8gk8ow80gs8g04c8ooo';
+    this.password = '5tkzuzbxq7wg8wsowcs4k8cgwccwwooc0kosc4k8o04og8gs0s';
 
     // Criar cliente axios com autenticação básica
     // Nota: Mautic suporta Basic Auth para API além de OAuth2
@@ -118,77 +118,6 @@ class MauticService {
       },
       timeout: 30000, // 30 segundos
     });
-  }
-
-  /**
-   * Buscar todos os e-mails do Mautic
-   */
-  async getAllEmails(limit: number = 100): Promise<Map<number, string>> {
-    try {
-      const response = await this.client.get('/api/emails', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const emails = response.data.emails || {};
-      const emailMap = new Map<number, string>();
-
-      Object.values(emails).forEach((email: any) => {
-        if (email.id && (email.name || email.subject)) {
-          emailMap.set(email.id, email.name || email.subject);
-        }
-      });
-
-      return emailMap;
-    } catch (error: any) {
-      console.error('[Mautic] Error fetching emails:', error.response?.data || error.message);
-      return new Map(); // Retornar mapa vazio em caso de erro
-    }
-  }
-
-  /**
-   * Buscar todos os e-mails do Mautic (dados brutos)
-   */
-  async getAllEmailsRaw(limit: number = 500): Promise<any[]> {
-    try {
-      const response = await this.client.get('/api/emails', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const emails = response.data.emails || {};
-      return Object.values(emails);
-    } catch (error: any) {
-      console.error('[Mautic] Error fetching emails:', error.response?.data || error.message);
-      throw new Error(`Failed to get all emails: ${error.message}`);
-    }
-  }
-
-  /**
-   * Buscar todas as páginas do Mautic
-   */
-  async getAllPages(limit: number = 500): Promise<any[]> {
-    try {
-      const response = await this.client.get('/api/pages', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const pages = response.data.pages || {};
-      return Object.values(pages);
-    } catch (error: any) {
-      console.error('[Mautic] Error fetching pages:', error.response?.data || error.message);
-      throw new Error(`Failed to get all pages: ${error.message}`);
-    }
   }
 
   /**
@@ -357,81 +286,6 @@ class MauticService {
     } catch (error: any) {
       console.error('[Mautic] Error getting contact segments:', error.response?.data || error.message);
       throw new Error(`Failed to get contact segments: ${error.message}`);
-    }
-  }
-
-  /**
-   * Buscar todos os segmentos do Mautic
-   */
-  async getAllSegments(limit: number = 500): Promise<MauticSegment[]> {
-    try {
-      const response = await this.client.get('/api/segments', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const segments = response.data.lists;
-      if (!segments || Object.keys(segments).length === 0) {
-        return [];
-      }
-
-      return Object.values(segments);
-    } catch (error: any) {
-      console.error('[Mautic] Error getting all segments:', error.response?.data || error.message);
-      throw new Error(`Failed to get all segments: ${error.message}`);
-    }
-  }
-
-  /**
-   * Buscar todas as campanhas do Mautic
-   */
-  async getAllCampaigns(limit: number = 500): Promise<MauticCampaign[]> {
-    try {
-      const response = await this.client.get('/api/campaigns', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const campaigns = response.data.campaigns;
-      if (!campaigns || Object.keys(campaigns).length === 0) {
-        return [];
-      }
-
-      return Object.values(campaigns);
-    } catch (error: any) {
-      console.error('[Mautic] Error getting all campaigns:', error.response?.data || error.message);
-      throw new Error(`Failed to get all campaigns: ${error.message}`);
-    }
-  }
-
-  /**
-   * Buscar todos os estágios do Mautic
-   */
-  async getAllStages(limit: number = 500): Promise<any[]> {
-    try {
-      const response = await this.client.get('/api/stages', {
-        params: {
-          limit,
-          orderBy: 'id',
-          orderByDir: 'DESC',
-        },
-      });
-
-      const stages = response.data.stages;
-      if (!stages || Object.keys(stages).length === 0) {
-        return [];
-      }
-
-      return Object.values(stages);
-    } catch (error: any) {
-      console.error('[Mautic] Error getting all stages:', error.response?.data || error.message);
-      throw new Error(`Failed to get all stages: ${error.message}`);
     }
   }
 

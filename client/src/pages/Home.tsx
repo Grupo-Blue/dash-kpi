@@ -14,7 +14,49 @@ import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/component
 import { useState } from "react";
 
 export default function Home() {
-  // Authentication temporarily disabled - direct access
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-accent/10">
+        <div className="max-w-md w-full mx-4">
+          <Card className="border-2">
+            <CardHeader className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl">{APP_TITLE}</CardTitle>
+                <CardDescription className="mt-2">
+                  Centralize e visualize os KPIs de todos os seus negócios em um só lugar
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => {
+                  window.location.href = getLoginUrl();
+                }}
+                size="lg"
+                className="w-full"
+              >
+                Entrar com Google
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <DashboardLayout>
       <HomeContent />

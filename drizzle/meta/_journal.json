@@ -64,41 +64,6 @@
       "when": 1762814280997,
       "tag": "0008_deep_pet_avengers",
       "breakpoints": true
-    },
-    {
-      "idx": 9,
-      "version": "5",
-      "when": 1763464949441,
-      "tag": "0009_quick_garia",
-      "breakpoints": true
-    },
-    {
-      "idx": 10,
-      "version": "5",
-      "when": 1763466059186,
-      "tag": "0010_jazzy_eternals",
-      "breakpoints": true
-    },
-    {
-      "idx": 11,
-      "version": "5",
-      "when": 1763494213856,
-      "tag": "0011_modern_silk_fever",
-      "breakpoints": true
-    },
-    {
-      "idx": 12,
-      "version": "5",
-      "when": 1763498719619,
-      "tag": "0012_plain_karnak",
-      "breakpoints": true
-    },
-    {
-      "idx": 13,
-      "version": "5",
-      "when": 1764074646845,
-      "tag": "0013_third_mac_gargan",
-      "breakpoints": true
     }
   ]
 }

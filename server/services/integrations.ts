@@ -155,21 +155,9 @@ export class PipedriveService implements IntegrationService {
       const endpoint = params?.endpoint || 'deals';
       const queryParams: Record<string, string> = {
         api_token: this.apiKey,
+        limit: String(params?.limit || 500),
+        status: params?.status || 'all_not_deleted',
       };
-      
-      // Adicionar limit apenas se fornecido ou para endpoints de listagem
-      if (params?.limit !== undefined) {
-        queryParams.limit = String(params.limit);
-      } else if (endpoint === 'deals' || endpoint.includes('/deals')) {
-        queryParams.limit = '500';
-      }
-      
-      // Adicionar status apenas se fornecido ou para deals
-      if (params?.status !== undefined) {
-        queryParams.status = params.status;
-      } else if (endpoint === 'deals') {
-        queryParams.status = 'all_not_deleted';
-      }
       
       // Adicionar start se fornecido
       if (params?.start !== undefined) {

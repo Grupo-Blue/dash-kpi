@@ -23,12 +23,11 @@ import { leadJourneyService } from './services/leadJourneyService';
 import { getLeadJourneyHistory, getLeadJourneyCache, saveLeadJourneyCache } from './db/leadJourneyDb';
 import { leadJourneyAI } from './services/leadJourneyAI';
 import { authenticateUser, createLocalUser } from './services/localAuth';
-import { mauticCacheRouter } from './routers/mauticCacheRouter';
 import jwt from 'jsonwebtoken';
+const { sign } = jwt;
 
 export const appRouter = router({
   system: systemRouter,
-  mauticCache: mauticCacheRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -47,7 +46,7 @@ export const appRouter = router({
         }
 
         // Criar JWT token
-        const token = jwt.sign(
+        const token = sign(
           { userId: user.id, email: user.email, role: user.role },
           ENV.jwtSecret,
           { expiresIn: '7d' }
@@ -381,7 +380,10 @@ export const appRouter = router({
       
       try {
         // TEMPORARY: Hard-coded token for debugging
-        const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+        const niboToken = process.env.NIBO_API_TOKEN;
+        if (!niboToken) {
+          throw new Error('[P1-5] NIBO_API_TOKEN not configured in environment variables');
+        }
         console.log('[niboFinancial] Token exists:', !!niboToken);
         console.log('[niboFinancial] Token source:', process.env.NIBO_API_TOKEN ? 'env' : 'hardcoded');
         
@@ -430,8 +432,12 @@ export const appRouter = router({
         
         try {
           // Use token from env or hardcoded fallback
-          const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
-          const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
+          const metricoolToken = process.env.METRICOOL_API_TOKEN;
+          const metricoolUserId = process.env.METRICOOL_USER_ID;
+          
+          if (!metricoolToken || !metricoolUserId) {
+            throw new Error('[P1-5] METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured in environment variables');
+          }
           
           console.log('[metricoolSocialMedia] Token exists:', !!metricoolToken);
           console.log('[metricoolSocialMedia] User ID:', metricoolUserId);
@@ -442,7 +448,10 @@ export const appRouter = router({
           }
 
           console.log('[metricoolSocialMedia] Creating calculator...');
-          const youtubeApiKey = process.env.YOUTUBE_API_KEY || 'AIzaSyAeOpm5YOcN0REDj5AFXf_a-ZxLhuuSDXA';
+          const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+          if (!youtubeApiKey) {
+            throw new Error('[P1-5] YOUTUBE_API_KEY not configured in environment variables');
+          }
           const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
           
           // Default to last 30 days if not specified
@@ -751,7 +760,10 @@ export const appRouter = router({
           // 2. Blue Consult - Nibo (Financeiro)
           (async () => {
             try {
-              const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+              const niboToken = process.env.NIBO_API_TOKEN;
+        if (!niboToken) {
+          throw new Error('[P1-5] NIBO_API_TOKEN not configured in environment variables');
+        }
               if (!niboToken) throw new Error('Nibo token not configured');
               
               const calculator = new NiboKpiCalculator(niboToken);
@@ -833,9 +845,16 @@ export const appRouter = router({
                 to = now.toISOString().split('T')[0];
               }
               
-              const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
-              const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
-              const youtubeApiKey = process.env.YOUTUBE_API_KEY || 'AIzaSyAeOpm5YOcN0REDj5AFXf_a-ZxLhuuSDXA';
+              const metricoolToken = process.env.METRICOOL_API_TOKEN;
+              const metricoolUserId = process.env.METRICOOL_USER_ID;
+              
+              if (!metricoolToken || !metricoolUserId) {
+                throw new Error('[P1-5] METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured in environment variables');
+              }
+              const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+          if (!youtubeApiKey) {
+            throw new Error('[P1-5] YOUTUBE_API_KEY not configured in environment variables');
+          }
               
               const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
               const kpis = await calculator.calculateSocialMediaKPIs(blogId, from, to);
@@ -1001,7 +1020,10 @@ export const appRouter = router({
               context += `- Taxa de Conversão: ${kpis.summary.find(k => k.label === 'Taxa de Conversão')?.value || 'N/A'}\n\n`;
             }
 
-            const niboToken = process.env.NIBO_API_TOKEN || '2687E95F373948E5A6C38EB74C43EFDA';
+            const niboToken = process.env.NIBO_API_TOKEN;
+        if (!niboToken) {
+          throw new Error('[P1-5] NIBO_API_TOKEN not configured in environment variables');
+        }
             const niboCalculator = new NiboKpiCalculator(niboToken);
             const accountsReceivable = await niboCalculator.calculateAccountsReceivable();
             const accountsPayable = await niboCalculator.calculateAccountsPayable();
@@ -1202,35 +1224,12 @@ export const appRouter = router({
       .input(z.object({
         email: z.string().email(),
       }))
-      .mutation(async ({ input, ctx }) => {
-        if (!ctx.user) {
-          throw new Error('User not authenticated');
-        }
-
-        // Tentar buscar dados do cache primeiro
-        let cache = await getLeadJourneyCache(input.email);
+      .mutation(async ({ input }) => {
+        // Buscar dados do cache
+        const cache = await getLeadJourneyCache(input.email);
         
-        // Se não encontrar no cache ou cache incompleto, buscar dados novamente
         if (!cache || !cache.mauticData || !cache.pipedriveData) {
-          console.log('[generateAIAnalysis] Cache not found or incomplete, fetching fresh data...');
-          
-          // Buscar jornada completa (isso vai salvar no cache automaticamente)
-          const journey = await leadJourneyService.getLeadJourney(
-            input.email,
-            ctx.user.id,
-            false // Não usar cache, forçar busca nova
-          );
-          
-          if (!journey) {
-            throw new Error('Lead não encontrado no Mautic ou Pipedrive.');
-          }
-          
-          // Buscar cache novamente (agora deve existir)
-          cache = await getLeadJourneyCache(input.email);
-          
-          if (!cache || !cache.mauticData || !cache.pipedriveData) {
-            throw new Error('Erro ao salvar dados no cache.');
-          }
+          throw new Error('Lead não encontrado no cache. Busque o lead primeiro.');
         }
 
         // Construir dados da jornada

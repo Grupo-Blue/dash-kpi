@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, mediumtext, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -202,8 +202,8 @@ export type InsertLeadJourneySearch = typeof leadJourneySearches.$inferInsert;
 export const leadJourneyCache = mysqlTable("leadJourneyCache", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
-  mauticData: json("mauticData").$type<any>(), // Complete Mautic data (contact + activities + campaigns + segments)
-  pipedriveData: json("pipedriveData").$type<any>(), // Complete Pipedrive data (person + deals)
+  mauticData: json("mauticData").$type<Record<string, any>>(), // Complete Mautic data (contact + activities + campaigns + segments)
+  pipedriveData: json("pipedriveData").$type<Record<string, any>>(), // Complete Pipedrive data (person + deals)
   aiAnalysis: text("aiAnalysis"), // AI-generated analysis and insights
   cachedAt: timestamp("cachedAt").defaultNow().notNull(),
   expiresAt: timestamp("expiresAt").notNull(), // Cache expiration (24 hours)
@@ -211,103 +211,3 @@ export const leadJourneyCache = mysqlTable("leadJourneyCache", {
 
 export type LeadJourneyCache = typeof leadJourneyCache.$inferSelect;
 export type InsertLeadJourneyCache = typeof leadJourneyCache.$inferInsert;
-
-/**
- * Mautic Emails Cache - Cache de e-mails do Mautic
- * Armazena informações de e-mails para evitar chamadas repetidas à API
- */
-export const mauticEmails = mysqlTable("mauticEmails", {
-  id: int("id").autoincrement().primaryKey(),
-  mauticId: int("mauticId").notNull().unique(), // ID do e-mail no Mautic
-  name: varchar("name", { length: 255 }), // Nome do e-mail
-  subject: text("subject"), // Assunto do e-mail
-  category: varchar("category", { length: 100 }), // Categoria
-  language: varchar("language", { length: 10 }), // Idioma (pt_BR, en, etc)
-  isPublished: boolean("isPublished").default(true), // Se está publicado
-  publishUp: timestamp("publishUp"), // Data de publicação
-  publishDown: timestamp("publishDown"), // Data de despublicação
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  syncedAt: timestamp("syncedAt").defaultNow().notNull(), // Última sincronização com Mautic
-});
-
-export type MauticEmail = typeof mauticEmails.$inferSelect;
-export type InsertMauticEmail = typeof mauticEmails.$inferInsert;
-
-/**
- * Mautic Pages Cache - Cache de páginas do Mautic
- * Armazena informações de landing pages para facilitar análise
- */
-export const mauticPages = mysqlTable("mauticPages", {
-  id: int("id").autoincrement().primaryKey(),
-  mauticId: int("mauticId").notNull().unique(), // ID da página no Mautic
-  title: varchar("title", { length: 255 }).notNull(), // Título da página
-  alias: varchar("alias", { length: 255 }), // Slug/alias da página
-  url: text("url"), // URL completa
-  category: varchar("category", { length: 100 }), // Categoria
-  language: varchar("language", { length: 10 }), // Idioma
-  isPublished: boolean("isPublished").default(true), // Se está publicada
-  publishUp: timestamp("publishUp"), // Data de publicação
-  publishDown: timestamp("publishDown"), // Data de despublicação
-  hits: int("hits").default(0), // Número de visitas
-  uniqueHits: int("uniqueHits").default(0), // Visitas únicas
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-  syncedAt: timestamp("syncedAt").defaultNow().notNull(), // Última sincronização com Mautic
-});
-
-export type MauticPage = typeof mauticPages.$inferSelect;
-export type InsertMauticPage = typeof mauticPages.$inferInsert;
-
-/**
- * Mautic Segments Cache - Cache de segmentos do Mautic
- */
-export const mauticSegments = mysqlTable("mauticSegments", {
-  id: int("id").autoincrement().primaryKey(),
-  mauticId: int("mauticId").notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  alias: varchar("alias", { length: 255 }),
-  description: text("description"),
-  isPublished: boolean("isPublished").default(true),
-  isGlobal: boolean("isGlobal").default(false),
-  createdAt: timestamp("createdAt"),
-  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
-});
-
-export type MauticSegment = typeof mauticSegments.$inferSelect;
-export type InsertMauticSegment = typeof mauticSegments.$inferInsert;
-
-/**
- * Mautic Campaigns Cache - Cache de campanhas do Mautic
- */
-export const mauticCampaigns = mysqlTable("mauticCampaigns", {
-  id: int("id").autoincrement().primaryKey(),
-  mauticId: int("mauticId").notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  isPublished: boolean("isPublished").default(true),
-  publishUp: timestamp("publishUp"),
-  publishDown: timestamp("publishDown"),
-  createdAt: timestamp("createdAt"),
-  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
-});
-
-export type MauticCampaign = typeof mauticCampaigns.$inferSelect;
-export type InsertMauticCampaign = typeof mauticCampaigns.$inferInsert;
-
-/**
- * Mautic Stages Cache - Cache de estágios do Mautic
- */
-export const mauticStages = mysqlTable("mauticStages", {
-  id: int("id").autoincrement().primaryKey(),
-  mauticId: int("mauticId").notNull().unique(),
-  name: varchar("name", { length: 255 }).notNull(),
-  description: text("description"),
-  weight: int("weight").default(0),
-  isPublished: boolean("isPublished").default(true),
-  createdAt: timestamp("createdAt"),
-  syncedAt: timestamp("syncedAt").defaultNow().notNull(),
-});
-
-export type MauticStage = typeof mauticStages.$inferSelect;
-export type InsertMauticStage = typeof mauticStages.$inferInsert;
