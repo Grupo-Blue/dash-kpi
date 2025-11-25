@@ -9,12 +9,7 @@ import {
 
 export interface LeadJourneyData {
   // Dados do Mautic
-  mautic: {
-    contact: MauticContact | null;
-    activities: MauticActivityEvent[];
-    campaigns: MauticCampaign[];
-    segments: MauticSegment[];
-  };
+  mautic: MauticLeadJourneyData;
   // Dados do Pipedrive
   pipedrive: {
     person: any | null;
@@ -37,6 +32,14 @@ export interface LeadJourneyData {
     pointsGained: number;
   };
 }
+
+type MauticLeadJourneyData = {
+  contact: MauticContact | null;
+  activities: MauticActivityEvent[];
+  campaigns: MauticCampaign[];
+  segments: MauticSegment[];
+  acquisition?: Record<string, any> | null;
+};
 
 /**
  * Serviço de análise de jornada de leads
@@ -76,12 +79,17 @@ class LeadJourneyService {
         return null;
       }
 
+      const mauticDataWithAcquisition: MauticLeadJourneyData = {
+        ...mauticData,
+        acquisition: this.analyzeAcquisition(mauticData),
+      };
+
       // 3. Buscar dados do Pipedrive
       console.log('[LeadJourney] Fetching Pipedrive data for:', email);
       const pipedriveData = await this.getPipedriveDataByEmail(email);
 
       // 4. Construir dados completos
-      const journeyData = this.buildLeadJourneyData(mauticData, pipedriveData);
+      const journeyData = this.buildLeadJourneyData(mauticDataWithAcquisition, pipedriveData);
 
       // 5. Salvar no cache (24 horas)
       const now = new Date();
@@ -89,7 +97,7 @@ class LeadJourneyService {
 
       await saveLeadJourneyCache({
         email,
-        mauticData: mauticData as any,
+        mauticData: mauticDataWithAcquisition as any,
         pipedriveData: pipedriveData as any,
         aiAnalysis: null, // Será preenchido depois
         cachedAt: now,
@@ -164,15 +172,41 @@ class LeadJourneyService {
   }
 
   /**
+   * Extrai os dados de aquisição (UTM) a partir da primeira visita registrada no Mautic
+   */
+  private analyzeAcquisition(mauticData: MauticLeadJourneyData): Record<string, any> | null {
+    const firstPageHit = mauticData.activities
+      .filter(a => a.event === 'page.hit')
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())[0];
+
+    const query = (firstPageHit as any)?.details?.query || (firstPageHit as any)?.details?.properties?.query;
+
+    if (query) {
+      const acquisition = {
+        utm_source: query.utm_source || null,
+        utm_medium: query.utm_medium || null,
+        utm_campaign: query.utm_campaign || null,
+        utm_content: query.utm_content || null,
+        utm_term: query.utm_term || null,
+      };
+
+      if (Object.values(acquisition).some(value => Boolean(value))) {
+        return acquisition;
+      }
+    }
+
+    if (mauticData.contact?.utmtags && mauticData.contact.utmtags.length > 0) {
+      return mauticData.contact.utmtags[0];
+    }
+
+    return null;
+  }
+
+  /**
    * Construir dados completos da jornada
    */
   private buildLeadJourneyData(
-    mauticData: {
-      contact: MauticContact;
-      activities: MauticActivityEvent[];
-      campaigns: MauticCampaign[];
-      segments: MauticSegment[];
-    },
+    mauticData: MauticLeadJourneyData,
     pipedriveData: {
       person: any | null;
       deals: any[];
