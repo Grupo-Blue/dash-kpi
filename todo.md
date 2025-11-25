@@ -1246,8 +1246,33 @@ A função `analyzeAcquisition()` em `server/services/leadJourneyService.ts` est
   - [ ] Ação ✅ (já funciona)
 
 ### Próximos Passos
-1. [ ] Verificar estrutura real dos dados do Mautic em produção
-2. [ ] Identificar campos corretos para extração de UTMs
-3. [ ] Ajustar função `analyzeAcquisition()` com mapeamento correto
-4. [ ] Testar com lead mychel@blueconsult.com.br
-5. [ ] Validar que dados da Timeline são exibidos corretamente
+1. [x] Verificar estrutura real dos dados do Mautic em produção ✅ Concluído
+2. [x] Identificar campos corretos para extração de UTMs ✅ Mapeado: details.hit.query.*
+3. [x] Ajustar função `analyzeAcquisition()` com mapeamento correto ✅ Código atualizado
+4. [ ] 🔴 BLOQUEIO: Implementar verificação após INSERT em saveLeadJourneyCache
+5. [ ] Testar com lead mychel@blueconsult.com.br e confirmar persistência no banco
+6. [ ] Validar que dados da Timeline são exibidos corretamente na interface
+
+### Status Atual (25/11/2025 - 13:50)
+**Dados sendo extraídos corretamente:**
+- ✅ utm_source: "email marketing"
+- ✅ utm_medium: "cta"
+- ✅ utm_campaign: "declarar_criptomoedas_imposto_renda_2024"
+- ✅ landing_page: URL completa
+- ✅ referrer: "email"
+
+**Problema crítico:**
+- ❌ Logs mostram "INSERT successful!" mas dados não aparecem no banco
+- ❌ Possível rollback silencioso ou erro após INSERT
+
+**Próxima ação:**
+- [ ] Adicionar verificação SELECT após INSERT para confirmar persistência
+
+- [ ] Corrigir 98 erros TypeScript no snapshotService.ts para permitir build
+
+- [ ] 🚨 CRÍTICO: Restaurar variáveis de ambiente do PM2 (DATABASE_URL, OAUTH_SERVER_URL, etc.)
+
+- [ ] Verificar estrutura do campo mauticData.acquisition no banco de dados
+- [ ] Confirmar compatibilidade de tipo de dado JSON
+
+- [ ] Adicionar campo 'acquisition' ao objeto mauticData antes de salvar no banco

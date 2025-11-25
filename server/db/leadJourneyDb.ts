@@ -207,6 +207,30 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
       });
     
     console.log('[saveLeadJourneyCache] ✅ INSERT successful!');
+    
+    // 🔍 VERIFICAÇÃO: Confirmar se dados foram realmente salvos
+    const saved = await db.select().from(leadJourneyCache)
+      .where(eq(leadJourneyCache.email, data.email)).limit(1);
+    
+    if (saved.length > 0) {
+      console.log('[saveLeadJourneyCache] ✅ VERIFICATION: Data FOUND in database');
+      console.log('[saveLeadJourneyCache] 📊 Saved record ID:', saved[0].id);
+      console.log('[saveLeadJourneyCache] 📊 Saved cachedAt:', saved[0].cachedAt);
+      
+      // Verificar se acquisition foi salvo
+      const acquisition = (saved[0].mauticData as any)?.acquisition;
+      if (acquisition) {
+        console.log('[saveLeadJourneyCache] ✅ acquisition data exists in saved record');
+        console.log('[saveLeadJourneyCache] 📊 firstTouch.utmSource:', acquisition.firstTouch?.utmSource);
+        console.log('[saveLeadJourneyCache] 📊 firstTouch.utmMedium:', acquisition.firstTouch?.utmMedium);
+        console.log('[saveLeadJourneyCache] 📊 firstTouch.utmCampaign:', acquisition.firstTouch?.utmCampaign);
+      } else {
+        console.log('[saveLeadJourneyCache] ❌ acquisition data is NULL or missing in saved record');
+      }
+    } else {
+      console.log('[saveLeadJourneyCache] ❌ VERIFICATION FAILED: Data NOT FOUND in database!');
+      console.log('[saveLeadJourneyCache] ❌ This indicates a rollback or silent failure');
+    }
   } catch (error: any) {
     console.error('[saveLeadJourneyCache] ❌ ERROR occurred!');
     console.error('[saveLeadJourneyCache] Error type:', error?.constructor?.name);

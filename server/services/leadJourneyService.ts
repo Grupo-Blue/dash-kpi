@@ -273,6 +273,13 @@ class LeadJourneyService {
     const videosWatched = mauticData.activities.filter(a => a.event === 'page.videohit').length;
     const pointsGained = mauticData.activities.filter(a => a.event === 'point.gained').length;
 
+    // 🆕 Adicionar acquisition ao mauticData ANTES de salvar
+    const acquisition = this.analyzeAcquisition(mauticData.activities, mauticData.contact);
+    console.log('[getLeadJourney] acquisition result:', JSON.stringify(acquisition, null, 2));
+    
+    // Adicionar acquisition ao mauticData
+    (mauticData as any).acquisition = acquisition;
+
     return {
       mautic: mauticData,
       pipedrive: pipedriveData,
@@ -290,12 +297,8 @@ class LeadJourneyService {
         videosWatched,
         pointsGained,
       },
-      // 🆕 ANÁLISE AVANÇADA
-      acquisition: (() => {
-        const result = this.analyzeAcquisition(mauticData.activities, mauticData.contact);
-        console.log('[getLeadJourney] acquisition result:', JSON.stringify(result, null, 2));
-        return result;
-      })(),
+      // 🆕 ANÁLISE AVANÇADA (já incluído em mauticData.acquisition)
+      acquisition,
       timeline: await this.buildTimeline(mauticData.activities, mauticData.campaigns, mauticData.segments),
       behavior: this.analyzeBehavior(mauticData.activities, mauticData.contact),
       unsubscribe: this.analyzeUnsubscribe(mauticData.activities, mauticData.contact),

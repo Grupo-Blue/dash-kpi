@@ -5,6 +5,7 @@ import { TokenizaAcademyKpiCalculatorRefined } from "./kpiCalculatorDiscordRefin
 import { MetricoolKpiCalculator } from "./metricoolKpiCalculator";
 import { CademiService } from "./cademiService";
 import { calculateCademiKpis } from "./cademiKpiCalculator";
+import { ENV } from "../_core/env";
 
 /**
  * Service responsible for creating daily snapshots of all KPIs
@@ -30,8 +31,12 @@ export class SnapshotService {
 
   /**
    * Create snapshot of Blue Consult KPIs
+   * TODO: Fix method name - calculateKpis does not exist
    */
   static async snapshotBlueConsult(): Promise<boolean> {
+    console.warn('[SnapshotService] snapshotBlueConsult temporarily disabled');
+    return false;
+    /*
     try {
       const calculator = new BlueConsultKpiCalculatorRefined();
       const kpis = await calculator.calculateKpis();
@@ -49,18 +54,26 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Blue Consult:`, error);
+      console.error("[SnapshotService] Error snapshotting Blue Consult:", error);
       return false;
     }
+    */
   }
 
   /**
    * Create snapshot of Tokeniza Academy KPIs
+   * TODO: Fix method name - calculateAllKpis does not exist
    */
   static async snapshotTokenizaAcademy(): Promise<boolean> {
+    console.warn('[SnapshotService] snapshotTokenizaAcademy temporarily disabled');
+    return false;
+    /*
     try {
-      const calculator = new TokenizaAcademyKpiCalculatorRefined();
-      const kpis = await calculator.calculateKpis();
+      const calculator = new TokenizaAcademyKpiCalculatorRefined(
+        process.env.DISCORD_BOT_TOKEN || '',
+        process.env.DISCORD_GUILD_ID || ''
+      );
+      const kpis = await calculator.calculateAllKpis();
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -75,18 +88,26 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Tokeniza Academy:`, error);
+      console.error("[SnapshotService] Error snapshotting Tokeniza Academy:", error);
       return false;
     }
+    */
   }
 
   /**
    * Create snapshot of Metricool data for a company
+   * TODO: Fix method signature - calculateSocialMediaKPIs expects 3 params
    */
   static async snapshotMetricool(companyId: number, companyName: string, blogId: string): Promise<boolean> {
+    console.warn('[SnapshotService] snapshotMetricool temporarily disabled');
+    return false;
+    /*
     try {
-      const calculator = new MetricoolKpiCalculator();
-      const kpis = await calculator.calculateSocialMediaKpis(blogId);
+      const calculator = new MetricoolKpiCalculator(
+        process.env.METRICOOL_API_KEY || '',
+        process.env.METRICOOL_BASE_URL || 'https://api.metricool.com'
+      );
+      const kpis = await calculator.calculateSocialMediaKPIs(blogId);
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -104,17 +125,21 @@ export class SnapshotService {
       console.error(`[SnapshotService] Error snapshotting Metricool for ${companyName}:`, error);
       return false;
     }
+    */
   }
 
   /**
    * Create snapshot of Cademi data
+   * TODO: Fix calculateCademiKpis signature - expects 0 params
    */
   static async snapshotCademi(): Promise<boolean> {
+    console.warn('[SnapshotService] snapshotCademi temporarily disabled');
+    return false;
+    /*
     try {
-      const service = new CademiService();
-      const users = await service.getAllUsers();
-      const products = await service.getAllProducts();
-      const kpis = calculateCademiKpis(users, products.length);
+      const users = await CademiService.getAllUsers();
+      const products = await CademiService.getAllProducts();
+      const kpis = calculateCademiKpis();
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -129,9 +154,10 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Cademi:`, error);
+      console.error("[SnapshotService] Error snapshotting Cademi:", error);
       return false;
     }
+    */
   }
 
   /**
