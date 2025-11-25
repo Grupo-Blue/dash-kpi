@@ -1218,3 +1218,36 @@ Implementar análise profunda da jornada do lead para otimizar estratégias de m
 - [x] Corrigir chamada de syncAll.mutate() → syncAll.mutate({}) (bônus)
 - [x] Testar localmente ✅ Servidor rodando sem erros
 - [x] Deploy para produção ✅ Build + Rsync + PM2 restart concluídos
+
+
+## 🐛 Correção de Campos "Desconhecidos" na Análise Avançada - EM ANDAMENTO
+
+### Objetivo
+Preencher campos que aparecem como "desconhecido" na seção "Origem e Aquisição" da Análise Avançada usando dados disponíveis na Timeline.
+
+### Problema Identificado
+A função `analyzeAcquisition()` em `server/services/leadJourneyService.ts` está tentando extrair dados de `activities.details` e `contact`, mas os campos não existem ou têm nomes diferentes na API do Mautic.
+
+### Campos Afetados
+- [ ] Primeira Interação (First Touch):
+  - [ ] Data ✅ (já funciona)
+  - [ ] UTM Source ❌ (aparece como null)
+  - [ ] UTM Medium ❌ (aparece como null)
+  - [ ] UTM Campaign ❌ (aparece como null)
+  - [ ] UTM Content ❌ (aparece como null)
+  - [ ] UTM Term ❌ (aparece como null)
+  - [ ] Landing Page ❌ (aparece como null)
+  - [ ] Referrer ❌ (aparece como null)
+  - [ ] Device ❌ (aparece como null)
+
+- [ ] Última Interação (Last Touch):
+  - [ ] Data ✅ (já funciona)
+  - [ ] Página ❌ (aparece como null)
+  - [ ] Ação ✅ (já funciona)
+
+### Próximos Passos
+1. [ ] Verificar estrutura real dos dados do Mautic em produção
+2. [ ] Identificar campos corretos para extração de UTMs
+3. [ ] Ajustar função `analyzeAcquisition()` com mapeamento correto
+4. [ ] Testar com lead mychel@blueconsult.com.br
+5. [ ] Validar que dados da Timeline são exibidos corretamente

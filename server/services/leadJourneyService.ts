@@ -337,21 +337,37 @@ class LeadJourneyService {
     // Última interação (last touch)
     const lastActivity = sortedActivities[sortedActivities.length - 1];
 
+    // ✅ Extrair dados com mapeamento correto baseado na estrutura real do Mautic
+    console.log('[analyzeAcquisition] firstPageHit exists?', !!firstPageHit);
+    console.log('[analyzeAcquisition] firstPageHit.details exists?', !!firstPageHit?.details);
+    console.log('[analyzeAcquisition] firstPageHit.details.hit exists?', !!(firstPageHit?.details as any)?.hit);
+    if (firstPageHit?.details) {
+      console.log('[analyzeAcquisition] firstPageHit.details keys:', Object.keys(firstPageHit.details));
+    }
+    
+    const firstHit = (firstPageHit?.details as any)?.hit;
+    const lastHit = (lastActivity?.details as any)?.hit;
+
     return {
       firstTouch: {
         date: firstActivity ? new Date(firstActivity.timestamp) : null,
-        utmSource: (firstPageHit?.details as any)?.utm_source || (contact as any).utm_source || null,
-        utmMedium: (firstPageHit?.details as any)?.utm_medium || (contact as any).utm_medium || null,
-        utmCampaign: (firstPageHit?.details as any)?.utm_campaign || (contact as any).utm_campaign || null,
-        utmContent: (firstPageHit?.details as any)?.utm_content || (contact as any).utm_content || null,
-        utmTerm: (firstPageHit?.details as any)?.utm_term || (contact as any).utm_term || null,
-        landingPage: (firstPageHit?.details as any)?.url || (firstPageHit?.details as any)?.page_url || null,
-        referrer: (firstPageHit?.details as any)?.referer || (firstPageHit?.details as any)?.referrer || null,
-        device: (firstPageHit?.details as any)?.device || null,
+        // UTMs estão em details.hit.query
+        utmSource: firstHit?.query?.utm_source || null,
+        utmMedium: firstHit?.query?.utm_medium || null,
+        utmCampaign: firstHit?.query?.utm_campaign || null,
+        utmContent: firstHit?.query?.utm_content || null,
+        utmTerm: firstHit?.query?.utm_term || null,
+        // Landing page está em details.hit.url ou details.hit.query.page_url
+        landingPage: firstHit?.url || firstHit?.query?.page_url || null,
+        // Referrer está em details.hit.source (ex: "email", "direct", "google")
+        referrer: firstHit?.source || null,
+        // Device está em details.hit.device (ex: "desktop", "mobile", "tablet")
+        device: firstHit?.device || null,
       },
       lastTouch: {
         date: lastActivity ? new Date(lastActivity.timestamp) : null,
-        page: (lastActivity?.details as any)?.url || (lastActivity?.details as any)?.page_url || null,
+        // Página está em details.hit.url ou details.hit.query.page_url
+        page: lastHit?.url || lastHit?.query?.page_url || null,
         action: lastActivity?.event || null,
       },
     };
