@@ -1052,3 +1052,42 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 4. Identificar ponto exato onde acquisition vira undefined
 5. Aplicar correção baseada em evidências (não suposições)
 
+
+
+---
+
+## 🔒 Sprint 1 - Segurança (Remoção de Segredos e Ajustes Críticos) - EM ANDAMENTO
+
+### 1. Remoção de Tokens Hard-coded
+- [x] Identificar todas as chaves de API e tokens fixos no código
+- [x] Remover chave Metricool hard-coded
+- [x] Remover userId codificados em endpoints de debug
+- [x] Remover tokens em rotas de TikTok/brands
+- [x] Substituir por variáveis de ambiente seguras
+- [x] Criar mensagens de erro adequadas quando variáveis ausentes
+
+### 2. Endpoints de Debug Expostos
+- [x] Desativar ou proteger endpoint debugEnv
+- [x] Desativar ou proteger endpoint debugTikTokData
+- [x] Desativar ou proteger endpoint metricoolBrands
+- [x] Implementar flag de debug restrita a administradores
+- [x] Adicionar middleware de proteção para endpoints de debug
+
+### 3. Políticas de Cookies
+- [x] Revisar getSessionCookieOptions
+- [x] Definir sameSite=strict
+- [x] Garantir secure=true sempre
+- [x] Definir domínio explicitamente
+- [x] Evitar vazamento de cookies entre subdomínios
+
+### 4. Logger Seguro
+- [x] Criar sistema de logger com mascaramento
+- [x] Substituir console.log por logger seguro (pontos críticos)
+- [x] Substituir console.error por logger seguro (pontos críticos)
+- [x] Mascarar tokens em logs
+- [x] Mascarar dados de usuários em logs
+- [x] Mascarar métricas sensíveis em logs
+- [x] Implementar níveis de log configuráveis (debug, info, warn, error)
+- [x] Corrigir logs da calculadora Metricool
+- [x] Corrigir logs de erros do TikTok
+- [x] Corrigir logs de assinantes YouTube

@@ -1,7 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, adminProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { getDb } from "./db";
@@ -25,6 +25,7 @@ import { leadJourneyAI } from './services/leadJourneyAI';
 import { authenticateUser, createLocalUser } from './services/localAuth';
 import jwt from 'jsonwebtoken';
 const { sign } = jwt;
+import { logger } from './utils/secureLogger';
 
 export const appRouter = router({
   system: systemRouter,
@@ -365,8 +366,8 @@ export const appRouter = router({
       }
     }),
 
-    // Debug endpoint to check environment variables
-    debugEnv: protectedProcedure.query(async () => {
+    // Debug endpoint to check environment variables (ADMIN ONLY)
+    debugEnv: adminProcedure.query(async () => {
       return {
         hasNiboToken: !!process.env.NIBO_API_TOKEN,
         niboTokenLength: process.env.NIBO_API_TOKEN?.length || 0,
@@ -384,15 +385,14 @@ export const appRouter = router({
         if (!niboToken) {
           throw new Error('[P1-5] NIBO_API_TOKEN not configured in environment variables');
         }
-        console.log('[niboFinancial] Token exists:', !!niboToken);
-        console.log('[niboFinancial] Token source:', process.env.NIBO_API_TOKEN ? 'env' : 'hardcoded');
+        logger.debug('Nibo financial data fetch started', { hasToken: !!niboToken });
         
         if (!niboToken) {
           await trackApiStatus('nibo', false, 'Token não configurado');
           throw new Error('Nibo API não configurada. Configure a integração para visualizar dados financeiros.');
         }
 
-        console.log('[niboFinancial] Creating calculator...');
+        logger.debug('Creating Nibo calculator');
         const calculator = new NiboKpiCalculator(niboToken);
         
         console.log('[niboFinancial] Calculating all KPIs...');
@@ -475,8 +475,8 @@ export const appRouter = router({
         }
       }),
 
-    // DEBUG: Get raw TikTok data
-    debugTikTokData: protectedProcedure
+    // DEBUG: Get raw TikTok data (ADMIN ONLY)
+    debugTikTokData: adminProcedure
       .input(z.object({ 
         blogId: z.string(),
         from: z.string(),
@@ -484,31 +484,37 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         const { MetricoolService } = await import('./services/integrations');
-        const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
+        const metricoolToken = process.env.METRICOOL_API_TOKEN;
+        if (!metricoolToken) {
+          throw new Error('[Security] METRICOOL_API_TOKEN not configured in environment variables');
+        }
         const service = new MetricoolService(metricoolToken);
         const data = await service.getTikTokVideos(input.blogId, input.from, input.to);
         return data;
       }),
 
-    // Get Metricool brands
-    metricoolBrands: protectedProcedure.query(async () => {
-      console.log('[metricoolBrands] Fetching brands...');
+    // Get Metricool brands (ADMIN ONLY)
+    metricoolBrands: adminProcedure.query(async () => {
+      logger.debug('Fetching Metricool brands');
       
       try {
-        const metricoolToken = process.env.METRICOOL_API_TOKEN || 'VQITEACILFXUWPLSIXBRETXOKNUWTETWPIAQPFXLLEMLTKTPNMUNNPIJQUJARARC';
-        const metricoolUserId = process.env.METRICOOL_USER_ID || '3061390';
-        
+        const metricoolToken = process.env.METRICOOL_API_TOKEN;
         if (!metricoolToken) {
-          throw new Error('Metricool API não configurada.');
+          throw new Error('[Security] METRICOOL_API_TOKEN not configured in environment variables');
+        }
+        const metricoolUserId = process.env.METRICOOL_USER_ID;
+        
+        if (!metricoolUserId) {
+          throw new Error('[Security] METRICOOL_USER_ID not configured in environment variables');
         }
 
         const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId);
         const brands = await calculator.getBrands();
         
-        console.log('[metricoolBrands] Brands fetched:', brands.data?.length || 0);
+        logger.info('Metricool brands fetched', { count: brands.data?.length || 0 });
         return brands;
       } catch (error: any) {
-        console.error('[metricoolBrands] ERROR:', error.message);
+        logger.error('Failed to fetch Metricool brands', error);
         throw error;
       }
     }),

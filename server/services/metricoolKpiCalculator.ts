@@ -306,15 +306,13 @@ export class MetricoolKpiCalculator {
       );
 
       // Fetch followers data
-      console.log('[MetricoolKPI] Starting followers fetch...');
-      console.log('[MetricoolKPI] Period:', { from, to });
+      // Note: Detailed logging removed for security (Sprint 1)
       
       const currentDate = to;
       const previousDate = new Date(new Date(from).getTime() - 30 * 24 * 60 * 60 * 1000)
         .toISOString()
         .split('T')[0];
-      
-      console.log('[MetricoolKPI] Dates:', { currentDate, previousDate });
+
 
       const [
         igFollowersCurrent, igFollowersPrevious,
@@ -383,7 +381,7 @@ export class MetricoolKpiCalculator {
           youtubeChannelStats = ytStats; // Save for use in breakdown
           // For previous, we don't have historical data from YouTube API, so use Metricool if available
           ytPrevious = extractLatestValue(ytFollowersPrevious) || ytCurrent;
-          console.log(`[MetricoolKPI] YouTube subscribers from YouTube API: ${ytCurrent}`);
+          // YouTube subscribers fetched successfully
         } else {
           // Fallback to Metricool
           ytCurrent = extractLatestValue(ytFollowersCurrent);
