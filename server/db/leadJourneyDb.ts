@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, lt } from "drizzle-orm";
 import { getDb } from "../db";
 import {
   leadJourneySearches,
@@ -204,11 +204,23 @@ export async function cleanExpiredCache(): Promise<number> {
 
   try {
     const now = new Date();
-    const result = await db
-      .delete(leadJourneyCache)
-      .where(eq(leadJourneyCache.expiresAt, now));
+    
+    // First, count how many rows will be deleted
+    const toDelete = await db
+      .select()
+      .from(leadJourneyCache)
+      .where(lt(leadJourneyCache.expiresAt, now));
+    
+    const count = toDelete.length;
+    
+    if (count > 0) {
+      // Delete expired cache entries (expiresAt < now)
+      await db
+        .delete(leadJourneyCache)
+        .where(lt(leadJourneyCache.expiresAt, now));
+    }
 
-    return 0; // MySQL não retorna quantidade de linhas deletadas facilmente
+    return count;
   } catch (error) {
     console.error("[Database] Failed to clean expired cache:", error);
     return 0;

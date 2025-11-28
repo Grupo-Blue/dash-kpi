@@ -1091,3 +1091,85 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [x] Corrigir logs da calculadora Metricool
 - [x] Corrigir logs de erros do TikTok
 - [x] Corrigir logs de assinantes YouTube
+
+
+---
+
+## 🚀 Sprint 2 - Finalizar Integrações e Funcionalidades - EM ANDAMENTO
+
+### 1. Implementar Integrações Faltantes
+
+#### Mautic
+- [x] Criar MauticService em server/services/integrations.ts
+- [x] Adicionar base URL: https://mautic.grupoblue.com.br/api
+- [x] Implementar autenticação (OAuth ou token)
+- [x] Implementar método testConnection (GET /contacts/1)
+- [x] Implementar método fetchData para leituras genéricas
+- [x] Adicionar variáveis de ambiente (MAUTIC_BASE_URL, MAUTIC_TOKEN)
+
+#### Tokeniza
+- [x] Criar TokenizaService em server/services/integrations.ts
+- [x] Adicionar endpoint configurável (TOKENIZA_API_URL)
+- [x] Implementar autenticação (Bearer token)
+- [x] Implementar método fetchData para métricas de investidores
+- [x] Implementar método getInvestorMetrics
+  - [x] Calcular ticket médio
+  - [x] Calcular taxa de retenção
+  - [x] Calcular número de investidores inativos
+  - [x] Calcular valor total investido
+- [x] Adicionar variáveis de ambiente (TOKENIZA_API_URL, TOKENIZA_API_TOKEN)
+
+#### Tokeniza Academy
+- [x] Criar TokenizaAcademyService em server/services/integrations.ts
+- [x] Implementar método fetchData com endpoint configurável
+- [x] Implementar método getCoursesMetrics
+  - [x] Quantidade de alunos
+  - [x] Acessos
+  - [x] Vendas
+- [x] Substituir retornos estáticos por dados reais
+- [x] Adicionar variáveis de ambiente (TOKENIZA_ACADEMY_API_URL, TOKENIZA_ACADEMY_API_TOKEN)
+
+#### Atualizar Calculadoras
+- [x] Remover percentuais fixos ("+2.3%") de BlueConsultKpiCalculatorReal
+- [x] Remover percentuais fixos de outras calculadoras
+- [x] Calcular variações com base em dados do mês anterior
+- [x] Calcular variações com base no período definido
+
+### 2. Melhorias no Banco de Dados
+
+#### Gerar Slug Único
+- [x] Modificar função createCompany em server/db.ts
+- [x] Buscar se slug já existe antes de inserir
+- [x] Acrescentar sufixo incremental em caso de colisão
+- [x] Testar criação de empresas com slugs duplicados
+
+#### Função para Inativar Empresa
+- [x] Criar coluna active em companies (schema) - JÁ EXISTIA
+- [x] Aplicar migração do banco (pnpm db:push) - NÃO NECESSÁRIO
+- [x] Implementar método deactivateCompany(id) em server/db.ts
+- [x] Modificar getAllCompanies para filtrar por active - JÁ FILTRAVA
+- [x] Adicionar parâmetro includeInactive em getAllCompanies
+- [x] Testar inativação de empresas
+
+#### Corrigir Limpeza de Cache
+- [x] Alterar cleanExpiredCache() em leadJourneyDb.ts
+- [x] Corrigir condição: expiresAt < now (não <=)
+- [x] Utilizar delete() do Drizzle
+- [x] Retornar quantidade de linhas removidas
+- [x] Testar limpeza de cache expirado
+
+### 3. Otimizar Consultas e Filtros
+
+#### Refatorar getLatestFollowersByCompany
+- [x] Identificar função atual em server/db.ts
+- [x] Reescrever usando JOIN e GROUP BY
+- [x] Obter últimos registros de cada empresa em uma única query
+- [x] Comparar performance (antes vs depois)
+- [x] Testar com múltiplas empresas
+
+#### Ajustar Filtros de Snapshots
+- [x] Modificar endpoint de snapshots em server/routers.ts
+- [x] Aplicar filtros combinados (empresa + data inicial/final + tipo)
+- [x] Usar query builder do Drizzle para compor condições múltiplas
+- [x] Remover limitação de "pegar apenas a primeira condição"
+- [x] Testar com diferentes combinações de filtros

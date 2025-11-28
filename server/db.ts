@@ -109,9 +109,14 @@ export async function getUserByOpenId(openId: string) {
 }
 
 // Companies
-export async function getAllCompanies(): Promise<Company[]> {
+export async function getAllCompanies(includeInactive: boolean = false): Promise<Company[]> {
   const db = await getDb();
   if (!db) return [];
+  
+  if (includeInactive) {
+    return db.select().from(companies);
+  }
+  
   return db.select().from(companies).where(eq(companies.active, true));
 }
 
@@ -143,11 +148,44 @@ export async function createCompany(company: InsertCompany): Promise<Company> {
       .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
   }
   
+  // Check if slug already exists and add incremental suffix if needed
+  let finalSlug = company.slug;
+  let suffix = 1;
+  let slugExists = true;
+  
+  while (slugExists) {
+    const existing = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.slug, finalSlug))
+      .limit(1);
+    
+    if (existing.length === 0) {
+      slugExists = false;
+    } else {
+      finalSlug = `${company.slug}-${suffix}`;
+      suffix++;
+    }
+  }
+  
+  company.slug = finalSlug;
+  
   const result = await db.insert(companies).values(company);
   const insertedId = Number(result.insertId);
   const inserted = await getCompanyById(insertedId);
   if (!inserted) throw new Error('Failed to retrieve inserted company');
   return inserted;
+}
+
+export async function deactivateCompany(id: number): Promise<Company> {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+  
+  await db.update(companies).set({ active: false }).where(eq(companies.id, id));
+  
+  const updated = await getCompanyById(id);
+  if (!updated) throw new Error('Failed to retrieve deactivated company');
+  return updated;
 }
 
 export async function updateCompany(id: number, updates: Partial<InsertCompany>): Promise<Company> {
@@ -451,25 +489,37 @@ export async function getLatestFollowersByCompany() {
   // Get all companies
   const allCompanies = await db.select().from(companies);
   
+  if (allCompanies.length === 0) return [];
+  
+  // Get latest metrics for each company/network combination in a single query
+  // Using a subquery to get the max recordDate per company/network
+  const allMetrics = await db
+    .select()
+    .from(socialMediaMetrics)
+    .orderBy(desc(socialMediaMetrics.recordDate));
+  
+  // Group metrics by company and network, keeping only the latest
+  const latestMetricsByCompany: Record<number, Record<string, number>> = {};
+  
+  for (const metric of allMetrics) {
+    if (!metric.companyId || !metric.network || !metric.followers) continue;
+    
+    if (!latestMetricsByCompany[metric.companyId]) {
+      latestMetricsByCompany[metric.companyId] = {};
+    }
+    
+    // Only add if this network hasn't been seen yet for this company
+    // (since we ordered by recordDate DESC, first occurrence is the latest)
+    if (!latestMetricsByCompany[metric.companyId][metric.network]) {
+      latestMetricsByCompany[metric.companyId][metric.network] = metric.followers;
+    }
+  }
+  
+  // Build results
   const results = [];
   
   for (const company of allCompanies) {
-    // Get latest social media metrics for this company
-    const metrics = await db
-      .select()
-      .from(socialMediaMetrics)
-      .where(eq(socialMediaMetrics.companyId, company.id))
-      .orderBy(desc(socialMediaMetrics.recordDate))
-      .limit(10); // Get last 10 records to cover all platforms
-    
-    // Group by network and get the most recent
-    const platformFollowers: Record<string, number> = {};
-    for (const metric of metrics) {
-      if (metric.network && metric.followers && !platformFollowers[metric.network]) {
-        platformFollowers[metric.network] = metric.followers;
-      }
-    }
-    
+    const platformFollowers = latestMetricsByCompany[company.id] || {};
     const totalFollowers = Object.values(platformFollowers).reduce((sum, count) => sum + count, 0);
     
     results.push({

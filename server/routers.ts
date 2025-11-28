@@ -6,7 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
@@ -1142,10 +1142,11 @@ export const appRouter = router({
           conditions.push(eq(kpiSnapshots.kpiType, input.kpiType));
         }
 
+        // Combine all conditions using AND
         const results = await database
           .select()
           .from(kpiSnapshots)
-          .where(conditions.length > 0 ? conditions[0] : undefined)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
           .orderBy(desc(kpiSnapshots.snapshotDate));
 
         // Filter by date range in JavaScript (since we can't easily do date comparison in Drizzle)

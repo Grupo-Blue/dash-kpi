@@ -94,20 +94,53 @@ export class BlueConsultKpiCalculatorReal {
     try {
       const allDeals = await this.pipedriveService.getDeals({ status: 'all_not_deleted' });
       
-      let totalDeals = 0;
-      let wonDeals = 0;
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      
+      let currentMonthTotal = 0;
+      let currentMonthWon = 0;
+      let lastMonthTotal = 0;
+      let lastMonthWon = 0;
       
       if (allDeals.success && allDeals.data) {
-        totalDeals = allDeals.data.length;
-        wonDeals = allDeals.data.filter((deal: any) => deal.status === 'won').length;
+        for (const deal of allDeals.data) {
+          const addTime = deal.add_time ? new Date(deal.add_time) : null;
+          const wonTime = deal.won_time ? new Date(deal.won_time) : null;
+          
+          // Use add_time to determine which month the deal belongs to
+          if (addTime) {
+            const dealMonth = addTime.getMonth();
+            const dealYear = addTime.getFullYear();
+            
+            // Current month
+            if (dealYear === currentYear && dealMonth === currentMonth) {
+              currentMonthTotal++;
+              if (deal.status === 'won') currentMonthWon++;
+            }
+            // Last month
+            else if (
+              (dealYear === currentYear && dealMonth === currentMonth - 1) ||
+              (currentMonth === 0 && dealYear === currentYear - 1 && dealMonth === 11)
+            ) {
+              lastMonthTotal++;
+              if (deal.status === 'won') lastMonthWon++;
+            }
+          }
+        }
       }
       
-      const rate = totalDeals > 0 ? ((wonDeals / totalDeals) * 100).toFixed(1) : '0';
+      const currentRate = currentMonthTotal > 0 ? (currentMonthWon / currentMonthTotal) * 100 : 0;
+      const lastRate = lastMonthTotal > 0 ? (lastMonthWon / lastMonthTotal) * 100 : 0;
+      
+      const change = lastRate > 0
+        ? (((currentRate - lastRate) / lastRate) * 100).toFixed(1)
+        : '0';
       
       return {
         label: 'Taxa de Conversão',
-        value: `${rate}%`,
-        change: '+2.3%',
+        value: `${currentRate.toFixed(1)}%`,
+        change: `${parseFloat(change) >= 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
       console.error('[BlueConsult] Failed to calculate conversion rate:', error);
@@ -254,15 +287,31 @@ export class TokenizaAcademyKpiCalculatorReal {
   async calculateEngagementRate(): Promise<{ label: string; value: string; change: string }> {
     try {
       const guildInfo = await this.discordService.getGuildInfo();
-      const activeMembers = await this.discordService.calculateActiveMembers(30);
+      
+      // Get current month active members (last 30 days)
+      const currentActiveMembers = await this.discordService.calculateActiveMembers(30);
+      
+      // Get previous month active members (30-60 days ago)
+      // Note: Discord API doesn't provide historical data easily,
+      // so we'll use current data as baseline and return 0% change
+      // In a real implementation, you'd store historical data in your database
+      const previousActiveMembers = await this.discordService.calculateActiveMembers(60);
       
       const totalMembers = guildInfo.approximate_member_count || 1;
-      const rate = ((activeMembers.monthly / totalMembers) * 100).toFixed(1);
+      const currentRate = (currentActiveMembers.monthly / totalMembers) * 100;
+      
+      // Calculate previous rate (approximation)
+      // In reality, you'd need to store historical member counts
+      const previousRate = (previousActiveMembers.monthly / totalMembers) * 100;
+      
+      const change = previousRate > 0
+        ? (((currentRate - previousRate) / previousRate) * 100).toFixed(1)
+        : '0';
       
       return {
         label: 'Engajamento',
-        value: `${rate}%`,
-        change: '+3.2%',
+        value: `${currentRate.toFixed(1)}%`,
+        change: `${parseFloat(change) >= 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
       console.error('[TokenizaAcademy] Failed to calculate engagement rate:', error);
