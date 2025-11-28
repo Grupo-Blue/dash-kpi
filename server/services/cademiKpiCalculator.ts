@@ -6,6 +6,7 @@
 
 import { fetchAllUsers, type CademiUser } from './cademiService';
 
+import { logger } from '../utils/logger';
 export interface CademiKpis {
   totalStudents: number;
   studentsVariation: number; // Percentual de variação nas últimas 4 semanas
@@ -115,7 +116,7 @@ function calculateStudentsVariation(users: CademiUser[], now: Date): number {
  * Calcula KPIs da Cademi
  */
 export async function calculateCademiKpis(): Promise<CademiKpis> {
-  console.log('[CademiKPI] Starting KPI calculation...');
+  logger.info('[CademiKPI] Starting KPI calculation...');
   
   try {
     // Busca todos os usuários
@@ -174,13 +175,13 @@ export async function calculateCademiKpis(): Promise<CademiKpis> {
     // Total de cursos (será buscado da API /produto)
     const totalCourses = 0; // Será atualizado no router
 
-    console.log('[CademiKPI] KPIs calculated successfully');
-    console.log(`[CademiKPI] Total students: ${totalStudents}`);
-    console.log(`[CademiKPI] Variation: ${studentsVariation.toFixed(2)}%`);
-    console.log(`[CademiKPI] New students last 30 days: ${newStudentsLast30Days}`);
-    console.log(`[CademiKPI] Access last 30 days: ${accessLast30Days}`);
-    console.log(`[CademiKPI] Never accessed: ${neverAccessed}`);
-    console.log(`[CademiKPI] Top active students: ${activeStudents.length}`);
+    logger.info('[CademiKPI] KPIs calculated successfully');
+    logger.info(`[CademiKPI] Total students: ${totalStudents}`);
+    logger.info(`[CademiKPI] Variation: ${studentsVariation.toFixed(2)}%`);
+    logger.info(`[CademiKPI] New students last 30 days: ${newStudentsLast30Days}`);
+    logger.info(`[CademiKPI] Access last 30 days: ${accessLast30Days}`);
+    logger.info(`[CademiKPI] Never accessed: ${neverAccessed}`);
+    logger.info(`[CademiKPI] Top active students: ${activeStudents.length}`);
 
     return {
       totalStudents,
@@ -193,7 +194,7 @@ export async function calculateCademiKpis(): Promise<CademiKpis> {
       totalCourses,
     };
   } catch (error) {
-    console.error('[CademiKPI] Failed to calculate KPIs:', error);
+    logger.error('[CademiKPI] Failed to calculate KPIs:', error);
     throw error;
   }
 }

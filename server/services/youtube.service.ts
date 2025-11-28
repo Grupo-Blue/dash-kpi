@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 export interface YouTubeChannelStats {
   subscriberCount: number;
   viewCount: number;
@@ -25,14 +27,14 @@ export class YouTubeService {
       const response = await fetch(url);
       
       if (!response.ok) {
-        console.error(`[YouTube] API error: ${response.status} ${response.statusText}`);
+        logger.error(`[YouTube] API error: ${response.status} ${response.statusText}`);
         return null;
       }
 
       const data = await response.json();
 
       if (!data.items || data.items.length === 0) {
-        console.error(`[YouTube] Channel not found: ${channelId}`);
+        logger.error(`[YouTube] Channel not found: ${channelId}`);
         return null;
       }
 
@@ -50,7 +52,7 @@ export class YouTubeService {
         thumbnailUrl: snippet.thumbnails?.high?.url || snippet.thumbnails?.medium?.url || '',
       };
     } catch (error) {
-      console.error('[YouTube] Error fetching channel stats:', error);
+      logger.error('[YouTube] Error fetching channel stats:', error);
       return null;
     }
   }

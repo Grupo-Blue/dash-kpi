@@ -1,5 +1,6 @@
 import { PipedriveService } from './integrations';
 
+import { logger } from '../utils/logger';
 /**
  * Blue Consult KPI Calculator - Refinado para múltiplas pipelines
  * 
@@ -56,7 +57,7 @@ export class BlueConsultKpiCalculatorRefined {
 
       return allDeals;
     } catch (error) {
-      console.error('[BlueConsult] Error fetching all open deals:', error);
+      logger.error('[BlueConsult] Error fetching all open deals:', error);
       return [];
     }
   }
@@ -89,7 +90,7 @@ export class BlueConsultKpiCalculatorRefined {
 
       return allDeals;
     } catch (error) {
-      console.error('[BlueConsult] Error fetching all won deals:', error);
+      logger.error('[BlueConsult] Error fetching all won deals:', error);
       return [];
     }
   }
@@ -149,7 +150,7 @@ export class BlueConsultKpiCalculatorRefined {
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[BlueConsult] Error calculating monthly revenue:', error);
+      logger.error('[BlueConsult] Error calculating monthly revenue:', error);
       throw new Error('Erro ao calcular faturamento mensal');
     }
   }
@@ -189,7 +190,7 @@ export class BlueConsultKpiCalculatorRefined {
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[BlueConsult] Error calculating new clients:', error);
+      logger.error('[BlueConsult] Error calculating new clients:', error);
       throw new Error('Erro ao calcular novos clientes');
     }
   }
@@ -212,7 +213,7 @@ export class BlueConsultKpiCalculatorRefined {
         change: '+0%', // TODO: calcular mudança vs período anterior
       };
     } catch (error) {
-      console.error('[BlueConsult] Error calculating clients in implementation:', error);
+      logger.error('[BlueConsult] Error calculating clients in implementation:', error);
       throw new Error('Erro ao calcular clientes em implantação');
     }
   }
@@ -241,7 +242,7 @@ export class BlueConsultKpiCalculatorRefined {
         change: '+0%', // TODO: calcular mudança vs período anterior
       };
     } catch (error) {
-      console.error('[BlueConsult] Error calculating conversion rate:', error);
+      logger.error('[BlueConsult] Error calculating conversion rate:', error);
       throw new Error('Erro ao calcular taxa de conversão');
     }
   }
@@ -277,7 +278,7 @@ export class BlueConsultKpiCalculatorRefined {
 
       return result;
     } catch (error) {
-      console.error('[BlueConsult] Error calculating revenue time series:', error);
+      logger.error('[BlueConsult] Error calculating revenue time series:', error);
       return [];
     }
   }
@@ -321,7 +322,7 @@ export class BlueConsultKpiCalculatorRefined {
         value: Math.round(data.total),
       }));
     } catch (error) {
-      console.error('[BlueConsult] Error calculating sales funnel:', error);
+      logger.error('[BlueConsult] Error calculating sales funnel:', error);
       return [];
     }
   }
@@ -365,7 +366,7 @@ export class BlueConsultKpiCalculatorRefined {
         value: Math.round(data.total),
       }));
     } catch (error) {
-      console.error('[BlueConsult] Error calculating implementation pipeline:', error);
+      logger.error('[BlueConsult] Error calculating implementation pipeline:', error);
       return [];
     }
   }

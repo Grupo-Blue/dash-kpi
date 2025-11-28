@@ -1,5 +1,6 @@
 import { NiboService } from './integrations';
 
+import { logger } from '../utils/logger';
 /**
  * Calculador de KPIs Financeiros usando dados do Nibo
  * 
@@ -78,7 +79,7 @@ export class NiboKpiCalculator {
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[Nibo] Error calculating accounts receivable:', error);
+      logger.error('[Nibo] Error calculating accounts receivable:', error);
       throw new Error('Erro ao calcular contas a receber');
     }
   }
@@ -119,7 +120,7 @@ export class NiboKpiCalculator {
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[Nibo] Error calculating accounts payable:', error);
+      logger.error('[Nibo] Error calculating accounts payable:', error);
       throw new Error('Erro ao calcular contas a pagar');
     }
   }
@@ -173,7 +174,7 @@ export class NiboKpiCalculator {
         change: `${parseFloat(change) > 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[Nibo] Error calculating cash flow:', error);
+      logger.error('[Nibo] Error calculating cash flow:', error);
       throw new Error('Erro ao calcular fluxo de caixa');
     }
   }
@@ -200,7 +201,7 @@ export class NiboKpiCalculator {
         change: '+0%', // TODO: Implementar comparação com período anterior
       };
     } catch (error) {
-      console.error('[Nibo] Error calculating overdue receivables:', error);
+      logger.error('[Nibo] Error calculating overdue receivables:', error);
       throw new Error('Erro ao calcular contas vencidas a receber');
     }
   }
@@ -240,7 +241,7 @@ export class NiboKpiCalculator {
 
       return result;
     } catch (error) {
-      console.error('[Nibo] Error calculating monthly cash flow chart:', error);
+      logger.error('[Nibo] Error calculating monthly cash flow chart:', error);
       return [];
     }
   }

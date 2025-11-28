@@ -5,6 +5,7 @@
 
 import { PipedriveService, DiscordService } from './integrations';
 
+import { logger } from '../utils/logger';
 // Blue Consult KPIs (using Pipedrive API)
 export class BlueConsultKpiCalculatorReal {
   private pipedriveService: PipedriveService;
@@ -53,7 +54,7 @@ export class BlueConsultKpiCalculatorReal {
         change: `${change}%`,
       };
     } catch (error) {
-      console.error('[BlueConsult] Failed to calculate monthly revenue:', error);
+      logger.error('[BlueConsult] Failed to calculate monthly revenue:', error);
       return {
         label: 'Faturamento Mensal',
         value: 'R$ 0',
@@ -81,7 +82,7 @@ export class BlueConsultKpiCalculatorReal {
         change: '+12%',
       };
     } catch (error) {
-      console.error('[BlueConsult] Failed to calculate active clients:', error);
+      logger.error('[BlueConsult] Failed to calculate active clients:', error);
       return {
         label: 'Clientes Ativos',
         value: '0',
@@ -143,7 +144,7 @@ export class BlueConsultKpiCalculatorReal {
         change: `${parseFloat(change) >= 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[BlueConsult] Failed to calculate conversion rate:', error);
+      logger.error('[BlueConsult] Failed to calculate conversion rate:', error);
       return {
         label: 'Taxa de Conversão',
         value: '0%',
@@ -176,7 +177,7 @@ export class BlueConsultKpiCalculatorReal {
         change: '+8%',
       };
     } catch (error) {
-      console.error('[BlueConsult] Failed to calculate average ticket:', error);
+      logger.error('[BlueConsult] Failed to calculate average ticket:', error);
       return {
         label: 'Ticket Médio',
         value: 'R$ 0',
@@ -217,7 +218,7 @@ export class BlueConsultKpiCalculatorReal {
         revenue: Math.round(revenue / 1000), // Convert to thousands
       }));
     } catch (error) {
-      console.error('[BlueConsult] Failed to get monthly revenue:', error);
+      logger.error('[BlueConsult] Failed to get monthly revenue:', error);
       return [];
     }
   }
@@ -249,7 +250,7 @@ export class BlueConsultKpiCalculatorReal {
       
       return Object.entries(stageCount).map(([stage, count]) => ({ stage, count }));
     } catch (error) {
-      console.error('[BlueConsult] Failed to get pipeline data:', error);
+      logger.error('[BlueConsult] Failed to get pipeline data:', error);
       return [];
     }
   }
@@ -275,7 +276,7 @@ export class TokenizaAcademyKpiCalculatorReal {
         change: '+5%',
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Failed to calculate total members:', error);
+      logger.error('[TokenizaAcademy] Failed to calculate total members:', error);
       return {
         label: 'Membros Discord',
         value: '0',
@@ -314,7 +315,7 @@ export class TokenizaAcademyKpiCalculatorReal {
         change: `${parseFloat(change) >= 0 ? '+' : ''}${change}%`,
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Failed to calculate engagement rate:', error);
+      logger.error('[TokenizaAcademy] Failed to calculate engagement rate:', error);
       return {
         label: 'Engajamento',
         value: '0%',
@@ -327,7 +328,7 @@ export class TokenizaAcademyKpiCalculatorReal {
     try {
       return await this.discordService.calculateActiveMembers(30);
     } catch (error) {
-      console.error('[TokenizaAcademy] Failed to get active members:', error);
+      logger.error('[TokenizaAcademy] Failed to get active members:', error);
       return { daily: 0, weekly: 0, monthly: 0 };
     }
   }
@@ -346,13 +347,13 @@ export class TokenizaAcademyKpiCalculatorReal {
             messages: messages.length,
           });
         } catch (err) {
-          console.error(`Failed to get messages for channel ${channel.name}:`, err);
+          logger.error(`Failed to get messages for channel ${channel.name}:`, err);
         }
       }
       
       return activity.sort((a, b) => b.messages - a.messages);
     } catch (error) {
-      console.error('[TokenizaAcademy] Failed to get channel activity:', error);
+      logger.error('[TokenizaAcademy] Failed to get channel activity:', error);
       return [];
     }
   }

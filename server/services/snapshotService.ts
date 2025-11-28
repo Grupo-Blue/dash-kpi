@@ -6,6 +6,7 @@ import { MetricoolKpiCalculator } from "./metricoolKpiCalculator";
 import { CademiService } from "./cademiService";
 import { calculateCademiKpis } from "./cademiKpiCalculator";
 
+import { logger } from '../utils/logger';
 /**
  * Service responsible for creating daily snapshots of all KPIs
  * Stores data in database for historical queries
@@ -14,16 +15,16 @@ export class SnapshotService {
   private static async saveSnapshot(snapshot: InsertKpiSnapshot) {
     const db = await getDb();
     if (!db) {
-      console.error("[SnapshotService] Database not available");
+      logger.error("[SnapshotService] Database not available");
       return false;
     }
 
     try {
       await db.insert(kpiSnapshots).values(snapshot);
-      console.log(`[SnapshotService] Saved snapshot: ${snapshot.kpiType} for company ${snapshot.companyId || 'global'}`);
+      logger.info(`[SnapshotService] Saved snapshot: ${snapshot.kpiType} for company ${snapshot.companyId || 'global'}`);
       return true;
     } catch (error) {
-      console.error(`[SnapshotService] Error saving snapshot:`, error);
+      logger.error(`[SnapshotService] Error saving snapshot:`, error);
       return false;
     }
   }
@@ -49,7 +50,7 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Blue Consult:`, error);
+      logger.error(`[SnapshotService] Error snapshotting Blue Consult:`, error);
       return false;
     }
   }
@@ -75,7 +76,7 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Tokeniza Academy:`, error);
+      logger.error(`[SnapshotService] Error snapshotting Tokeniza Academy:`, error);
       return false;
     }
   }
@@ -101,7 +102,7 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Metricool for ${companyName}:`, error);
+      logger.error(`[SnapshotService] Error snapshotting Metricool for ${companyName}:`, error);
       return false;
     }
   }
@@ -129,7 +130,7 @@ export class SnapshotService {
 
       return await this.saveSnapshot(snapshot);
     } catch (error) {
-      console.error(`[SnapshotService] Error snapshotting Cademi:`, error);
+      logger.error(`[SnapshotService] Error snapshotting Cademi:`, error);
       return false;
     }
   }
@@ -139,7 +140,7 @@ export class SnapshotService {
    * This is the main function that should be called by the daily job
    */
   static async executeAllSnapshots(): Promise<{ success: number; failed: number }> {
-    console.log('[SnapshotService] Starting daily snapshot execution...');
+    logger.info('[SnapshotService] Starting daily snapshot execution...');
     
     let success = 0;
     let failed = 0;
@@ -153,28 +154,28 @@ export class SnapshotService {
     ];
 
     // Blue Consult consolidated KPIs
-    console.log('[SnapshotService] Processing Blue Consult...');
+    logger.info('[SnapshotService] Processing Blue Consult...');
     const blueConsultResult = await this.snapshotBlueConsult();
     blueConsultResult ? success++ : failed++;
 
     // Tokeniza Academy consolidated KPIs
-    console.log('[SnapshotService] Processing Tokeniza Academy...');
+    logger.info('[SnapshotService] Processing Tokeniza Academy...');
     const tokenizaAcademyResult = await this.snapshotTokenizaAcademy();
     tokenizaAcademyResult ? success++ : failed++;
 
     // Metricool data for all companies
     for (const company of metricoolCompanies) {
-      console.log(`[SnapshotService] Processing Metricool for ${company.name}...`);
+      logger.info(`[SnapshotService] Processing Metricool for ${company.name}...`);
       const result = await this.snapshotMetricool(company.id, company.name, company.blogId);
       result ? success++ : failed++;
     }
 
     // Cademi data (Tokeniza Academy only)
-    console.log('[SnapshotService] Processing Cademi...');
+    logger.info('[SnapshotService] Processing Cademi...');
     const cademiResult = await this.snapshotCademi();
     cademiResult ? success++ : failed++;
 
-    console.log(`[SnapshotService] Snapshot execution completed. Success: ${success}, Failed: ${failed}`);
+    logger.info(`[SnapshotService] Snapshot execution completed. Success: ${success}, Failed: ${failed}`);
     return { success, failed };
   }
 }

@@ -27,6 +27,7 @@ import jwt from 'jsonwebtoken';
 const { sign } = jwt;
 import { logger } from './utils/secureLogger';
 
+import { logger } from './utils/logger';
 export const appRouter = router({
   system: systemRouter,
   
@@ -333,7 +334,7 @@ export const appRouter = router({
     // Cademi Courses KPIs (Tokeniza Academy)
     cademiCourses: protectedProcedure.query(async () => {
       const startTime = Date.now();
-      console.log('[cademiCourses] Starting query...');
+      logger.info('[cademiCourses] Starting query...');
       
       try {
         const cademiApiKey = process.env.CADEMI_API_KEY;
@@ -354,14 +355,14 @@ export const appRouter = router({
         await trackApiStatus('cademi', true);
         
         const duration = Date.now() - startTime;
-        console.log(`[cademiCourses] KPIs calculated successfully in ${duration}ms`);
-        console.log(`[cademiCourses] Total courses: ${kpis.totalCourses}`);
+        logger.info(`[cademiCourses] KPIs calculated successfully in ${duration}ms`);
+        logger.info(`[cademiCourses] Total courses: ${kpis.totalCourses}`);
         
         return kpis;
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         await trackApiStatus('cademi', false, errorMessage);
-        console.error('[cademiCourses] Error:', error);
+        logger.error('[cademiCourses] Error:', error);
         throw error;
       }
     }),
@@ -377,7 +378,7 @@ export const appRouter = router({
     
     // Nibo Financial KPIs
     niboFinancial: protectedProcedure.query(async () => {
-      console.log('[niboFinancial] Iniciando query...');
+      logger.info('[niboFinancial] Iniciando query...');
       
       try {
         // TEMPORARY: Hard-coded token for debugging
@@ -395,7 +396,7 @@ export const appRouter = router({
         logger.debug('Creating Nibo calculator');
         const calculator = new NiboKpiCalculator(niboToken);
         
-        console.log('[niboFinancial] Calculating all KPIs...');
+        logger.info('[niboFinancial] Calculating all KPIs...');
         const kpis = {
           summary: await Promise.all([
             calculator.calculateAccountsReceivable(),
@@ -405,16 +406,16 @@ export const appRouter = router({
           ]),
           monthlyCashFlow: await calculator.calculateMonthlyCashFlowChart(),
         };
-        console.log('[niboFinancial] All KPIs calculated successfully');
+        logger.info('[niboFinancial] All KPIs calculated successfully');
         
         // Track successful API call
         await trackApiStatus('nibo', true);
         
-        console.log('[niboFinancial] Returning kpis...');
+        logger.info('[niboFinancial] Returning kpis...');
         return kpis;
       } catch (error: any) {
-        console.error('[niboFinancial] ERROR:', error.message);
-        console.error('[niboFinancial] Stack:', error.stack);
+        logger.error('[niboFinancial] ERROR:', error.message);
+        logger.error('[niboFinancial] Stack:', error.stack);
         await trackApiStatus('nibo', false, error.message);
         throw error;
       }
@@ -428,7 +429,7 @@ export const appRouter = router({
         to: z.string().optional(),
       }))
       .query(async ({ input }) => {
-        console.log('[metricoolSocialMedia] Iniciando query...', input);
+        logger.info('[metricoolSocialMedia] Iniciando query...', input);
         
         try {
           // Use token from env or hardcoded fallback
@@ -439,15 +440,15 @@ export const appRouter = router({
             throw new Error('[P1-5] METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured in environment variables');
           }
           
-          console.log('[metricoolSocialMedia] Token exists:', !!metricoolToken);
-          console.log('[metricoolSocialMedia] User ID:', metricoolUserId);
+          logger.info('[metricoolSocialMedia] Token exists:', !!metricoolToken);
+          logger.info('[metricoolSocialMedia] User ID:', metricoolUserId);
           
           if (!metricoolToken) {
             await trackApiStatus('metricool', false, 'Token não configurado');
             throw new Error('Metricool API não configurada. Configure a integração para visualizar métricas de redes sociais.');
           }
 
-          console.log('[metricoolSocialMedia] Creating calculator...');
+          logger.info('[metricoolSocialMedia] Creating calculator...');
           const youtubeApiKey = process.env.YOUTUBE_API_KEY;
           if (!youtubeApiKey) {
             throw new Error('[P1-5] YOUTUBE_API_KEY not configured in environment variables');
@@ -458,18 +459,18 @@ export const appRouter = router({
           const to = input.to || new Date().toISOString().split('T')[0];
           const from = input.from || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
           
-          console.log('[metricoolSocialMedia] Calculating KPIs for period:', from, 'to', to);
+          logger.info('[metricoolSocialMedia] Calculating KPIs for period:', from, 'to', to);
           const kpis = await calculator.calculateSocialMediaKPIs(input.blogId, from, to);
           
-          console.log('[metricoolSocialMedia] KPIs calculated successfully');
+          logger.info('[metricoolSocialMedia] KPIs calculated successfully');
           
           // Track successful API call
           await trackApiStatus('metricool', true);
           
           return kpis;
         } catch (error: any) {
-          console.error('[metricoolSocialMedia] ERROR:', error.message);
-          console.error('[metricoolSocialMedia] Stack:', error.stack);
+          logger.error('[metricoolSocialMedia] ERROR:', error.message);
+          logger.error('[metricoolSocialMedia] Stack:', error.stack);
           await trackApiStatus('metricool', false, error.message);
           throw error;
         }
@@ -556,7 +557,7 @@ export const appRouter = router({
           createdBy: ctx.user.id,
         });
         
-        console.log('[socialMediaMetrics] Saved manual metrics for company:', input.companyId, 'network:', input.network);
+        logger.info('[socialMediaMetrics] Saved manual metrics for company:', input.companyId, 'network:', input.network);
         return { success: true };
       }),
 
@@ -568,7 +569,7 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         const latest = await db.getLatestSocialMediaMetric(input.companyId, input.network);
-        console.log('[socialMediaMetrics] Fetched latest for company:', input.companyId, 'network:', input.network, 'found:', !!latest);
+        logger.info('[socialMediaMetrics] Fetched latest for company:', input.companyId, 'network:', input.network, 'found:', !!latest);
         return latest;
       }),
 
@@ -581,7 +582,7 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         const history = await db.getSocialMediaMetricsHistory(input.companyId, input.network, input.limit);
-        console.log('[socialMediaMetrics] Fetched history for company:', input.companyId, 'network:', input.network, 'records:', history.length);
+        logger.info('[socialMediaMetrics] Fetched history for company:', input.companyId, 'network:', input.network, 'records:', history.length);
         return history;
       }),
 
@@ -589,7 +590,7 @@ export const appRouter = router({
     getAll: protectedProcedure
       .query(async () => {
         const allMetrics = await db.getAllSocialMediaMetrics();
-        console.log('[socialMediaMetrics] Fetched all records:', allMetrics.length);
+        logger.info('[socialMediaMetrics] Fetched all records:', allMetrics.length);
         return allMetrics;
       }),
 
@@ -610,7 +611,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         await db.updateSocialMediaMetric(input);
-        console.log('[socialMediaMetrics] Updated record:', input.id);
+        logger.info('[socialMediaMetrics] Updated record:', input.id);
         return { success: true };
       }),
 
@@ -621,7 +622,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         await db.deleteSocialMediaMetric(input.id);
-        console.log('[socialMediaMetrics] Deleted record:', input.id);
+        logger.info('[socialMediaMetrics] Deleted record:', input.id);
         return { success: true };
       }),
   }),
@@ -656,7 +657,7 @@ export const appRouter = router({
           createdBy: ctx.user.id,
         });
         
-        console.log('[tiktokMetrics] Saved manual metrics for company:', input.companyId);
+        logger.info('[tiktokMetrics] Saved manual metrics for company:', input.companyId);
         return { success: true };
       }),
 
@@ -668,7 +669,7 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         const history = await db.getTikTokMetricsHistory(input.companyId, input.limit);
-        console.log('[tiktokMetrics] Fetched history for company:', input.companyId, 'records:', history.length);
+        logger.info('[tiktokMetrics] Fetched history for company:', input.companyId, 'records:', history.length);
         return history;
       }),
 
@@ -679,7 +680,7 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         const latest = await db.getLatestTikTokMetric(input.companyId);
-        console.log('[tiktokMetrics] Fetched latest for company:', input.companyId, 'found:', !!latest);
+        logger.info('[tiktokMetrics] Fetched latest for company:', input.companyId, 'found:', !!latest);
         return latest;
       }),
 
@@ -687,7 +688,7 @@ export const appRouter = router({
     getAll: protectedProcedure
       .query(async () => {
         const allMetrics = await db.getAllTikTokMetrics();
-        console.log('[tiktokMetrics] Fetched all records:', allMetrics.length);
+        logger.info('[tiktokMetrics] Fetched all records:', allMetrics.length);
         return allMetrics;
       }),
 
@@ -706,7 +707,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         await db.updateTikTokMetric(input);
-        console.log('[tiktokMetrics] Updated record:', input.id);
+        logger.info('[tiktokMetrics] Updated record:', input.id);
         return { success: true };
       }),
 
@@ -717,7 +718,7 @@ export const appRouter = router({
       }))
       .mutation(async ({ input }) => {
         await db.deleteTikTokMetric(input.id);
-        console.log('[tiktokMetrics] Deleted record:', input.id);
+        logger.info('[tiktokMetrics] Deleted record:', input.id);
         return { success: true };
       }),
   }),
@@ -732,7 +733,7 @@ export const appRouter = router({
         semester: z.number().min(1).max(2).optional(),
       }).optional().default({ type: 'current_month' }))
       .query(async ({ ctx, input }) => {
-      console.log('[consolidatedKpis] Starting overview calculation...');
+      logger.info('[consolidatedKpis] Starting overview calculation...');
       
       try {
         // Use Promise.allSettled to get data even if some APIs fail
@@ -755,10 +756,10 @@ export const appRouter = router({
                 ]),
                 revenueTimeSeries: await calculator.calculateRevenueTimeSeries(),
               };
-              console.log('[consolidatedKpis] Blue Consult KPIs calculated');
+              logger.info('[consolidatedKpis] Blue Consult KPIs calculated');
               return kpis;
             } catch (error) {
-              console.error('[consolidatedKpis] Error calculating Blue Consult KPIs:', error);
+              logger.error('[consolidatedKpis] Error calculating Blue Consult KPIs:', error);
               return null;
             }
           })(),
@@ -780,10 +781,10 @@ export const appRouter = router({
                   calculator.calculateCashFlow(),
                 ]),
               };
-              console.log('[consolidatedKpis] Nibo KPIs calculated');
+              logger.info('[consolidatedKpis] Nibo KPIs calculated');
               return kpis;
             } catch (error) {
-              console.error('[consolidatedKpis] Error calculating Nibo KPIs:', error);
+              logger.error('[consolidatedKpis] Error calculating Nibo KPIs:', error);
               return null;
             }
           })(),
@@ -804,10 +805,10 @@ export const appRouter = router({
                   calculator.calculateOnlineMembers(),
                 ]),
               };
-              console.log('[consolidatedKpis] Tokeniza Academy KPIs calculated');
+              logger.info('[consolidatedKpis] Tokeniza Academy KPIs calculated');
               return kpis;
             } catch (error) {
-              console.error('[consolidatedKpis] Error calculating Tokeniza Academy KPIs:', error);
+              logger.error('[consolidatedKpis] Error calculating Tokeniza Academy KPIs:', error);
               return null;
             }
           })(),
@@ -864,10 +865,10 @@ export const appRouter = router({
               
               const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
               const kpis = await calculator.calculateSocialMediaKPIs(blogId, from, to);
-              console.log(`[consolidatedKpis] ${name} Metricool KPIs calculated`);
+              logger.info(`[consolidatedKpis] ${name} Metricool KPIs calculated`);
               return { name, kpis };
             } catch (error) {
-              console.error(`[consolidatedKpis] Error calculating ${name} Metricool KPIs:`, error);
+              logger.error(`[consolidatedKpis] Error calculating ${name} Metricool KPIs:`, error);
               return { name, kpis: { totalPosts: 0, totalInteractions: 0, totalReach: 0, totalImpressions: 0, averageEngagement: 0, followers: {} } };
             }
           })),
@@ -892,7 +893,7 @@ export const appRouter = router({
         const totalImpressions = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.totalImpressions || 0), 0);
         const averageEngagement = socialMediaKpis.reduce((sum, { kpis }) => sum + (kpis.averageEngagement || 0), 0) / socialMediaKpis.length;
         
-        console.log('[consolidatedKpis] Overview calculated successfully');
+        logger.info('[consolidatedKpis] Overview calculated successfully');
         
         // Extract values from summary arrays
         const monthlyRevenue = blueConsultKpis?.summary?.[0];
@@ -988,7 +989,7 @@ export const appRouter = router({
           },
         };
       } catch (error) {
-        console.error('[consolidatedKpis] Error calculating overview:', error);
+        logger.error('[consolidatedKpis] Error calculating overview:', error);
         throw error;
       }
     }),
@@ -1099,7 +1100,7 @@ export const appRouter = router({
             context: context.substring(0, 200) + '...', // Return truncated context for debugging
           };
         } catch (error) {
-          console.error('[Chat] Error processing question:', error);
+          logger.error('[Chat] Error processing question:', error);
           throw new Error(`Erro ao processar pergunta: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }),
@@ -1115,7 +1116,7 @@ export const appRouter = router({
           ...result,
         };
       } catch (error) {
-        console.error('[snapshots.executeManual] Error:', error);
+        logger.error('[snapshots.executeManual] Error:', error);
         throw new Error('Failed to execute snapshot');
       }
     }),

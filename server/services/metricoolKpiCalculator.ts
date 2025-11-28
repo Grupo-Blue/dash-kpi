@@ -3,6 +3,7 @@ import { YouTubeService } from './youtube.service';
 import { getCompanyByBlogId } from '../config/companies';
 import * as db from '../db';
 
+import { logger } from '../utils/logger';
 export interface SocialMediaKPIs {
   totalPosts: number;
   totalInteractions: number;
@@ -146,7 +147,7 @@ export class MetricoolKpiCalculator {
       // Identify company and connected networks
       const company = getCompanyByBlogId(blogId);
       const connectedNetworks = company?.connectedNetworks || [];
-      console.log(`[MetricoolKPI] Company: ${company?.name}, Connected networks:`, connectedNetworks);
+      logger.info(`[MetricoolKPI] Company: ${company?.name}, Connected networks:`, connectedNetworks);
       
       // Helper to check if network is connected
       const isConnected = (network: string) => connectedNetworks.includes(network.toLowerCase());
@@ -173,7 +174,7 @@ export class MetricoolKpiCalculator {
         isConnected('facebook') ? this.metricoolService.getFacebookReels(blogId, from, to).catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         // TikTok
         isConnected('tiktok') ? this.metricoolService.getTikTokVideos(blogId, from, to).catch((error) => {
-          console.log('[MetricoolKPI] TikTok Error:', error.message || error);
+          logger.info('[MetricoolKPI] TikTok Error:', error.message || error);
           return { data: [] };
         }) : Promise.resolve({ data: [] }),
         // YouTube
@@ -205,7 +206,7 @@ export class MetricoolKpiCalculator {
           }
         }
       } catch (error) {
-        console.error('[MetricoolKPI] Error fetching manual TikTok data:', error);
+        logger.error('[MetricoolKPI] Error fetching manual TikTok data:', error);
       }
 
       // Manual TikTok data loaded successfully if available
@@ -405,7 +406,7 @@ export class MetricoolKpiCalculator {
             db.getLatestSocialMediaMetric(companyData.id, 'threads'),
           ]);
         } catch (error) {
-          console.error('[MetricoolKPI] Error fetching manual social media data:', error);
+          logger.error('[MetricoolKPI] Error fetching manual social media data:', error);
         }
       }
       
@@ -577,7 +578,7 @@ export class MetricoolKpiCalculator {
         },
       };
     } catch (error) {
-      console.error('[MetricoolKpiCalculator] Error calculating KPIs:', error);
+      logger.error('[MetricoolKpiCalculator] Error calculating KPIs:', error);
       throw error;
     }
   }

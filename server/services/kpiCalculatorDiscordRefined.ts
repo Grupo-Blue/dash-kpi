@@ -1,5 +1,6 @@
 import { DiscordService } from './integrations';
 
+import { logger } from '../utils/logger';
 /**
  * Tokeniza Academy KPI Calculator - Refinado com dados reais do Discord
  */
@@ -24,7 +25,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         change: '', // Pode adicionar comparação temporal se armazenar histórico
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating total members:', error);
+      logger.error('[TokenizaAcademy] Error calculating total members:', error);
       return { label: 'Total de Membros', value: '0', change: '' };
     }
   }
@@ -45,7 +46,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         change: `${onlinePercentage}% do total`,
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating online members:', error);
+      logger.error('[TokenizaAcademy] Error calculating online members:', error);
       return { label: 'Membros Online', value: '0', change: '' };
     }
   }
@@ -63,7 +64,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         change: '', // Pode adicionar comparação com semana anterior
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating new members (7 days):', error);
+      logger.error('[TokenizaAcademy] Error calculating new members (7 days):', error);
       return { label: 'Novos Membros (7 dias)', value: '0', change: '' };
     }
   }
@@ -81,7 +82,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         change: '', // Pode adicionar comparação com mês anterior
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating new members (30 days):', error);
+      logger.error('[TokenizaAcademy] Error calculating new members (30 days):', error);
       return { label: 'Novos Membros (30 dias)', value: '0', change: '' };
     }
   }
@@ -101,7 +102,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         value: `${rate}%`,
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating activity rate:', error);
+      logger.error('[TokenizaAcademy] Error calculating activity rate:', error);
       return { label: 'Taxa de Atividade', value: '0%' };
     }
   }
@@ -118,7 +119,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         value: `${channelStats.total} (${channelStats.text} texto, ${channelStats.voice} voz)`,
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating total channels:', error);
+      logger.error('[TokenizaAcademy] Error calculating total channels:', error);
       return { label: 'Total de Canais', value: '0' };
     }
   }
@@ -135,7 +136,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         bots: stats.bots,
       };
     } catch (error) {
-      console.error('[TokenizaAcademy] Error calculating member distribution:', error);
+      logger.error('[TokenizaAcademy] Error calculating member distribution:', error);
       return { humans: 0, bots: 0 };
     }
   }
@@ -162,7 +163,7 @@ export class TokenizaAcademyKpiCalculatorRefined {
         { type: 'Bots', count: stats.bots },
       ];
     } catch (error) {
-      console.error('[TokenizaAcademy] Error getting member type distribution:', error);
+      logger.error('[TokenizaAcademy] Error getting member type distribution:', error);
       return [];
     }
   }

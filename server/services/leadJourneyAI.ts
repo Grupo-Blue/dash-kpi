@@ -1,6 +1,7 @@
 import { invokeLLM } from '../_core/llm';
 import { LeadJourneyData } from './leadJourneyService';
 
+import { logger } from '../utils/logger';
 /**
  * Serviço de análise por IA da jornada de leads
  * Usa LLM para gerar insights e recomendações
@@ -31,7 +32,7 @@ export class LeadJourneyAI {
       const analysis = response.choices[0].message.content;
       return analysis || 'Não foi possível gerar análise.';
     } catch (error: any) {
-      console.error('[LeadJourneyAI] Error analyzing lead journey:', error.message);
+      logger.error('[LeadJourneyAI] Error analyzing lead journey:', error.message);
       return 'Erro ao gerar análise por IA.';
     }
   }

@@ -1,5 +1,6 @@
 import { desc, eq, lt } from "drizzle-orm";
 import { getDb } from "../db";
+import { logger } from '../utils/logger';
 import {
   leadJourneySearches,
   leadJourneyCache,
@@ -15,14 +16,14 @@ import {
 export async function saveLeadJourneySearch(data: InsertLeadJourneySearch): Promise<void> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot save lead journey search: database not available");
+    logger.warn("[Database] Cannot save lead journey search: database not available");
     return;
   }
 
   try {
     await db.insert(leadJourneySearches).values(data);
   } catch (error) {
-    console.error("[Database] Failed to save lead journey search:", error);
+    logger.error("[Database] Failed to save lead journey search:", error);
     throw error;
   }
 }
@@ -33,7 +34,7 @@ export async function saveLeadJourneySearch(data: InsertLeadJourneySearch): Prom
 export async function getLeadJourneyHistory(userId: number, limit: number = 50): Promise<LeadJourneySearch[]> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get lead journey history: database not available");
+    logger.warn("[Database] Cannot get lead journey history: database not available");
     return [];
   }
 
@@ -47,7 +48,7 @@ export async function getLeadJourneyHistory(userId: number, limit: number = 50):
 
     return results;
   } catch (error) {
-    console.error("[Database] Failed to get lead journey history:", error);
+    logger.error("[Database] Failed to get lead journey history:", error);
     return [];
   }
 }
@@ -58,7 +59,7 @@ export async function getLeadJourneyHistory(userId: number, limit: number = 50):
 export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCache | null> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get lead journey cache: database not available");
+    logger.warn("[Database] Cannot get lead journey cache: database not available");
     return null;
   }
 
@@ -88,7 +89,7 @@ export async function getLeadJourneyCache(email: string): Promise<LeadJourneyCac
     if (typeof cache.pipedriveData === "string") cache.pipedriveData = JSON.parse(cache.pipedriveData);
     return cache;
   } catch (error) {
-    console.error("[Database] Failed to get lead journey cache:", error);
+    logger.error("[Database] Failed to get lead journey cache:", error);
     return null;
   }
 }
@@ -129,12 +130,12 @@ function normalizeDates(obj: any): any {
 export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promise<void> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot save lead journey cache: database not available");
+    logger.warn("[Database] Cannot save lead journey cache: database not available");
     return;
   }
 
   try {
-    console.log('[DEBUG] Saving cache with data:', {
+    logger.info('[DEBUG] Saving cache with data:', {
       email: data.email,
       cachedAt: data.cachedAt,
       cachedAtType: typeof data.cachedAt,
@@ -147,15 +148,15 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
     const normalizedPipedrive = normalizeDates(data.pipedriveData);
     
     // [BUG INVESTIGATION] Log detalhado antes do JSON.stringify
-    console.log('[DEBUG] normalizedMautic keys:', Object.keys(normalizedMautic));
-    console.log('[DEBUG] normalizedMautic.acquisition:', normalizedMautic.acquisition);
-    console.log('[DEBUG] normalizedMautic.acquisition type:', typeof normalizedMautic.acquisition);
+    logger.info('[DEBUG] normalizedMautic keys:', Object.keys(normalizedMautic));
+    logger.info('[DEBUG] normalizedMautic.acquisition:', normalizedMautic.acquisition);
+    logger.info('[DEBUG] normalizedMautic.acquisition type:', typeof normalizedMautic.acquisition);
     
     const mauticDataStringified = JSON.stringify(normalizedMautic);
     const pipedriveDataStringified = JSON.stringify(normalizedPipedrive);
     
-    console.log('[DEBUG] mauticDataStringified includes "acquisition":', mauticDataStringified.includes('"acquisition"'));
-    console.log('[DEBUG] mauticDataStringified length:', mauticDataStringified.length);
+    logger.info('[DEBUG] mauticDataStringified includes "acquisition":', mauticDataStringified.includes('"acquisition"'));
+    logger.info('[DEBUG] mauticDataStringified length:', mauticDataStringified.length);
     
     const normalizedData = {
       email: data.email,
@@ -180,7 +181,7 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
         },
       });
   } catch (error: any) {
-    console.error("[Database] Failed to save lead journey cache:", {
+    logger.error("[Database] Failed to save lead journey cache:", {
       message: error.message,
       code: error.code,
       errno: error.errno,
@@ -198,7 +199,7 @@ export async function saveLeadJourneyCache(data: InsertLeadJourneyCache): Promis
 export async function cleanExpiredCache(): Promise<number> {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot clean expired cache: database not available");
+    logger.warn("[Database] Cannot clean expired cache: database not available");
     return 0;
   }
 
@@ -222,7 +223,7 @@ export async function cleanExpiredCache(): Promise<number> {
 
     return count;
   } catch (error) {
-    console.error("[Database] Failed to clean expired cache:", error);
+    logger.error("[Database] Failed to clean expired cache:", error);
     return 0;
   }
 }

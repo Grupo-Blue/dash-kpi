@@ -23,6 +23,7 @@ import {
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
+import { logger } from './utils/logger';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
@@ -30,7 +31,7 @@ export async function getDb() {
     try {
       _db = drizzle(process.env.DATABASE_URL);
     } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
+      logger.warn("[Database] Failed to connect:", error);
       _db = null;
     }
   }
@@ -44,7 +45,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
+    logger.warn("[Database] Cannot upsert user: database not available");
     return;
   }
 
@@ -91,7 +92,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       set: updateSet,
     });
   } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
+    logger.error("[Database] Failed to upsert user:", error);
     throw error;
   }
 }
@@ -99,7 +100,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
+    logger.warn("[Database] Cannot get user: database not available");
     return undefined;
   }
 
@@ -387,7 +388,7 @@ export async function deleteSocialMediaMetric(id: number) {
 
 // Get all TikTok metrics (for admin)
 export async function getAllTikTokMetrics() {
-  console.log('[DB] getAllTikTokMetrics called');
+  logger.info('[DB] getAllTikTokMetrics called');
   const db = await getDb();
   if (!db) return [];
   
@@ -410,7 +411,7 @@ export async function updateTikTokMetric(data: {
   totalShares: number | null;
   notes: string | null;
 }) {
-  console.log('[DB] updateTikTokMetric called for id:', data.id);
+  logger.info('[DB] updateTikTokMetric called for id:', data.id);
   const db = await getDb();
   if (!db) throw new Error('Database not available');
   
@@ -432,7 +433,7 @@ export async function updateTikTokMetric(data: {
 
 // Get all social media metrics (for admin)
 export async function getAllSocialMediaMetrics() {
-  console.log('[DB] getAllSocialMediaMetrics called');
+  logger.info('[DB] getAllSocialMediaMetrics called');
   const db = await getDb();
   if (!db) return [];
   
@@ -457,7 +458,7 @@ export async function updateSocialMediaMetric(data: {
   totalImpressions: number | null;
   notes: string | null;
 }) {
-  console.log('[DB] updateSocialMediaMetric called for id:', data.id);
+  logger.info('[DB] updateSocialMediaMetric called for id:', data.id);
   const db = await getDb();
   if (!db) throw new Error('Database not available');
   
@@ -482,7 +483,7 @@ export async function updateSocialMediaMetric(data: {
 
 // Get latest followers count for each company/platform
 export async function getLatestFollowersByCompany() {
-  console.log('[DB] getLatestFollowersByCompany called');
+  logger.info('[DB] getLatestFollowersByCompany called');
   const db = await getDb();
   if (!db) return [];
   

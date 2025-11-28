@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { ENV } from '../_core/env';
 
+import { logger } from '../utils/logger';
 /**
  * Serviço de integração com Mautic API
  * 
@@ -141,7 +142,7 @@ class MauticService {
       const contactId = Object.keys(contacts)[0];
       return contacts[contactId];
     } catch (error: any) {
-      console.error('[Mautic] Error searching contact by email:', error.response?.data || error.message);
+      logger.error('[Mautic] Error searching contact by email:', error.response?.data || error.message);
       throw new Error(`Failed to search contact: ${error.message}`);
     }
   }
@@ -154,7 +155,7 @@ class MauticService {
       const response = await this.client.get(`/api/contacts/${contactId}`);
       return response.data.contact;
     } catch (error: any) {
-      console.error('[Mautic] Error getting contact:', error.response?.data || error.message);
+      logger.error('[Mautic] Error getting contact:', error.response?.data || error.message);
       throw new Error(`Failed to get contact: ${error.message}`);
     }
   }
@@ -210,7 +211,7 @@ class MauticService {
 
       return response.data;
     } catch (error: any) {
-      console.error('[Mautic] Error getting contact activity:', error.response?.data || error.message);
+      logger.error('[Mautic] Error getting contact activity:', error.response?.data || error.message);
       throw new Error(`Failed to get contact activity: ${error.message}`);
     }
   }
@@ -265,7 +266,7 @@ class MauticService {
 
       return Object.values(campaigns);
     } catch (error: any) {
-      console.error('[Mautic] Error getting contact campaigns:', error.response?.data || error.message);
+      logger.error('[Mautic] Error getting contact campaigns:', error.response?.data || error.message);
       throw new Error(`Failed to get contact campaigns: ${error.message}`);
     }
   }
@@ -284,7 +285,7 @@ class MauticService {
 
       return Object.values(segments);
     } catch (error: any) {
-      console.error('[Mautic] Error getting contact segments:', error.response?.data || error.message);
+      logger.error('[Mautic] Error getting contact segments:', error.response?.data || error.message);
       throw new Error(`Failed to get contact segments: ${error.message}`);
     }
   }
@@ -319,7 +320,7 @@ class MauticService {
         segments,
       };
     } catch (error: any) {
-      console.error('[Mautic] Error getting lead journey:', error.message);
+      logger.error('[Mautic] Error getting lead journey:', error.message);
       throw error;
     }
   }

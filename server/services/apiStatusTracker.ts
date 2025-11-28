@@ -2,6 +2,7 @@ import { getDb } from '../db';
 import * as schema from '../../drizzle/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
+import { logger } from '../utils/logger';
 /**
  * Helper function to track API status
  * @param apiName - Name of the API (pipedrive, discord, nibo, metricool)
@@ -15,7 +16,7 @@ export async function trackApiStatus(
 ) {
   const database = await getDb();
   if (!database) {
-    console.warn('[trackApiStatus] Database not available');
+    logger.warn('[trackApiStatus] Database not available');
     return;
   }
 
@@ -26,9 +27,9 @@ export async function trackApiStatus(
       lastChecked: new Date(),
       errorMessage: errorMessage || null,
     });
-    console.log(`[trackApiStatus] Tracked ${apiName}: ${success ? 'online' : 'offline'}`);
+    logger.info(`[trackApiStatus] Tracked ${apiName}: ${success ? 'online' : 'offline'}`);
   } catch (error) {
-    console.error(`[trackApiStatus] Failed to track ${apiName}:`, error);
+    logger.error(`[trackApiStatus] Failed to track ${apiName}:`, error);
   }
 }
 
@@ -44,7 +45,7 @@ export class ApiStatusTracker {
   ) {
     const db = await getDb();
     if (!db) {
-      console.warn('[ApiStatusTracker] Database not available');
+      logger.warn('[ApiStatusTracker] Database not available');
       return;
     }
 
@@ -59,7 +60,7 @@ export class ApiStatusTracker {
         lastChecked: new Date(),
       });
     } catch (error) {
-      console.error(`[ApiStatusTracker] Failed to record success for ${apiName}:`, error);
+      logger.error(`[ApiStatusTracker] Failed to record success for ${apiName}:`, error);
     }
   }
 
@@ -74,7 +75,7 @@ export class ApiStatusTracker {
   ) {
     const db = await getDb();
     if (!db) {
-      console.warn('[ApiStatusTracker] Database not available');
+      logger.warn('[ApiStatusTracker] Database not available');
       return;
     }
 
@@ -89,7 +90,7 @@ export class ApiStatusTracker {
         lastChecked: new Date(),
       });
     } catch (error) {
-      console.error(`[ApiStatusTracker] Failed to record failure for ${apiName}:`, error);
+      logger.error(`[ApiStatusTracker] Failed to record failure for ${apiName}:`, error);
     }
   }
 
@@ -99,7 +100,7 @@ export class ApiStatusTracker {
   static async getLatestStatus(apiName: string, companyId?: number) {
     const db = await getDb();
     if (!db) {
-      console.warn('[ApiStatusTracker] Database not available');
+      logger.warn('[ApiStatusTracker] Database not available');
       return null;
     }
 
@@ -117,7 +118,7 @@ export class ApiStatusTracker {
 
       return result[0] || null;
     } catch (error) {
-      console.error(`[ApiStatusTracker] Failed to get latest status for ${apiName}:`, error);
+      logger.error(`[ApiStatusTracker] Failed to get latest status for ${apiName}:`, error);
       return null;
     }
   }
@@ -143,7 +144,7 @@ export class ApiStatusTracker {
 
       return statuses;
     } catch (error) {
-      console.error('[ApiStatusTracker] Failed to get all statuses:', error);
+      logger.error('[ApiStatusTracker] Failed to get all statuses:', error);
       return [];
     }
   }

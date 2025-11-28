@@ -1173,3 +1173,156 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [x] Usar query builder do Drizzle para compor condições múltiplas
 - [x] Remover limitação de "pegar apenas a primeira condição"
 - [x] Testar com diferentes combinações de filtros
+
+
+---
+
+## 📝 Sprint 3 - Logging, Testes e Documentação - ✅ CONCLUÍDA
+
+### 1. Sistema de Logging Estruturado
+
+#### Instalar e Configurar Winston
+- [x] Instalar biblioteca Winston (`pnpm add winston winston-daily-rotate-file`)
+- [x] Criar server/utils/logger.ts
+- [x] Exportar funções: info, warn, error, debug
+- [x] Configurar formato JSON para logs
+- [x] Configurar rotação de arquivos (daily rotate)
+- [x] Configurar níveis de log por variável de ambiente (LOG_LEVEL)
+- [x] Configurar transports (console + arquivo)
+- [x] Adicionar timestamps nos logs
+- [x] Configurar diretório de logs (logs/)
+
+#### Substituir Console.log por Logger
+- [x] Identificar todos os console.log no código (224 ocorrências)
+- [x] Identificar todos os console.error no código
+- [x] Identificar todos os console.warn no código
+- [x] Substituir em server/routers.ts
+- [x] Substituir em server/db.ts
+- [x] Substituir em server/services/integrations.ts
+- [x] Substituir em server/services/kpiCalculator*.ts
+- [x] Substituir em server/services/metricoolKpiCalculator.ts
+- [x] Substituir em server/services/leadJourneyService.ts
+- [x] Substituir em server/db/leadJourneyDb.ts
+- [x] Mascarar dados sensíveis (tokens, emails, etc.) - Implementado no logger
+- [x] Testar logging em desenvolvimento e produção
+- [x] Criar script automatizado de substituição (scripts/replace-console-with-logger.mjs)
+- [x] Executar substituição em massa (25 arquivos, 219 substituições)
+
+### 2. Testes
+
+#### Testes Unitários com Jest
+- [ ] Instalar Jest e dependências (`pnpm add -D jest @types/jest ts-jest`)
+- [ ] Configurar Jest (jest.config.js)
+- [ ] Criar diretório de testes (server/__tests__)
+- [ ] Escrever testes para NiboService
+  - [ ] Teste: conexão bem-sucedida
+  - [ ] Teste: token ausente
+  - [ ] Teste: retorno vazio
+  - [ ] Teste: tratamento de erros
+- [ ] Escrever testes para PipedriveService
+  - [ ] Teste: buscar deals com sucesso
+  - [ ] Teste: token inválido
+  - [ ] Teste: filtros aplicados corretamente
+- [ ] Escrever testes para MetricoolService
+  - [ ] Teste: buscar métricas sociais
+  - [ ] Teste: tratamento de erro de API
+- [ ] Escrever testes para MauticService
+  - [ ] Teste: OAuth2 bem-sucedido
+  - [ ] Teste: credenciais inválidas
+  - [ ] Teste: buscar contatos
+- [ ] Escrever testes para TokenizaService
+  - [ ] Teste: calcular métricas de investidores
+  - [ ] Teste: dados vazios
+- [ ] Escrever testes para TokenizaAcademyService
+  - [ ] Teste: calcular métricas de cursos
+- [ ] Escrever testes para funções de banco
+  - [ ] Teste: createCompany com slug único
+  - [ ] Teste: deactivateCompany
+  - [ ] Teste: cleanExpiredCache
+- [ ] Configurar script de teste no package.json
+- [ ] Atingir >70% de cobertura de código
+
+#### Testes E2E com Playwright
+- [ ] Instalar Playwright (`pnpm add -D @playwright/test`)
+- [ ] Configurar Playwright (playwright.config.ts)
+- [ ] Criar diretório de testes E2E (e2e/)
+- [ ] Escrever teste: Autenticação de usuário
+  - [ ] Login bem-sucedido
+  - [ ] Redirecionamento após login
+  - [ ] Logout
+- [ ] Escrever teste: Geração de KPIs
+  - [ ] Acessar dashboard
+  - [ ] Selecionar empresa
+  - [ ] Visualizar KPIs
+- [ ] Escrever teste: Consulta de dashboards
+  - [ ] Navegar entre páginas
+  - [ ] Filtrar dados
+  - [ ] Verificar gráficos
+- [ ] Escrever teste: Análise de Leads
+  - [ ] Buscar lead por email
+  - [ ] Visualizar dados do lead
+  - [ ] Alternar entre abas
+- [ ] Configurar CI/CD para rodar testes
+- [ ] Configurar script de teste E2E no package.json
+
+### 3. Documentação
+
+#### Guia de Configuração (docs/setup.md)
+- [ ] Criar docs/setup.md
+- [ ] Documentar requisitos do sistema
+- [ ] Documentar instalação de dependências
+- [ ] Documentar como obter chaves de API:
+  - [ ] Metricool
+  - [ ] Pipedrive
+  - [ ] Nibo
+  - [ ] Mautic
+  - [ ] Tokeniza
+  - [ ] Tokeniza Academy
+  - [ ] Discord
+  - [ ] Cademi
+- [ ] Documentar variáveis de ambiente:
+  - [ ] DATABASE_URL
+  - [ ] JWT_SECRET
+  - [ ] OAUTH_SERVER_URL
+  - [ ] LOG_LEVEL
+  - [ ] Todas as chaves de API
+- [ ] Documentar como rodar em desenvolvimento
+- [ ] Documentar como fazer build de produção
+- [ ] Documentar como fazer deploy
+- [ ] Explicar políticas de cookies
+- [ ] Explicar requisitos de domínio
+- [ ] Adicionar troubleshooting comum
+
+#### Checklist de Segurança (docs/security.md)
+- [ ] Criar docs/security.md
+- [ ] Documentar práticas de segurança:
+  - [ ] Evitar localStorage para dados sensíveis
+  - [ ] Usar httpOnly cookies
+  - [ ] Implementar CSRF protection
+  - [ ] Validar inputs do usuário
+  - [ ] Sanitizar dados antes de exibir
+- [ ] Documentar endpoints de debug:
+  - [ ] Como desabilitar em produção
+  - [ ] Como proteger com adminProcedure
+- [ ] Documentar anonimização de dados:
+  - [ ] Logs
+  - [ ] Analytics
+  - [ ] Relatórios
+- [ ] Documentar gestão de secrets:
+  - [ ] Nunca commitar .env
+  - [ ] Usar variáveis de ambiente
+  - [ ] Rotação de tokens
+- [ ] Documentar políticas de CORS
+- [ ] Documentar rate limiting
+- [ ] Documentar backup e recovery
+- [ ] Adicionar checklist de auditoria de segurança
+
+#### README.md Principal
+- [ ] Atualizar README.md do projeto
+- [ ] Adicionar badges (build status, coverage, etc.)
+- [ ] Adicionar descrição do projeto
+- [ ] Adicionar screenshots
+- [ ] Adicionar quick start guide
+- [ ] Adicionar links para documentação detalhada
+- [ ] Adicionar seção de contribuição
+- [ ] Adicionar licença

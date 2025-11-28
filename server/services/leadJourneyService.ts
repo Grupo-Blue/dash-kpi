@@ -1,6 +1,7 @@
 import { mauticService, MauticContact, MauticActivityEvent, MauticCampaign, MauticSegment } from './mauticService';
 import { PipedriveService } from './integrations';
 import { ENV } from '../_core/env';
+import { logger } from '../utils/logger';
 import {
   getLeadJourneyCache,
   saveLeadJourneyCache,
@@ -57,13 +58,13 @@ class LeadJourneyService {
    * Buscar jornada completa de um lead por e-mail
    */
   async getLeadJourney(email: string, userId: number, useCache: boolean = true): Promise<LeadJourneyData | null> {
-    console.log(`[LeadJourney] Starting getLeadJourney for ${email}, useCache=${useCache}`);
+    logger.info(`[LeadJourney] Starting getLeadJourney for ${email}, useCache=${useCache}`);
     try {
       // 1. Verificar cache (se habilitado)
       if (useCache) {
         const cached = await getLeadJourneyCache(email);
         if (cached && cached.mauticData && cached.pipedriveData) {
-          console.log('[LeadJourney] Using cached data');
+          logger.info('[LeadJourney] Using cached data');
           return this.buildLeadJourneyData(
             cached.mauticData as any,
             cached.pipedriveData as any
@@ -72,11 +73,11 @@ class LeadJourneyService {
       }
 
       // 2. Buscar dados do Mautic
-      console.log('[LeadJourney] Fetching Mautic data for:', email);
+      logger.info('[LeadJourney] Fetching Mautic data for:', email);
       const mauticData = await mauticService.getLeadJourney(email);
 
       if (!mauticData) {
-        console.log('[LeadJourney] Lead not found in Mautic');
+        logger.info('[LeadJourney] Lead not found in Mautic');
         return null;
       }
 
@@ -86,7 +87,7 @@ class LeadJourneyService {
       };
 
       // 3. Buscar dados do Pipedrive
-      console.log('[LeadJourney] Fetching Pipedrive data for:', email);
+      logger.info('[LeadJourney] Fetching Pipedrive data for:', email);
       const pipedriveData = await this.getPipedriveDataByEmail(email);
 
       // 4. Construir dados completos
@@ -96,11 +97,11 @@ class LeadJourneyService {
       const now = new Date();
       const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 horas
 
-      console.log('[DEBUG] About to save cache:');
-      console.log('[DEBUG] - mauticDataWithAcquisition type:', typeof mauticDataWithAcquisition);
-      console.log('[DEBUG] - mauticDataWithAcquisition keys:', Object.keys(mauticDataWithAcquisition || {}).slice(0, 10));
-      console.log('[DEBUG] - has acquisition?', !!mauticDataWithAcquisition?.acquisition);
-      console.log('[DEBUG] - pipedriveData type:', typeof pipedriveData);
+      logger.info('[DEBUG] About to save cache:');
+      logger.info('[DEBUG] - mauticDataWithAcquisition type:', typeof mauticDataWithAcquisition);
+      logger.info('[DEBUG] - mauticDataWithAcquisition keys:', Object.keys(mauticDataWithAcquisition || {}).slice(0, 10));
+      logger.info('[DEBUG] - has acquisition?', !!mauticDataWithAcquisition?.acquisition);
+      logger.info('[DEBUG] - pipedriveData type:', typeof pipedriveData);
 
       await saveLeadJourneyCache({
         email,
@@ -129,7 +130,7 @@ class LeadJourneyService {
 
       return journeyData;
     } catch (error: any) {
-      console.error('[LeadJourney] Error getting lead journey:', error.message);
+      logger.error('[LeadJourney] Error getting lead journey:', error.message);
       throw error;
     }
   }
@@ -169,7 +170,7 @@ class LeadJourneyService {
         wonDeal,
       };
     } catch (error: any) {
-      console.error('[LeadJourney] Error getting Pipedrive data:', error.message);
+      logger.error('[LeadJourney] Error getting Pipedrive data:', error.message);
       return {
         person: null,
         deals: [],
@@ -194,7 +195,7 @@ class LeadJourneyService {
         const params = new URLSearchParams(query);
         query = Object.fromEntries(params.entries());
       } catch (error) {
-        console.warn('[analyzeAcquisition] Failed to parse query string:', query);
+        logger.warn('[analyzeAcquisition] Failed to parse query string:', query);
         query = null;
       }
     }

@@ -1,3 +1,5 @@
+import { logger } from './logger';
+
 /**
  * P3-8: Padronizar tipagem de retorno e erros
  * 
@@ -15,9 +17,9 @@
  * 
  * const result = doSomething();
  * if (result.success) {
- *   console.log(result.data);
+ *   logger.info(result.data);
  * } else {
- *   console.error(result.error);
+ *   logger.error(result.error);
  * }
  */
 

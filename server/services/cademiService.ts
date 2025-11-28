@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 /**
  * Cademi API Service
  * 
@@ -111,14 +113,14 @@ async function cademiRequest<T>(endpoint: string): Promise<T> {
 
     if (!response.ok) {
       const text = await response.text();
-      console.error(`[Cademi] HTTP ${response.status}: ${text}`);
+      logger.error(`[Cademi] HTTP ${response.status}: ${text}`);
       throw new Error(`Cademi API error: ${response.status}`);
     }
 
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
       const text = await response.text();
-      console.error('[Cademi] Non-JSON response:', text.substring(0, 200));
+      logger.error('[Cademi] Non-JSON response:', text.substring(0, 200));
       throw new Error('Cademi API returned non-JSON response');
     }
 
@@ -130,7 +132,7 @@ async function cademiRequest<T>(endpoint: string): Promise<T> {
 
     return data.data;
   } catch (error) {
-    console.error('[Cademi] Request failed:', error);
+    logger.error('[Cademi] Request failed:', error);
     throw error;
   }
 }
@@ -200,10 +202,10 @@ export async function fetchAllUsers(): Promise<CademiUser[]> {
       }
     } while (cursor && pageCount < MAX_PAGES);
 
-    console.log(`[Cademi] Fetched ${allUsers.length} users in ${pageCount} pages`);
+    logger.info(`[Cademi] Fetched ${allUsers.length} users in ${pageCount} pages`);
     return allUsers;
   } catch (error) {
-    console.error('[Cademi] Failed to fetch all users:', error);
+    logger.error('[Cademi] Failed to fetch all users:', error);
     throw error;
   }
 }

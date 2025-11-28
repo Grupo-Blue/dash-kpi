@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 /**
  * Integration services for external APIs
  * Each service handles authentication and data fetching from external sources
@@ -28,7 +30,7 @@ export class NiboService implements IntegrationService {
       );
       return response.ok;
     } catch (error) {
-      console.error('Nibo connection test failed:', error);
+      logger.error('Nibo connection test failed:', error);
       return false;
     }
   }
@@ -60,7 +62,7 @@ export class NiboService implements IntegrationService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Nibo data fetch failed:', error);
+      logger.error('Nibo data fetch failed:', error);
       throw error;
     }
   }
@@ -113,7 +115,7 @@ export class NiboService implements IntegrationService {
 
       return await response.json();
     } catch (error) {
-      console.error('Nibo budget fetch failed:', error);
+      logger.error('Nibo budget fetch failed:', error);
       throw error;
     }
   }
@@ -169,7 +171,7 @@ export class MauticService implements IntegrationService {
       const data = await response.json();
       return data.access_token;
     } catch (error) {
-      console.error('Mautic OAuth error:', error);
+      logger.error('Mautic OAuth error:', error);
       throw error;
     }
   }
@@ -189,7 +191,7 @@ export class MauticService implements IntegrationService {
       // 200 OK or 404 Not Found are both valid (means API is working)
       return response.ok || response.status === 404;
     } catch (error) {
-      console.error('Mautic connection test failed:', error);
+      logger.error('Mautic connection test failed:', error);
       return false;
     }
   }
@@ -241,7 +243,7 @@ export class MauticService implements IntegrationService {
 
       return await response.json();
     } catch (error) {
-      console.error('Mautic data fetch failed:', error);
+      logger.error('Mautic data fetch failed:', error);
       throw error;
     }
   }
@@ -311,7 +313,7 @@ export class PipedriveService implements IntegrationService {
       const response = await fetch(`${this.baseUrl}/users/me?api_token=${this.apiKey}`);
       return response.ok;
     } catch (error) {
-      console.error('Pipedrive connection test failed:', error);
+      logger.error('Pipedrive connection test failed:', error);
       return false;
     }
   }
@@ -345,7 +347,7 @@ export class PipedriveService implements IntegrationService {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error('Pipedrive data fetch failed:', error);
+      logger.error('Pipedrive data fetch failed:', error);
       throw error;
     }
   }
@@ -418,7 +420,7 @@ export class MetricoolService implements IntegrationService {
     const queryString = queryParts.length > 0 ? `?${queryParts.join('&')}` : '';
     const url = `${this.baseUrl}${endpoint}${queryString}`;
 
-    console.log('[Metricool] Making request:', url);
+    logger.info('[Metricool] Making request:', url);
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -427,16 +429,16 @@ export class MetricoolService implements IntegrationService {
       },
     });
 
-    console.log('[Metricool] Response status:', response.status, response.statusText);
+    logger.info('[Metricool] Response status:', response.status, response.statusText);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Metricool] Error response:', errorText);
+      logger.error('[Metricool] Error response:', errorText);
       throw new Error(`Metricool API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    console.log('[Metricool] Response data sample:', JSON.stringify(data).substring(0, 200));
+    logger.info('[Metricool] Response data sample:', JSON.stringify(data).substring(0, 200));
     return data;
   }
 
@@ -445,7 +447,7 @@ export class MetricoolService implements IntegrationService {
       const brands = await this.getBrands();
       return brands && brands.data && brands.data.length > 0;
     } catch (error) {
-      console.error('[Metricool] Connection test failed:', error);
+      logger.error('[Metricool] Connection test failed:', error);
       return false;
     }
   }
@@ -616,7 +618,7 @@ export class DiscordService implements IntegrationService {
       });
       return response.ok;
     } catch (error) {
-      console.error('[Discord] Connection test failed:', error);
+      logger.error('[Discord] Connection test failed:', error);
       return false;
     }
   }
@@ -634,7 +636,7 @@ export class DiscordService implements IntegrationService {
       }
       return await response.json();
     } catch (error) {
-      console.error('[Discord] Data fetch failed:', error);
+      logger.error('[Discord] Data fetch failed:', error);
       throw error;
     }
   }
@@ -672,7 +674,7 @@ export class DiscordService implements IntegrationService {
       
       return newMembers.length;
     } catch (error) {
-      console.error(`[Discord] Error getting new members (${days} days):`, error);
+      logger.error(`[Discord] Error getting new members (${days} days):`, error);
       return 0;
     }
   }
@@ -692,7 +694,7 @@ export class DiscordService implements IntegrationService {
         bots: bots.length,
       };
     } catch (error) {
-      console.error('[Discord] Error getting member stats:', error);
+      logger.error('[Discord] Error getting member stats:', error);
       return { total: 0, online: 0, humans: 0, bots: 0 };
     }
   }
@@ -709,7 +711,7 @@ export class DiscordService implements IntegrationService {
         voice: voiceChannels.length,
       };
     } catch (error) {
-      console.error('[Discord] Error getting channel stats:', error);
+      logger.error('[Discord] Error getting channel stats:', error);
       return { total: 0, text: 0, voice: 0 };
     }
   }
@@ -742,7 +744,7 @@ export class DiscordService implements IntegrationService {
             if (msgTime >= oneMonthAgo) activeUsersMonthly.add(authorId);
           }
         } catch (err) {
-          console.error(`Error fetching messages from channel ${channel.id}:`, err);
+          logger.error(`Error fetching messages from channel ${channel.id}:`, err);
         }
       }
       
@@ -752,7 +754,7 @@ export class DiscordService implements IntegrationService {
         monthly: activeUsersMonthly.size,
       };
     } catch (error) {
-      console.error('[Discord] Failed to calculate active members:', error);
+      logger.error('[Discord] Failed to calculate active members:', error);
       throw error;
     }
   }
@@ -780,7 +782,7 @@ export class TokenizaService implements IntegrationService {
       });
       return response.ok;
     } catch (error) {
-      console.error('Tokeniza connection test failed:', error);
+      logger.error('Tokeniza connection test failed:', error);
       return false;
     }
   }
@@ -831,7 +833,7 @@ export class TokenizaService implements IntegrationService {
 
       return await response.json();
     } catch (error) {
-      console.error('Tokeniza data fetch failed:', error);
+      logger.error('Tokeniza data fetch failed:', error);
       throw error;
     }
   }
@@ -928,7 +930,7 @@ export class TokenizaService implements IntegrationService {
         totalInvestments: investments.length,
       };
     } catch (error) {
-      console.error('Failed to calculate investor metrics:', error);
+      logger.error('Failed to calculate investor metrics:', error);
       throw error;
     }
   }
@@ -956,7 +958,7 @@ export class TokenizaAcademyService implements IntegrationService {
       });
       return response.ok;
     } catch (error) {
-      console.error('Tokeniza Academy connection test failed:', error);
+      logger.error('Tokeniza Academy connection test failed:', error);
       return false;
     }
   }
@@ -1007,7 +1009,7 @@ export class TokenizaAcademyService implements IntegrationService {
 
       return await response.json();
     } catch (error) {
-      console.error('Tokeniza Academy data fetch failed:', error);
+      logger.error('Tokeniza Academy data fetch failed:', error);
       throw error;
     }
   }
@@ -1148,7 +1150,7 @@ export class TokenizaAcademyService implements IntegrationService {
         studentsPerCourse,
       };
     } catch (error) {
-      console.error('Failed to calculate courses metrics:', error);
+      logger.error('Failed to calculate courses metrics:', error);
       throw error;
     }
   }
