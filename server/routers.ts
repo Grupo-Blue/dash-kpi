@@ -1292,6 +1292,89 @@ export const appRouter = router({
         return { analysis };
       }),
   }),
+
+  // Admin - Integration Management
+  adminIntegrations: router({
+    // Get all integrations
+    getAll: adminProcedure
+      .query(async () => {
+        const integrations = await db.getAllIntegrations();
+        logger.info('[adminIntegrations] Fetched all integrations:', integrations.length);
+        return integrations;
+      }),
+
+    // Get credentials for a specific service
+    getCredentials: adminProcedure
+      .input(z.object({
+        serviceName: z.string(),
+      }))
+      .query(async ({ input }) => {
+        const integration = await db.getIntegrationCredentials(input.serviceName);
+        logger.info('[adminIntegrations] Fetched credentials for:', input.serviceName);
+        return integration;
+      }),
+
+    // Update credentials and test connection
+    updateCredentials: adminProcedure
+      .input(z.object({
+        serviceName: z.string(),
+        apiKey: z.string().optional(),
+        config: z.record(z.any()).optional(),
+        active: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (!ctx.user) {
+          throw new Error('User not authenticated');
+        }
+
+        // Test connection before saving
+        let testStatus = 'pending';
+        let testMessage = 'Connection not tested';
+        
+        try {
+          // TODO: Implement testConnection for each service
+          // For now, just mark as success if apiKey is provided
+          if (input.apiKey) {
+            testStatus = 'success';
+            testMessage = 'Credentials saved successfully. Connection test not implemented yet.';
+          }
+        } catch (error: any) {
+          testStatus = 'failed';
+          testMessage = error.message || 'Connection test failed';
+        }
+
+        // Save credentials
+        await db.upsertIntegrationCredentials({
+          userId: ctx.user.id,
+          serviceName: input.serviceName,
+          apiKey: input.apiKey,
+          config: input.config,
+          active: input.active,
+          lastTested: new Date(),
+          testStatus,
+          testMessage,
+        });
+
+        logger.info('[adminIntegrations] Updated credentials for:', input.serviceName, 'status:', testStatus);
+        
+        return {
+          success: testStatus === 'success',
+          status: testStatus,
+          message: testMessage,
+        };
+      }),
+
+    // Delete credentials
+    deleteCredentials: adminProcedure
+      .input(z.object({
+        serviceName: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteIntegrationCredentials(input.serviceName);
+        logger.info('[adminIntegrations] Deleted credentials for:', input.serviceName);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

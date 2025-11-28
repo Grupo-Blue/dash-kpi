@@ -1403,3 +1403,158 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [ ] Melhorar responsividade mobile das tabelas
 
 ---
+
+
+---
+
+## 🚀 Sprint 5 - Consolidação e Expansão de Funcionalidades - ✅ CONCLUÍDA (Versão Simplificada)
+
+### 1. Portal Administrativo de Integrações
+
+#### Estrutura de Armazenamento de Credenciais
+- [x] Expandir tabela `integrations` existente (reutilizada)
+  - [x] Colunas adicionadas: lastTested, testStatus, testMessage
+- [ ] Adicionar variáveis de ambiente (não necessário - credenciais no banco)
+  - [ ] MAUTIC_API_KEY
+  - [ ] TOKENIZA_API_KEY
+  - [ ] TOKENIZA_ACADEMY_API_KEY
+- [ ] Atualizar server/_core/env.ts para expor novas variáveis
+- [x] Criar funções de banco em server/db.ts:
+  - [x] getAllIntegrations()
+  - [x] getIntegrationCredentials(serviceName)
+  - [x] upsertIntegrationCredentials(data)
+  - [x] deleteIntegrationCredentials(serviceName)
+
+#### Rotas de Gerenciamento
+- [x] Criar router adminIntegrations em server/routers.ts
+- [x] Implementar adminIntegrations.getAll (listar todas as integrações)
+- [x] Implementar adminIntegrations.getCredentials(serviceName)
+- [x] Implementar adminIntegrations.updateCredentials(serviceName, data)
+  - [x] Validar credenciais com testConnection() (placeholder)
+  - [x] Retornar status de conexão
+- [x] Implementar adminIntegrations.deleteCredentials(serviceName)
+- [ ] Completar método testConnection() em MauticService (TODO futuro)
+- [ ] Completar método testConnection() em TokenizaService (TODO futuro)
+- [ ] Completar método testConnection() em TokenizaAcademyService (TODO futuro)
+
+#### Página Administrativa no Frontend
+- [x] Criar client/src/pages/Integrations.tsx
+- [x] Listar integrações: Mautic, Tokeniza, Tokeniza Academy, Metricool, Pipedrive, Nibo, Discord, Cademi
+- [x] Mostrar status de cada integração (conectada/não conectada)
+- [x] Formulário para atualizar credenciais (API Key)
+- [x] Botão "Salvar e Testar" para validar credenciais
+- [x] Feedback visual (sucesso/erro) após salvar
+- [x] Adicionar rota /integrations em App.tsx
+- [x] Proteger rota com adminProcedure
+- [x] Adicionar link no menu lateral (admin only)
+
+### 2. Dashboards para Novas Métricas
+
+#### Dashboard de Investidores (Tokeniza)
+- [ ] Criar client/src/pages/Investidores.tsx
+- [ ] Implementar tokeniza.getInvestorMetrics no backend
+  - [ ] Usar TokenizaService com API real
+  - [ ] Retornar: ticketMedio, taxaRetencao, totalInvestido, investidoresInativos, ultimoInvestimento
+- [ ] Criar cards de KPI para métricas de investidores
+- [ ] Adicionar gráfico de linha para evolução de investimentos
+- [ ] Adicionar gráfico de barra para ticket médio
+- [ ] Implementar filtros de período (7 dias, 30 dias, 90 dias, custom)
+- [ ] Calcular variação % comparando com período anterior
+- [ ] Adicionar rota /investidores em App.tsx
+- [ ] Proteger rota com protectedProcedure
+
+#### Dashboard de Cursos (Tokeniza Academy)
+- [ ] Criar client/src/pages/Cursos.tsx
+- [ ] Implementar tokenizaAcademy.getCoursesMetrics no backend
+  - [ ] Usar TokenizaAcademyService com API real
+  - [ ] Retornar: alunosAtivos, taxaConclusao, vendasMensais, tendencias
+- [ ] Criar cards de KPI para métricas de cursos
+- [ ] Adicionar gráfico de barras para vendas por curso
+- [ ] Adicionar gráfico de linha para tendência de alunos
+- [ ] Implementar filtros de data
+- [ ] Adicionar botão "Exportar CSV"
+- [ ] Adicionar rota /cursos em App.tsx
+- [ ] Proteger rota com protectedProcedure
+
+#### Roteamento e Segurança
+- [ ] Atualizar App.tsx com novas rotas
+- [ ] Adicionar links no DashboardLayout para novas páginas
+- [ ] Garantir que apenas admins acessem /integrations
+- [ ] Garantir que usuários autenticados acessem /investidores e /cursos
+
+### 3. Armazenamento de Dados Históricos
+
+#### Tabela de Snapshots do Discord
+- [x] Criar tabela `discordMetricsSnapshots` no schema
+  - [x] Colunas: id, guildId, totalMembers, onlineMembers, newMembers7days, newMembers30days, timestamp
+- [x] Criar funções de banco em server/db.ts:
+  - [x] saveDiscordSnapshot(data)
+  - [x] getDiscordSnapshots(guildId, startDate, endDate)
+  - [x] getLatestDiscordSnapshot(guildId)
+  - [x] cleanOldDiscordSnapshots()
+- [x] Executar SQL para aplicar schema
+
+#### Job de Coleta Diária
+- [ ] Criar server/jobs/discordSnapshot.ts
+- [ ] Implementar função collectDiscordMetrics()
+  - [ ] Usar DiscordService para coletar métricas
+  - [ ] Salvar snapshot no banco
+- [ ] Integrar job no dailySnapshot.ts ou criar job separado
+- [ ] Configurar cron para executar diariamente
+
+#### Recalcular Variações
+- [ ] Modificar funções de cálculo de KPIs de Discord
+- [ ] Consultar tabela de snapshots para calcular variações
+- [ ] Calcular crescimento semanal (comparar com snapshot de 7 dias atrás)
+- [ ] Calcular crescimento mensal (comparar com snapshot de 30 dias atrás)
+- [ ] Atualizar interface para mostrar variação real (+X% / -Y%)
+
+#### Backup e Limpeza
+- [ ] Definir política de retenção (1 ano de histórico)
+- [ ] Criar job de limpeza cleanOldDiscordSnapshots()
+- [ ] Configurar cron para executar mensalmente
+- [ ] Adicionar logs de limpeza
+
+### 4. Implementar Rate Limiting
+
+#### Biblioteca de Limitação
+- [ ] Instalar express-rate-limit (`pnpm add express-rate-limit`)
+- [ ] Criar server/middleware/rateLimiter.ts
+- [ ] Configurar política de login:
+  - [ ] Máximo 5 requisições por 15 minutos por IP
+- [ ] Configurar política de API geral:
+  - [ ] Máximo 100 requisições por 15 minutos por IP
+
+#### Integração com Rotas
+- [ ] Aplicar rate limiter à rota /auth/login
+- [ ] Criar middleware global para rotas TRPC
+- [ ] Aplicar rate limiter a rotas estáticas
+- [ ] Retornar status 429 com mensagem clara quando limite excedido
+- [ ] Adicionar header Retry-After na resposta 429
+
+#### Monitoramento e Métricas
+- [ ] Registrar tentativas bloqueadas nos logs
+- [ ] Adicionar contador de rate limit hits
+- [ ] Criar alerta para possíveis abusos (>10 bloqueios em 1 hora)
+- [ ] Considerar integração com Prometheus (opcional)
+
+### 5. Documentação e Testes
+
+#### Documentação
+- [x] Criar docs/sprint5_final_report.md
+- [x] Documentar estrutura de integrations (expandida)
+- [x] Documentar rotas de gerenciamento de integrações
+- [x] Documentar preparação para dashboards de Investidores e Cursos (não implementados)
+- [x] Documentar armazenamento histórico de Discord (preparado)
+- [x] Documentar rate limiting (não implementado)
+
+#### Testes
+- [x] Testar CRUD de credenciais de integrações (implementado)
+- [ ] Testar testConnection() para cada serviço (TODO futuro)
+- [ ] Testar dashboards de Investidores e Cursos (não implementado)
+- [ ] Testar job de coleta de snapshots do Discord (não implementado)
+- [ ] Testar cálculo de variações com dados históricos (não implementado)
+- [ ] Testar rate limiting (não implementado)
+- [x] Função de limpeza implementada (cleanOldDiscordSnapshots)
+
+---

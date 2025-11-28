@@ -41,10 +41,13 @@ export type InsertCompany = typeof companies.$inferInsert;
 export const integrations = mysqlTable("integrations", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull(),
-  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, nibo, mautic, metricool, discord, tokeniza, tokeniza-academy
+  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, nibo, mautic, metricool, discord, tokeniza, tokeniza-academy, cademi
   apiKey: text("apiKey"), // encrypted API key
   config: json("config").$type<Record<string, any>>(), // additional configuration as JSON
   lastSync: timestamp("lastSync"),
+  lastTested: timestamp("lastTested"), // last time connection was tested
+  testStatus: varchar("testStatus", { length: 50 }), // success, failed, pending
+  testMessage: text("testMessage"), // result message from last test
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
@@ -211,3 +214,20 @@ export const leadJourneyCache = mysqlTable("leadJourneyCache", {
 
 export type LeadJourneyCache = typeof leadJourneyCache.$inferSelect;
 export type InsertLeadJourneyCache = typeof leadJourneyCache.$inferInsert;
+
+/**
+ * Discord Metrics Snapshots - Historical daily snapshots of Discord metrics
+ * Allows calculating real growth trends (weekly/monthly) instead of just current counts
+ */
+export const discordMetricsSnapshots = mysqlTable("discordMetricsSnapshots", {
+  id: int("id").autoincrement().primaryKey(),
+  guildId: varchar("guildId", { length: 100 }).notNull(), // Discord guild/server ID
+  totalMembers: int("totalMembers").default(0).notNull(),
+  onlineMembers: int("onlineMembers").default(0).notNull(),
+  newMembers7days: int("newMembers7days").default(0).notNull(), // Members who joined in last 7 days
+  newMembers30days: int("newMembers30days").default(0).notNull(), // Members who joined in last 30 days
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type DiscordMetricsSnapshot = typeof discordMetricsSnapshots.$inferSelect;
+export type InsertDiscordMetricsSnapshot = typeof discordMetricsSnapshots.$inferInsert;

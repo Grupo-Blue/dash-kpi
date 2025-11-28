@@ -10,6 +10,7 @@ import Tokeniza from "./pages/Tokeniza";
 import TokenizaAcademy from "./pages/TokenizaAcademy";
 import MychelMendes from "./pages/MychelMendes";
 import Admin from "./pages/Admin";
+import Integrations from "./pages/Integrations";
 import LeadAnalysis from "./pages/LeadAnalysis";
 import Login from "./pages/Login";
 import { useAuth } from "./_core/hooks/useAuth";
@@ -41,6 +42,7 @@ function Router() {
       <Route path={"/tokeniza-academy"} component={TokenizaAcademy} />
       <Route path={"/mychel-mendes"} component={MychelMendes} />
       <Route path={"/admin"} component={Admin} />
+      <Route path={"/integrations"} component={Integrations} />
       <Route path={"/lead-analysis"} component={LeadAnalysis} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />

@@ -564,3 +564,193 @@ export async function getLatestFollowersByCompany() {
   
   return results;
 }
+
+
+// ===== Integration Management Functions =====
+
+/**
+ * Get all integrations (for admin panel)
+ */
+export async function getAllIntegrations(): Promise<Integration[]> {
+  logger.info('[DB] getAllIntegrations called');
+  const db = await getDb();
+  if (!db) return [];
+  
+  const results = await db
+    .select()
+    .from(integrations)
+    .orderBy(integrations.serviceName);
+  
+  return results;
+}
+
+/**
+ * Get integration credentials by service name
+ */
+export async function getIntegrationCredentials(serviceName: string): Promise<Integration | undefined> {
+  logger.info('[DB] getIntegrationCredentials called for service:', serviceName);
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db
+    .select()
+    .from(integrations)
+    .where(eq(integrations.serviceName, serviceName))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Upsert integration credentials with test status
+ */
+export async function upsertIntegrationCredentials(data: {
+  userId: number;
+  serviceName: string;
+  apiKey?: string | null;
+  config?: Record<string, any> | null;
+  active?: boolean;
+  lastTested?: Date | null;
+  testStatus?: string | null;
+  testMessage?: string | null;
+}): Promise<void> {
+  logger.info('[DB] upsertIntegrationCredentials called for service:', data.serviceName);
+  const db = await getDb();
+  if (!db) return;
+  
+  const insertData: InsertIntegration = {
+    userId: data.userId,
+    serviceName: data.serviceName,
+    apiKey: data.apiKey,
+    config: data.config,
+    active: data.active ?? true,
+  };
+  
+  const updateData: any = {
+    updatedAt: new Date(),
+  };
+  
+  if (data.apiKey !== undefined) updateData.apiKey = data.apiKey;
+  if (data.config !== undefined) updateData.config = data.config;
+  if (data.active !== undefined) updateData.active = data.active;
+  if (data.lastTested !== undefined) updateData.lastTested = data.lastTested;
+  if (data.testStatus !== undefined) updateData.testStatus = data.testStatus;
+  if (data.testMessage !== undefined) updateData.testMessage = data.testMessage;
+  
+  await db
+    .insert(integrations)
+    .values(insertData)
+    .onDuplicateKeyUpdate({ set: updateData });
+}
+
+/**
+ * Delete integration credentials
+ */
+export async function deleteIntegrationCredentials(serviceName: string): Promise<void> {
+  logger.info('[DB] deleteIntegrationCredentials called for service:', serviceName);
+  const db = await getDb();
+  if (!db) return;
+  
+  await db
+    .delete(integrations)
+    .where(eq(integrations.serviceName, serviceName));
+}
+
+// ===== Discord Metrics Snapshots Functions =====
+
+/**
+ * Save Discord metrics snapshot
+ */
+export async function saveDiscordSnapshot(data: {
+  guildId: string;
+  totalMembers: number;
+  onlineMembers: number;
+  newMembers7days: number;
+  newMembers30days: number;
+}): Promise<void> {
+  logger.info('[DB] saveDiscordSnapshot called for guild:', data.guildId);
+  const db = await getDb();
+  if (!db) return;
+  
+  // Import discordMetricsSnapshots from schema
+  const { discordMetricsSnapshots } = await import('../drizzle/schema');
+  
+  await db.insert(discordMetricsSnapshots).values({
+    guildId: data.guildId,
+    totalMembers: data.totalMembers,
+    onlineMembers: data.onlineMembers,
+    newMembers7days: data.newMembers7days,
+    newMembers30days: data.newMembers30days,
+    timestamp: new Date(),
+  });
+}
+
+/**
+ * Get Discord snapshots by guild and date range
+ */
+export async function getDiscordSnapshots(
+  guildId: string,
+  startDate: Date,
+  endDate: Date
+): Promise<any[]> {
+  logger.info('[DB] getDiscordSnapshots called for guild:', guildId);
+  const db = await getDb();
+  if (!db) return [];
+  
+  const { discordMetricsSnapshots } = await import('../drizzle/schema');
+  
+  const results = await db
+    .select()
+    .from(discordMetricsSnapshots)
+    .where(
+      and(
+        eq(discordMetricsSnapshots.guildId, guildId),
+        sql`${discordMetricsSnapshots.timestamp} >= ${startDate}`,
+        sql`${discordMetricsSnapshots.timestamp} <= ${endDate}`
+      )
+    )
+    .orderBy(desc(discordMetricsSnapshots.timestamp));
+  
+  return results;
+}
+
+/**
+ * Get latest Discord snapshot for a guild
+ */
+export async function getLatestDiscordSnapshot(guildId: string): Promise<any | undefined> {
+  logger.info('[DB] getLatestDiscordSnapshot called for guild:', guildId);
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const { discordMetricsSnapshots } = await import('../drizzle/schema');
+  
+  const result = await db
+    .select()
+    .from(discordMetricsSnapshots)
+    .where(eq(discordMetricsSnapshots.guildId, guildId))
+    .orderBy(desc(discordMetricsSnapshots.timestamp))
+    .limit(1);
+  
+  return result.length > 0 ? result[0] : undefined;
+}
+
+/**
+ * Clean old Discord snapshots (retention policy: 1 year)
+ */
+export async function cleanOldDiscordSnapshots(): Promise<number> {
+  logger.info('[DB] cleanOldDiscordSnapshots called');
+  const db = await getDb();
+  if (!db) return 0;
+  
+  const { discordMetricsSnapshots } = await import('../drizzle/schema');
+  
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  
+  const result = await db
+    .delete(discordMetricsSnapshots)
+    .where(sql`${discordMetricsSnapshots.timestamp} < ${oneYearAgo}`);
+  
+  logger.info('[DB] Cleaned old Discord snapshots, rows affected:', result);
+  return result ? 1 : 0;
+}
