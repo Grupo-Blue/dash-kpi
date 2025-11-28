@@ -19,11 +19,8 @@
 import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Get __dirname equivalent in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use global __dirname injected by Vite (defined in vite.config.ts)
 
 // Determine log level from environment (default: info)
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';

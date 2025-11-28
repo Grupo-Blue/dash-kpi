@@ -6,7 +6,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic, setupVite } from "./vite";
+import { serveStatic } from "./static";
 import { initializeDailySnapshotJob } from "../jobs/dailySnapshot";
 
 import { logger } from '../utils/logger';
@@ -47,6 +47,9 @@ async function startServer() {
   );
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
+    // Use dynamic string to prevent esbuild from bundling vite.ts
+    const vitePath = './vite' + '.js'; // esbuild won't resolve this
+    const { setupVite } = await import(vitePath);
     await setupVite(app, server);
   } else {
     serveStatic(app);
