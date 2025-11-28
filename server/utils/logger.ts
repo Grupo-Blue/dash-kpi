@@ -20,7 +20,7 @@ import winston from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
 
-// Use global __dirname injected by Vite (defined in vite.config.ts)
+// __dirname is injected globally by Vite in build
 
 // Determine log level from environment (default: info)
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info';

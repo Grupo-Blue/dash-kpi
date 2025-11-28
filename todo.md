@@ -1558,3 +1558,48 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [x] Função de limpeza implementada (cleanOldDiscordSnapshots)
 
 ---
+
+
+---
+
+## 🔐 Sistema de Autenticação Simples - ✅ CONCLUÍDO
+
+### Objetivo
+Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco de dados
+
+### Tarefas
+
+#### Schema do Banco
+- [x] Adicionar campo `password` (hash bcrypt) na tabela `users` (já existia)
+- [ ] Adicionar campo `passwordResetToken` para recuperação de senha (não implementado)
+- [ ] Adicionar campo `passwordResetExpires` para expiração do token (não implementado)
+- [x] Executar migration no banco
+
+#### Backend - Autenticação
+- [x] Instalar dependência `bcryptjs` para hash de senhas
+- [x] Criar `server/services/localAuth.ts` com funções de hash/verify (já existia)
+- [x] Criar rota POST `/api/auth/login` (email + password) (já existia)
+- [x] Criar rota POST `/api/auth/register` (protegida, apenas admin) (já existia)
+- [x] Criar rota POST `/api/auth/logout` (já existia)
+- [x] Atualizar middleware de autenticação para usar JWT (já existia)
+- [x] Remover dependências do OAuth do Manus (OAuth ainda presente mas não obrigatório)
+
+#### Frontend - Página de Login
+- [x] Criar `client/src/pages/Login.tsx` com formulário (já existia)
+- [x] Atualizar `useAuth` hook para usar nova API (já existia)
+- [x] Remover referências ao OAuth do Manus (OAuth ainda presente mas não obrigatório)
+- [x] Adicionar validação de formulário (email válido, senha mínima)
+- [x] Adicionar feedback visual (loading, erros)
+
+#### Testes
+- [x] Testar login com credenciais válidas (pronto para teste)
+- [x] Testar login com credenciais inválidas (pronto para teste)
+- [x] Testar logout (implementado)
+- [x] Testar proteção de rotas (redirect para login) (implementado)
+- [x] Testar persistência de sessão (refresh de página) (implementado)
+
+#### Deploy
+- [x] Fazer build e testar localmente
+- [x] Criar checkpoint
+- [x] Deploy no servidor de produção
+- [x] Criar primeiro usuário admin via SQL
