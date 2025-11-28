@@ -9,7 +9,17 @@ import { getLoginUrl } from "./const";
 import "./index.css";
 
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutos - dados considerados "fresh" por 5min
+      gcTime: 10 * 60 * 1000, // 10 minutos - cache mantido por 10min (antes era cacheTime)
+      retry: 1, // Tentar novamente apenas 1 vez em caso de erro
+      refetchOnWindowFocus: false, // Não refetch ao focar na janela
+      refetchOnReconnect: true, // Refetch ao reconectar internet
+    },
+  },
+});
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;

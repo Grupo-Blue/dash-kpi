@@ -34,6 +34,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { EditManualDataModal } from "./EditManualDataModal";
+import { LoadingState, TableSkeleton } from "@/components/LoadingState";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { NoDataAvailable } from "@/components/EmptyState";
 
 export function ManualDataHistory() {
   const [companyFilter, setCompanyFilter] = useState<string>("all");
@@ -43,9 +46,16 @@ export function ManualDataHistory() {
   const [editRecord, setEditRecord] = useState<any>(null);
 
   // Fetch all manual data records
-  const { data: tiktokRecords, refetch: refetchTikTok } = trpc.tiktokMetrics.getAll.useQuery();
-  const { data: socialRecords, refetch: refetchSocial } = trpc.socialMediaMetrics.getAll.useQuery();
-  const { data: companies } = trpc.companies.getAll.useQuery();
+  const { data: tiktokData, isLoading: loadingTikTok, error: errorTikTok, refetch: refetchTikTok } = trpc.tiktokMetrics.getAll.useQuery();
+  const { data: socialData, isLoading: loadingSocial, error: errorSocial, refetch: refetchSocial } = trpc.socialMediaMetrics.getAll.useQuery();
+  const { data: companies, isLoading: loadingCompanies } = trpc.companies.getAll.useQuery();
+
+  // Extract data from paginated response
+  const tiktokRecords = tiktokData?.data || [];
+  const socialRecords = socialData?.data || [];
+
+  const isLoading = loadingTikTok || loadingSocial || loadingCompanies;
+  const hasError = errorTikTok || errorSocial;
 
   // Delete mutations
   const deleteTikTokMutation = trpc.tiktokMetrics.delete.useMutation({
@@ -127,6 +137,23 @@ export function ManualDataHistory() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Loading State */}
+          {isLoading && <TableSkeleton rows={5} columns={6} />}
+
+          {/* Error State */}
+          {hasError && (
+            <ErrorMessage 
+              error={errorTikTok || errorSocial || new Error('Erro ao carregar dados')} 
+              onRetry={() => {
+                refetchTikTok();
+                refetchSocial();
+              }}
+            />
+          )}
+
+          {/* Content */}
+          {!isLoading && !hasError && (
+            <>
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="flex-1">
@@ -245,6 +272,8 @@ export function ManualDataHistory() {
               {filteredRecords.length} registro{filteredRecords.length !== 1 ? "s" : ""} encontrado{filteredRecords.length !== 1 ? "s" : ""}
             </span>
           </div>
+          </>
+          )}
         </CardContent>
       </Card>
 

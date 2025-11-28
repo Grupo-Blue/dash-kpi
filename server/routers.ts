@@ -6,7 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { BlueConsultKpiCalculator, TokenizaKpiCalculator, TokenizaAcademyKpiCalculator } from "./services/kpiCalculator";
 import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from './services/kpiCalculatorReal';
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
@@ -586,12 +586,16 @@ export const appRouter = router({
         return history;
       }),
 
-    // Get all social media metrics (for admin)
+    // Get all social media metrics (for admin) with pagination
     getAll: protectedProcedure
-      .query(async () => {
-        const allMetrics = await db.getAllSocialMediaMetrics();
-        logger.info('[socialMediaMetrics] Fetched all records:', allMetrics.length);
-        return allMetrics;
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const result = await db.getAllSocialMediaMetrics(input);
+        logger.info('[socialMediaMetrics] Fetched paginated records:', result.data.length, 'total:', result.total);
+        return result;
       }),
 
     // Update a social media metric record
@@ -684,12 +688,16 @@ export const appRouter = router({
         return latest;
       }),
 
-    // Get all TikTok metrics (for admin)
+    // Get all TikTok metrics (for admin) with pagination
     getAll: protectedProcedure
-      .query(async () => {
-        const allMetrics = await db.getAllTikTokMetrics();
-        logger.info('[tiktokMetrics] Fetched all records:', allMetrics.length);
-        return allMetrics;
+      .input(z.object({
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const result = await db.getAllTikTokMetrics(input);
+        logger.info('[tiktokMetrics] Fetched paginated records:', result.data.length, 'total:', result.total);
+        return result;
       }),
 
     // Update a TikTok metric record
@@ -1121,13 +1129,15 @@ export const appRouter = router({
       }
     }),
 
-    // Get historical snapshots by company and date range
+    // Get historical snapshots by company and date range with pagination
     getHistorical: protectedProcedure
       .input(z.object({
         companyId: z.number().optional(),
         startDate: z.string(), // ISO date string
         endDate: z.string(), // ISO date string
         kpiType: z.string().optional(),
+        limit: z.number().min(1).max(100).default(50),
+        offset: z.number().min(0).default(0),
       }))
       .query(async ({ input }) => {
         const database = await getDb();
@@ -1143,21 +1153,38 @@ export const appRouter = router({
           conditions.push(eq(kpiSnapshots.kpiType, input.kpiType));
         }
 
-        // Combine all conditions using AND
+        // Get total count
+        const countResult = await database
+          .select({ count: sql<number>`count(*)` })
+          .from(kpiSnapshots)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        const total = countResult[0]?.count || 0;
+
+        // Get paginated results
         const results = await database
           .select()
           .from(kpiSnapshots)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
-          .orderBy(desc(kpiSnapshots.snapshotDate));
+          .orderBy(desc(kpiSnapshots.snapshotDate))
+          .limit(input.limit)
+          .offset(input.offset);
 
         // Filter by date range in JavaScript (since we can't easily do date comparison in Drizzle)
         const startDate = new Date(input.startDate);
         const endDate = new Date(input.endDate);
         
-        return results.filter(snapshot => {
+        const filteredResults = results.filter(snapshot => {
           const snapshotDate = new Date(snapshot.snapshotDate);
           return snapshotDate >= startDate && snapshotDate <= endDate;
         });
+
+        return {
+          data: filteredResults,
+          total,
+          hasMore: input.offset + filteredResults.length < total,
+          currentPage: Math.floor(input.offset / input.limit) + 1,
+          totalPages: Math.ceil(total / input.limit)
+        };
       }),
 
     // Get latest snapshot for a company

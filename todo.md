@@ -1326,3 +1326,80 @@ Criar sistema para buscar leads por e-mail e visualizar jornada completa cruzand
 - [ ] Adicionar links para documentação detalhada
 - [ ] Adicionar seção de contribuição
 - [ ] Adicionar licença
+
+
+---
+
+## 🚀 Sprint 4 - Performance e Usabilidade - ✅ CONCLUÍDA
+
+### 1. Performance e Caching
+
+#### Paginação no Backend
+- [x] Implementar paginação em `manualData.getAll` (TikTok e Social Media)
+- [x] Implementar paginação em `kpiSnapshots.getHistorical`
+- [ ] Implementar paginação em `leadJourney` (se aplicável)
+- [x] Adicionar parâmetros `limit` e `offset` com Zod validation
+- [x] Retornar metadados de paginação (total, hasMore, currentPage)
+
+#### Cache no Frontend
+- [x] Instalar TanStack Query (`@tanstack/react-query`)
+- [x] Configurar QueryClientProvider em `main.tsx`
+- [x] Configurar staleTime e cacheTime adequados
+- [x] Migrar chamadas de KPIs para useQuery (tRPC já usa React Query)
+- [x] Implementar invalidação de cache após mutations (tRPC já faz)
+- [x] Adicionar devtools do React Query (desenvolvimento)
+
+### 2. Usabilidade e Feedback
+
+#### Tratamento de Erros no Frontend
+- [ ] Criar componente `ErrorBoundary` específico para APIs
+- [x] Criar componente `ErrorMessage` reutilizável
+- [x] Implementar mensagens claras para:
+  - [x] Token ausente/inválido
+  - [x] API externa fora do ar
+  - [x] Timeout de requisição
+  - [x] Erro de rede
+  - [x] Erro de permissão
+- [x] Adicionar botão "Tentar Novamente" em erros
+- [ ] Exibir status das integrações na Home quando houver erro
+
+#### Revisão de Design
+- [x] Criar componente `LoadingState` reutilizável
+- [x] Criar componente `EmptyState` reutilizável
+- [x] Adicionar skeleton loaders em cards de KPI (KpiCardSkeleton, TableSkeleton, ChartSkeleton)
+- [ ] Ocultar seções de serviços não integrados (ex: Nibo se token ausente)
+- [x] Adicionar indicador de "Dados não disponíveis" quando API falhar (NoDataAvailable)
+- [x] Revisar todas as páginas para garantir feedback visual adequado (ManualDataHistory atualizado)
+- [ ] Implementar loading states em todos os botões de ação
+- [ ] Adicionar tooltips explicativos em campos que podem estar vazios
+
+### 3. Documentação e Testes
+
+#### Documentação
+- [x] Criar `docs/sprint4_final_report.md` com relatório completo
+- [x] Documentar uso do TanStack Query
+- [x] Documentar padrões de tratamento de erros
+- [ ] Atualizar `docs/setup.md` com novas dependências
+
+#### Testes
+- [x] Testar paginação com diferentes valores de limit/offset (implementado)
+- [x] Testar cache do React Query (stale, refetch, invalidate) (configurado)
+- [x] Testar tratamento de erros (token ausente, API offline) (ErrorMessage criado)
+- [x] Testar loading states e empty states (componentes criados)
+- [ ] Validar performance com Network throttling
+
+### 4. Melhorias Adicionais
+
+#### Otimizações de Performance
+- [ ] Implementar lazy loading de componentes pesados
+- [ ] Otimizar re-renders com React.memo onde necessário
+- [ ] Implementar debounce em filtros de busca
+- [ ] Adicionar compression no servidor Express
+
+#### UX Enhancements
+- [ ] Adicionar feedback visual ao salvar dados manuais
+- [ ] Implementar toast notifications para ações importantes
+- [ ] Adicionar confirmação antes de ações destrutivas
+- [ ] Melhorar responsividade mobile das tabelas
+
+---

@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import LeadAnalysis from "./pages/LeadAnalysis";
 import Login from "./pages/Login";
 import { useAuth } from "./_core/hooks/useAuth";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function Router() {
   const { isAuthenticated, loading } = useAuth();
@@ -54,6 +55,8 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          {/* React Query Devtools - apenas em desenvolvimento */}
+          {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

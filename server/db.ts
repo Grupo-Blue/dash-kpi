@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { 
   InsertUser, 
@@ -386,17 +386,32 @@ export async function deleteSocialMediaMetric(id: number) {
 }
 
 
-// Get all TikTok metrics (for admin)
-export async function getAllTikTokMetrics() {
-  logger.info('[DB] getAllTikTokMetrics called');
+// Get all TikTok metrics (for admin) with pagination
+export async function getAllTikTokMetrics(options?: { limit?: number; offset?: number }) {
+  const { limit = 50, offset = 0 } = options || {};
+  logger.info('[DB] getAllTikTokMetrics called with limit:', limit, 'offset:', offset);
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { data: [], total: 0, hasMore: false };
   
+  // Get total count
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(tiktokMetrics);
+  const total = countResult[0]?.count || 0;
+  
+  // Get paginated results
   const results = await db
     .select()
     .from(tiktokMetrics)
-    .orderBy(desc(tiktokMetrics.createdAt));
-  return results;
+    .orderBy(desc(tiktokMetrics.createdAt))
+    .limit(limit)
+    .offset(offset);
+  
+  return {
+    data: results,
+    total,
+    hasMore: offset + results.length < total,
+    currentPage: Math.floor(offset / limit) + 1,
+    totalPages: Math.ceil(total / limit)
+  };
 }
 
 // Update TikTok metric
@@ -431,17 +446,32 @@ export async function updateTikTokMetric(data: {
     .where(eq(tiktokMetrics.id, data.id));
 }
 
-// Get all social media metrics (for admin)
-export async function getAllSocialMediaMetrics() {
-  logger.info('[DB] getAllSocialMediaMetrics called');
+// Get all social media metrics (for admin) with pagination
+export async function getAllSocialMediaMetrics(options?: { limit?: number; offset?: number }) {
+  const { limit = 50, offset = 0 } = options || {};
+  logger.info('[DB] getAllSocialMediaMetrics called with limit:', limit, 'offset:', offset);
   const db = await getDb();
-  if (!db) return [];
+  if (!db) return { data: [], total: 0, hasMore: false };
   
+  // Get total count
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(socialMediaMetrics);
+  const total = countResult[0]?.count || 0;
+  
+  // Get paginated results
   const results = await db
     .select()
     .from(socialMediaMetrics)
-    .orderBy(desc(socialMediaMetrics.createdAt));
-  return results;
+    .orderBy(desc(socialMediaMetrics.createdAt))
+    .limit(limit)
+    .offset(offset);
+  
+  return {
+    data: results,
+    total,
+    hasMore: offset + results.length < total,
+    currentPage: Math.floor(offset / limit) + 1,
+    totalPages: Math.ceil(total / limit)
+  };
 }
 
 // Update social media metric
