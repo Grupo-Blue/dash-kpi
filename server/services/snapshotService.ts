@@ -34,8 +34,13 @@ export class SnapshotService {
    */
   static async snapshotBlueConsult(): Promise<boolean> {
     try {
-      const calculator = new BlueConsultKpiCalculatorRefined();
-      const kpis = await calculator.calculateKpis();
+      const pipedriveApiKey = process.env.PIPEDRIVE_API_TOKEN;
+      if (!pipedriveApiKey) {
+        throw new Error('PIPEDRIVE_API_TOKEN not configured');
+      }
+      
+      const calculator = new BlueConsultKpiCalculatorRefined(pipedriveApiKey);
+      const kpis = await calculator.calculateAll();
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0); // Midnight
@@ -60,8 +65,30 @@ export class SnapshotService {
    */
   static async snapshotTokenizaAcademy(): Promise<boolean> {
     try {
-      const calculator = new TokenizaAcademyKpiCalculatorRefined();
-      const kpis = await calculator.calculateKpis();
+      const pipedriveApiKey = process.env.PIPEDRIVE_API_TOKEN;
+      const discordBotToken = process.env.DISCORD_BOT_TOKEN;
+      const discordGuildId = process.env.DISCORD_GUILD_ID;
+      
+      if (!pipedriveApiKey || !discordBotToken || !discordGuildId) {
+        throw new Error('PIPEDRIVE_API_TOKEN, DISCORD_BOT_TOKEN, or DISCORD_GUILD_ID not configured');
+      }
+      
+      const calculator = new TokenizaAcademyKpiCalculatorRefined(discordBotToken, discordGuildId);
+      
+      // Calculate all KPIs
+      const [totalMembers, onlineMembers, newMembers7Days, newMembers30Days] = await Promise.all([
+        calculator.calculateTotalMembers(),
+        calculator.calculateOnlineMembers(),
+        calculator.calculateNewMembers7Days(),
+        calculator.calculateNewMembers30Days(),
+      ]);
+      
+      const kpis = {
+        totalMembers,
+        onlineMembers,
+        newMembers7Days,
+        newMembers30Days,
+      };
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -86,8 +113,22 @@ export class SnapshotService {
    */
   static async snapshotMetricool(companyId: number, companyName: string, blogId: string): Promise<boolean> {
     try {
-      const calculator = new MetricoolKpiCalculator();
-      const kpis = await calculator.calculateSocialMediaKpis(blogId);
+      // MetricoolKpiCalculator requires tokens and date range
+      const metricoolToken = process.env.METRICOOL_API_TOKEN;
+      const metricoolUserId = process.env.METRICOOL_USER_ID;
+      const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+      
+      if (!metricoolToken || !metricoolUserId) {
+        throw new Error('METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured');
+      }
+      
+      const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
+      
+      // Calculate KPIs for the last 30 days
+      const to = new Date().toISOString().split('T')[0];
+      const from = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      
+      const kpis = await calculator.calculateSocialMediaKPIs(blogId, from, to);
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -112,10 +153,8 @@ export class SnapshotService {
    */
   static async snapshotCademi(): Promise<boolean> {
     try {
-      const service = new CademiService();
-      const users = await service.getAllUsers();
-      const products = await service.getAllProducts();
-      const kpis = calculateCademiKpis(users, products.length);
+      // CademiService methods are static
+      const kpis = await calculateCademiKpis();
       
       const snapshotDate = new Date();
       snapshotDate.setHours(0, 0, 0, 0);
@@ -125,7 +164,7 @@ export class SnapshotService {
         snapshotDate,
         kpiType: 'cademi_courses',
         source: 'cademi',
-        data: { users: users.length, kpis },
+        data: kpis,
       };
 
       return await this.saveSnapshot(snapshot);

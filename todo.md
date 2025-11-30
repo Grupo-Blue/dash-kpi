@@ -1623,3 +1623,39 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Adicionar animações e transições suaves
 - [x] Testar responsividade (mobile, tablet, desktop)
 - [x] Deploy em produção
+
+### Sprint 1 – Correções críticas e segurança - ✅ CONCLUÍDA (30/11/2025)
+
+#### Tipagem e compilação
+- [x] Corrigir tipo de retorno em server/auth/password.ts (já estava correto)
+- [x] Corrigir erros TypeScript em snapshotService.ts
+- [x] Corrigir chamadas incorretas para MetricoolKpiCalculator
+- [x] Corrigir chamadas incorretas para BlueConsultKpiCalculatorRefined
+- [x] Corrigir chamadas incorretas para TokenizaAcademyKpiCalculatorRefined
+
+#### Segurança de credenciais
+- [x] Remover credenciais hard-coded em mauticService.ts
+- [x] Criar variáveis de ambiente MAUTIC_CLIENT_ID e MAUTIC_CLIENT_SECRET
+- [x] Implementar carregamento centralizado de variáveis de ambiente (ENV)
+- [x] Adicionar validação de tokens obrigatórios (função validateEnv)
+
+#### Snapshot Service
+- [x] Refatorar snapshotService.ts para passar tokens corretamente
+- [x] Corrigir chamada de snapshotCademi (assinatura de calculateCademiKpis)
+- [x] Adicionar validação de tokens antes de criar calculadores
+- [x] Garantir que snapshotService execute sem exceções
+
+#### Integração com Cademi
+- [x] Ajustar fluxo que preenche totalCourses em cademiKpiCalculator.ts
+- [x] Buscar totalCourses da API /produto
+- [x] Garantir que totalCourses não fique zerado
+
+#### Documentação e testes
+- [x] Variáveis de ambiente já configuradas no Manus
+- [x] Centralizar variáveis no arquivo _core/env.ts
+- [x] Criar testes unitários para hashPassword e verifyPassword
+- [ ] Atualizar README com documentação de variáveis de ambiente - PENDENTE
+
+#### Deploy
+- [ ] Deploy em produção (84.247.191.105) - EM ANDAMENTO
+- [ ] Sincronizar com GitHub (Grupo-Blue/dash-kpi) - EM ANDAMENTO

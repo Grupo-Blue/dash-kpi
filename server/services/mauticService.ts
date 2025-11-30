@@ -101,10 +101,14 @@ class MauticService {
   private password: string;
 
   constructor() {
-    // Credenciais OAuth2 do Mautic
-    this.baseURL = 'https://mautic.grupoblue.com.br';
-    this.username = '8_16au3ocbjzvkcgk4w4ww4w8kwck0wok8gk8ow80gs8g04c8ooo';
-    this.password = '5tkzuzbxq7wg8wsowcs4k8cgwccwwooc0kosc4k8o04og8gs0s';
+    // Credenciais OAuth2 do Mautic (via variáveis de ambiente)
+    this.baseURL = process.env.MAUTIC_BASE_URL || 'https://mautic.grupoblue.com.br';
+    this.username = process.env.MAUTIC_CLIENT_ID || '';
+    this.password = process.env.MAUTIC_CLIENT_SECRET || '';
+    
+    if (!this.username || !this.password) {
+      throw new Error('MAUTIC_CLIENT_ID and MAUTIC_CLIENT_SECRET must be configured');
+    }
 
     // Criar cliente axios com autenticação básica
     // Nota: Mautic suporta Basic Auth para API além de OAuth2

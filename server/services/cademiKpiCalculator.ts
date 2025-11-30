@@ -172,8 +172,15 @@ export async function calculateCademiKpis(): Promise<CademiKpis> {
       .sort((a, b) => a.daysAgo - b.daysAgo)
       .slice(0, 5);
 
-    // Total de cursos (será buscado da API /produto)
-    const totalCourses = 0; // Será atualizado no router
+    // Total de cursos (buscar da API /produto)
+    let totalCourses = 0;
+    try {
+      const productsResponse = await getAllProducts();
+      totalCourses = productsResponse.produto?.length || 0;
+      logger.info(`[CademiKPI] Total courses: ${totalCourses}`);
+    } catch (error) {
+      logger.error('[CademiKPI] Failed to fetch products:', error);
+    }
 
     logger.info('[CademiKPI] KPIs calculated successfully');
     logger.info(`[CademiKPI] Total students: ${totalStudents}`);
