@@ -1657,5 +1657,5 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [ ] Atualizar README com documentação de variáveis de ambiente - PENDENTE
 
 #### Deploy
-- [ ] Deploy em produção (84.247.191.105) - EM ANDAMENTO
-- [ ] Sincronizar com GitHub (Grupo-Blue/dash-kpi) - EM ANDAMENTO
+- [x] Deploy em produção (84.247.191.105)
+- [x] Sincronizar com GitHub (Grupo-Blue/dash-kpi)
