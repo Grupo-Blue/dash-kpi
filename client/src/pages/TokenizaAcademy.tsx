@@ -10,9 +10,10 @@ import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { CompanyChat } from "@/components/CompanyChat";
 import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
 import { useState } from "react";
+import { useCompanyData } from "@/hooks/useCompanyData";
 
 export default function TokenizaAcademy() {
-  const companyId = 4; // Tokeniza Academy ID
+  const { companyId, companyName } = useCompanyData();
   const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const { data: kpis, isLoading, refetch } = trpc.kpis.tokenizaAcademy.useQuery();
   const { data: socialKpis, isLoading: socialLoading } = trpc.kpis.metricoolSocialMedia.useQuery({
@@ -476,7 +477,7 @@ export default function TokenizaAcademy() {
       </div>
       
       {/* AI Chat Assistant */}
-      <CompanyChat companyId={companyId} companyName="Tokeniza Academy" />
+      {companyId && <CompanyChat companyId={companyId} companyName={companyName || "Tokeniza Academy"} />}
     </DashboardLayout>
   );
 }

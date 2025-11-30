@@ -12,9 +12,10 @@ import { TikTokManualEntryModal } from "@/components/TikTokManualEntryModal";
 import { CompanyChat } from "@/components/CompanyChat";
 import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
 import { useState } from "react";
+import { useCompanyData } from "@/hooks/useCompanyData";
 
 export default function Tokeniza() {
-  const companyId = 2; // Tokeniza ID
+  const { companyId, companyName } = useCompanyData();
   const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const [twitterModalOpen, setTwitterModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
@@ -578,7 +579,7 @@ export default function Tokeniza() {
       </div>
       
       {/* AI Chat Assistant */}
-      <CompanyChat companyId={companyId} companyName="Tokeniza" />
+      {companyId && <CompanyChat companyId={companyId} companyName={companyName || "Tokeniza"} />}
     </DashboardLayout>
   );
 }

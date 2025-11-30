@@ -273,14 +273,37 @@ export const appRouter = router({
     // Refresh all KPIs for a company
     refresh: protectedProcedure
       .input(z.object({ companySlug: z.string() }))
-      .mutation(async ({ input }) => {
-        // TODO: Implement actual data fetching from integrations
-        // For now, just return success
-        return { 
-          success: true, 
-          message: 'KPIs atualizados com sucesso',
-          timestamp: new Date().toISOString(),
-        };
+      .mutation(async ({ input, ctx }) => {
+        const startTime = Date.now();
+        const user = ctx.user;
+        
+        logger.info(`[refresh] User ${user?.email || 'unknown'} initiated refresh for ${input.companySlug}`);
+        
+        try {
+          const company = await db.getCompanyBySlug(input.companySlug);
+          if (!company) {
+            throw new Error('Company not found');
+          }
+
+          // Trigger snapshot creation which recalculates all KPIs
+          await executeSnapshotManually();
+          
+          const duration = Date.now() - startTime;
+          logger.info(`[refresh] Completed in ${duration}ms by ${user?.email || 'unknown'}`);
+          
+          return { 
+            success: true, 
+            message: 'KPIs recalculados e salvos com sucesso',
+            timestamp: new Date().toISOString(),
+            duration,
+            initiatedBy: user?.email || 'unknown',
+          };
+        } catch (error) {
+          const duration = Date.now() - startTime;
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          logger.error(`[refresh] Failed after ${duration}ms: ${errorMessage}`);
+          throw error;
+        }
       }),
 
     // Get integration status from database (based on real API usage)

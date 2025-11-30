@@ -145,7 +145,7 @@ export class IntegrationStatusChecker {
     const discordToken = process.env.DISCORD_BOT_TOKEN;
     const discordGuildId = process.env.DISCORD_GUILD_ID;
     const niboToken = process.env.NIBO_API_TOKEN;
-    const metricoolToken = process.env.METRICOOL_API_TOKEN || process.env.NIBO_API_TOKEN; // Fallback to NIBO_API_TOKEN if METRICOOL not set
+    const metricoolToken = process.env.METRICOOL_API_TOKEN;
 
     const results = await Promise.all([
       this.checkPipedrive(pipedriveToken),

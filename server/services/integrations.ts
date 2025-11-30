@@ -429,7 +429,7 @@ export class MetricoolService implements IntegrationService {
       },
     });
 
-    logger.info('[Metricool] Response status:', response.status, response.statusText);
+    logger.info(`[Metricool] Response status: ${response.status} ${response.statusText}`);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -1168,7 +1168,11 @@ export function createIntegrationService(
     case 'nibo':
       return new NiboService(apiKey, config);
     case 'mautic':
-      return new MauticService(apiKey, config);
+      // MauticService expects credentials object as first parameter
+      return new MauticService(
+        typeof apiKey === 'string' ? { accessToken: apiKey } : apiKey,
+        config
+      );
     case 'metricool':
       return new MetricoolService(apiKey, config);
     case 'discord':

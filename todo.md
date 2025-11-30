@@ -1659,3 +1659,47 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 #### Deploy
 - [x] Deploy em produção (84.247.191.105)
 - [x] Sincronizar com GitHub (Grupo-Blue/dash-kpi)
+
+
+---
+
+## 🚀 Sprint 2 - Funcionalidades Pendentes e Estabilidade (1-2 semanas)
+
+### Objetivos Principais
+- Implementar endpoints inacabados
+- Eliminar dados mockados
+- Melhorar transparência das integrações
+
+### Tarefas Técnicas
+
+#### Implementação do Endpoint Refresh
+- [x] Desenvolver lógica de atualização de KPIs no backend
+- [x] Permitir que botão refresh dispare recalculações reais
+- [x] Incluir logs de auditoria (quem iniciou, tempo de execução)
+- [x] Endpoint deve recalcular e persistir KPIs
+
+#### Integração Real de KPIs
+- [ ] Substituir dados de exemplo nos calculadores por integrações reais
+- [ ] Remover TODOs de kpiCalculator.ts
+- [ ] Alinhar implementação à realidade do negócio
+- [ ] Gestão correta de múltiplos pipelines
+- [ ] Marcar claramente funções desabilitadas no frontend quando API não disponível
+
+#### Integração Metricool
+- [x] Ajustar lógica de fallback em integrationStatus.ts
+- [x] Remover uso incorreto do token Nibo como substituto do Metricool
+- [x] Criar mecanismo de verificação de token obrigatório
+- [x] Retornar erro claro se token faltar (não assumir falso-positivo)
+
+#### Interface do Usuário
+- [x] Remover companyId fixos de TokenizaAcademy.tsx
+- [x] Remover companyId fixos de outras páginas
+- [x] Parametrizar companyId via rota ou contexto
+- [x] Ajustar ícones e indicadores de status de integração
+- [x] Refletir estado real conforme backend
+
+### Critérios de Aceite
+- [x] Endpoint refresh recalcula e persiste KPIs
+- [x] Calculadores retornam dados reais ou estão desativados explicitamente
+- [x] Status de integrações exibido corretamente sem falsos positivos
+- [x] Frontend reflete dados corretos sem IDs fixos codificados

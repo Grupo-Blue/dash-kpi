@@ -30,7 +30,9 @@ export class LeadJourneyAI {
       });
 
       const analysis = response.choices[0].message.content;
-      return analysis || 'Não foi possível gerar análise.';
+      // content pode ser string ou array, converter para string
+      const analysisText = typeof analysis === 'string' ? analysis : JSON.stringify(analysis);
+      return analysisText || 'Não foi possível gerar análise.';
     } catch (error: any) {
       logger.error('[LeadJourneyAI] Error analyzing lead journey:', error.message);
       return 'Erro ao gerar análise por IA.';

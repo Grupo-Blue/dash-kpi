@@ -11,9 +11,10 @@ import { SocialMediaTabs } from "@/components/SocialMediaTabs";
 import { CompanyChat } from "@/components/CompanyChat";
 import { PeriodFilter, type PeriodFilter as PeriodFilterType } from "@/components/PeriodFilter";
 import { useState } from "react";
+import { useCompanyData } from "@/hooks/useCompanyData";
 
 export default function BlueConsult() {
-  const companyId = 1; // Blue Consult ID
+  const { companyId, companyName } = useCompanyData();
   const [periodFilter, setPeriodFilter] = useState<PeriodFilterType>({ type: 'current_month' });
   const { data: kpis, isLoading, refetch } = trpc.kpis.blueConsult.useQuery();
   const { data: niboKpis, isLoading: niboLoading, error: niboError } = trpc.kpis.niboFinancial.useQuery(undefined, {
@@ -451,7 +452,7 @@ export default function BlueConsult() {
       </div>
       
       {/* AI Chat Assistant */}
-      <CompanyChat companyId={companyId} companyName="Blue Consult" />
+      {companyId && <CompanyChat companyId={companyId} companyName={companyName || "Blue Consult"} />}
     </DashboardLayout>
   );
 }
