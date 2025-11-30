@@ -1603,3 +1603,13 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Criar checkpoint
 - [x] Deploy no servidor de produção
 - [x] Criar primeiro usuário admin via SQL
+
+### Correções de Autenticação e Deploy - ✅ CONCLUÍDO (30/11/2025)
+- [x] Corrigir bug do logout (redirect para página de login após logout)
+- [x] Corrigir erro "Database not available" ao fazer login
+- [x] Adicionar variável `jwtSecret` ao ENV.ts
+- [x] Configurar variáveis de ambiente no servidor de produção (DATABASE_URL, JWT_SECRET, VITE_APP_ID)
+- [x] Criar ecosystem.config.cjs para gerenciar variáveis de ambiente no PM2
+- [x] Atualizar openId de usuários locais para compatibilidade com sdk.signSession
+- [x] Testar login e logout em produção (https://dashboard.grupoblue.com.br)
+- [x] Sincronizar código com GitHub (Grupo-Blue/dash-kpi)

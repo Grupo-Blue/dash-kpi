@@ -218,7 +218,11 @@ class SDKServer {
         !isNonEmptyString(appId) ||
         !isNonEmptyString(name)
       ) {
-        logger.warn("[Auth] Session payload missing required fields");
+        logger.warn("[Auth] Session payload missing required fields", {
+          openId: typeof openId === 'string' ? `${openId.substring(0, 10)}...` : typeof openId,
+          appId: typeof appId === 'string' ? `${appId.substring(0, 10)}...` : typeof appId,
+          name: typeof name === 'string' ? `${name.substring(0, 10)}...` : typeof name,
+        });
         return null;
       }
 

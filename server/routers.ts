@@ -23,10 +23,7 @@ import { leadJourneyService } from './services/leadJourneyService';
 import { getLeadJourneyHistory, getLeadJourneyCache, saveLeadJourneyCache } from './db/leadJourneyDb';
 import { leadJourneyAI } from './services/leadJourneyAI';
 import { authenticateUser, createLocalUser } from './services/localAuth';
-import jwt from 'jsonwebtoken';
-const { sign } = jwt;
-import { logger } from './utils/secureLogger';
-
+import { sdk } from './_core/sdk';
 import { logger } from './utils/logger';
 export const appRouter = router({
   system: systemRouter,
@@ -47,11 +44,14 @@ export const appRouter = router({
           throw new Error('Invalid credentials');
         }
 
-        // Criar JWT token
-        const token = sign(
-          { userId: user.id, email: user.email, role: user.role },
-          ENV.jwtSecret,
-          { expiresIn: '7d' }
+        // Criar JWT token compatível com o sistema de sessão do Manus
+        const token = await sdk.signSession(
+          {
+            openId: user.openId,
+            appId: ENV.appId,
+            name: user.name || user.email || 'User',
+          },
+          { expiresInMs: 7 * 24 * 60 * 60 * 1000 } // 7 dias
         );
 
         // Definir cookie de sessão

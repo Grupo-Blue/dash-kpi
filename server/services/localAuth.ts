@@ -102,6 +102,9 @@ export async function createLocalUser(data: CreateUserData) {
   // Hash da senha
   const passwordHash = await hashPassword(data.password);
 
+  // Gerar openId único para usuário local (formato: local_<timestamp>_<random>)
+  const openId = `local_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+
   // Criar usuário
   await db.insert(users).values({
     email: data.email,
@@ -109,7 +112,7 @@ export async function createLocalUser(data: CreateUserData) {
     name: data.name,
     role: data.role || 'user',
     loginMethod: 'local',
-    openId: null, // Não usa OAuth
+    openId: openId,
   });
 
   // Buscar usuário criado
