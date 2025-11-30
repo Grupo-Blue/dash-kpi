@@ -43,28 +43,29 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
+  /* Modern color palette with gradients */
+  --primary: oklch(0.55 0.22 260); /* Vibrant blue-purple */
+  --primary-foreground: oklch(0.99 0 0);
+  --sidebar-primary: oklch(0.50 0.20 260);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --chart-1: oklch(0.70 0.15 260); /* Light purple */
+  --chart-2: oklch(0.65 0.18 240); /* Blue */
+  --chart-3: oklch(0.60 0.20 220); /* Cyan */
+  --chart-4: oklch(0.55 0.22 200); /* Teal */
+  --chart-5: oklch(0.50 0.18 180); /* Green-teal */
+  --radius: 0.75rem; /* Slightly larger radius for modern look */
+  --background: oklch(0.98 0.002 260); /* Subtle purple tint */
+  --foreground: oklch(0.20 0.015 260);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
+  --card-foreground: oklch(0.20 0.015 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.235 0.015 65);
   --secondary: oklch(0.98 0.001 286.375);
   --secondary-foreground: oklch(0.4 0.015 65);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
+  --accent: oklch(0.95 0.05 260); /* Soft purple accent */
+  --accent-foreground: oklch(0.20 0.015 260);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.92 0.004 286.32);
@@ -173,5 +174,50 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+
+  /* Modern card styles with glassmorphism */
+  .card-modern {
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  .card-gradient {
+    @apply bg-gradient-to-br from-primary/10 via-card to-card;
+  }
+
+  /* Animated gradient backgrounds */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .bg-gradient-animated {
+    background: linear-gradient(135deg, 
+      oklch(0.70 0.15 260), 
+      oklch(0.65 0.18 240), 
+      oklch(0.60 0.20 220)
+    );
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  /* Smooth hover effects */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+
+  /* Number animation */
+  @keyframes number-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+
+  .number-animate {
+    animation: number-pop 0.3s ease-out;
   }
 }
