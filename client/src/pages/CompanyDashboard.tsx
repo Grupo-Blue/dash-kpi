@@ -27,6 +27,9 @@ export default function CompanyDashboard() {
 
   // State para aba ativa
   const [activeModuleId, setActiveModuleId] = useState<string>('overview');
+  
+  // State para comparação de períodos
+  const [compareEnabled, setCompareEnabled] = useState<boolean>(false);
 
   // Atualizar aba ativa quando módulos carregarem
   if (modules.length > 0 && !modules.find(m => m.id === activeModuleId)) {
@@ -85,10 +88,37 @@ export default function CompanyDashboard() {
               <h1 className="text-2xl font-bold text-gray-900">{companyName}</h1>
               <p className="text-sm text-gray-500 mt-1">Dashboard de KPIs</p>
             </div>
-            <DateRangePicker
-              value={dateRange.preset || 'last_30_days'}
-              onChange={handlePresetChange}
-            />
+            <div className="flex items-center gap-4">
+              {/* Toggle de comparação */}
+              <button
+                onClick={() => setCompareEnabled(!compareEnabled)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  compareEnabled
+                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                title="Comparar com período anterior"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                  />
+                </svg>
+                Comparar
+              </button>
+              <DateRangePicker
+                value={dateRange.preset || 'last_30_days'}
+                onChange={handlePresetChange}
+              />
+            </div>
           </div>
 
           {/* Tabs */}
@@ -154,7 +184,7 @@ export default function CompanyDashboard() {
             companySlug={companySlug}
             moduleId={activeModuleId}
             dateRange={dateRange}
-            compare={false}
+            compare={compareEnabled}
           />
         )}
       </div>

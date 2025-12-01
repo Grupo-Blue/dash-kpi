@@ -6,6 +6,8 @@
 
 import { trpc } from '../../lib/trpc';
 import type { DateRange } from '../../dashboard/dateRange';
+import { TimeseriesChart } from './TimeseriesChart';
+import { BarChart } from './BarChart';
 
 type ModuleRendererProps = {
   companySlug: string;
@@ -142,20 +144,32 @@ export function ModuleRenderer({
         </div>
       )}
 
-      {/* Charts - Placeholder */}
+      {/* Charts */}
       {hasCharts && (
         <div className="space-y-4">
-          {data.charts.map((chart) => (
-            <div
-              key={chart.id}
-              className="bg-white border border-gray-200 rounded-lg p-6"
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{chart.title}</h3>
-              <div className="h-64 bg-gray-50 rounded flex items-center justify-center">
-                <p className="text-gray-500">Gráfico será implementado em breve</p>
-              </div>
-            </div>
-          ))}
+          {data.charts.map((chart) => {
+            if (chart.type === 'timeseries') {
+              return (
+                <TimeseriesChart
+                  key={chart.id}
+                  id={chart.id}
+                  title={chart.title}
+                  series={chart.series}
+                  granularity={chart.granularity}
+                />
+              );
+            } else if (chart.type === 'bar') {
+              return (
+                <BarChart
+                  key={chart.id}
+                  id={chart.id}
+                  title={chart.title}
+                  categories={chart.categories}
+                />
+              );
+            }
+            return null;
+          })}
         </div>
       )}
 

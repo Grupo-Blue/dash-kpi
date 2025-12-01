@@ -1390,11 +1390,19 @@ export const appRouter = router({
         compare: z.boolean().optional(),
       }))
       .query(async ({ input, ctx }) => {
-        const { getOverviewModule } = await import('./dashboard/modules/overview');
-        
         switch (input.moduleId) {
-          case "overview":
+          case "overview": {
+            const { getOverviewModule } = await import('./dashboard/modules/overview');
             return getOverviewModule(input);
+          }
+          case "sales": {
+            const { getSalesModule } = await import('./dashboard/modules/sales');
+            return getSalesModule(input);
+          }
+          case "finance": {
+            const { getFinanceModule } = await import('./dashboard/modules/finance');
+            return getFinanceModule(input);
+          }
           default:
             throw new Error(`Module ${input.moduleId} not implemented`);
         }
