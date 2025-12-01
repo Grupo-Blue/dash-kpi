@@ -9,6 +9,8 @@ interface CompanyFormData {
   active: boolean;
 }
 
+const PROTECTED_SLUGS = ['blue-consult', 'tokeniza', 'tokeniza-academy', 'mychel-mendes'];
+
 export function ManageCompanies() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<number | null>(null);
@@ -113,6 +115,12 @@ export function ManageCompanies() {
     }));
   };
 
+  const isProtected = editingCompany
+    ? PROTECTED_SLUGS.includes(
+        companies?.find(c => c.id === editingCompany)?.slug ?? ''
+      )
+    : false;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-12">
@@ -200,17 +208,27 @@ export function ManageCompanies() {
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => handleDelete(company.id)}
-                    className={`${
-                      deleteConfirm === company.id
-                        ? 'text-red-600 hover:text-red-900'
-                        : 'text-gray-400 hover:text-red-600'
-                    }`}
-                    title={deleteConfirm === company.id ? 'Clique novamente para confirmar' : 'Excluir'}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {PROTECTED_SLUGS.includes(company.slug) ? (
+                    <button
+                      disabled
+                      className="text-gray-300 cursor-not-allowed"
+                      title="Empresa do sistema não pode ser removida"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleDelete(company.id)}
+                      className={`${
+                        deleteConfirm === company.id
+                          ? 'text-red-600 hover:text-red-900'
+                          : 'text-gray-400 hover:text-red-600'
+                      }`}
+                      title={deleteConfirm === company.id ? 'Clique novamente para confirmar' : 'Excluir'}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -274,12 +292,23 @@ export function ManageCompanies() {
                   type="text"
                   value={formData.slug}
                   onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+                  disabled={isProtected}
+                  className={`w-full px-3 py-2 border rounded-lg font-mono text-sm ${
+                    isProtected
+                      ? 'bg-gray-100 cursor-not-allowed border-gray-200 text-gray-500'
+                      : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  }`}
                   placeholder="blue-consult"
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Gerado automaticamente a partir do nome
-                </p>
+                {isProtected ? (
+                  <p className="mt-1 text-xs text-orange-600">
+                    🔒 Slug de empresas do sistema não pode ser alterado.
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Gerado automaticamente a partir do nome
+                  </p>
+                )}
               </div>
 
               <div>

@@ -8,7 +8,7 @@ import { createContext } from "./context";
 import { serveStatic } from "./static";
 import { initializeDailySnapshotJob } from "../jobs/dailySnapshot";
 import { validateEnv } from "./env";
-
+import { ensureDefaultCompanies } from "../db";
 import { logger } from '../utils/logger';
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -32,6 +32,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   // Validate environment variables before starting
   validateEnv();
+  
+  // Ensure default companies exist in database
+  await ensureDefaultCompanies();
   
   const app = express();
   const server = createServer(app);

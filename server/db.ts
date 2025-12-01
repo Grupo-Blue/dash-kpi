@@ -22,7 +22,7 @@ import {
   InsertSocialMediaMetric
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
-
+import { COMPANIES } from './config/companies';
 import { logger } from './utils/logger';
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -186,12 +186,33 @@ export async function deactivateCompany(id: number): Promise<Company> {
   return updated;
 }
 
+const PROTECTED_SLUGS = [
+  'blue-consult',
+  'tokeniza',
+  'tokeniza-academy',
+  'mychel-mendes',
+];
+
 export async function updateCompany(id: number, updates: Partial<InsertCompany>): Promise<Company> {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
-  
-  // If updating name and slug is not provided, regenerate slug
-  if (updates.name && !updates.slug) {
+
+  const existing = await getCompanyById(id);
+  if (!existing) throw new Error('Company not found');
+
+  // Não deixar mudar slug das empresas do sistema
+  if (PROTECTED_SLUGS.includes(existing.slug)) {
+    if (updates.slug && updates.slug !== existing.slug) {
+      throw new Error('Slug de empresa do sistema não pode ser alterado');
+    }
+  }
+
+  // Se atualizar nome e não mandar slug, ele recalcula slug -> isso também não pode acontecer p/ protected
+  if (PROTECTED_SLUGS.includes(existing.slug) && updates.name && !updates.slug) {
+    // força manter slug atual
+    updates.slug = existing.slug;
+  } else if (updates.name && !updates.slug) {
+    // comportamento atual para empresas comuns
     updates.slug = updates.name
       .toLowerCase()
       .normalize('NFD')
@@ -209,6 +230,13 @@ export async function updateCompany(id: number, updates: Partial<InsertCompany>)
 export async function deleteCompany(id: number): Promise<void> {
   const db = await getDb();
   if (!db) throw new Error('Database not available');
+
+  const existing = await getCompanyById(id);
+  if (!existing) return;
+
+  if (PROTECTED_SLUGS.includes(existing.slug)) {
+    throw new Error('Empresa do sistema não pode ser removida');
+  }
   
   // Check if company has associated data
   const kpis = await db.select().from(kpiCache).where(eq(kpiCache.companyId, id)).limit(1);
@@ -217,6 +245,43 @@ export async function deleteCompany(id: number): Promise<void> {
   }
   
   await db.delete(companies).where(eq(companies.id, id));
+}
+
+const SYSTEM_COMPANY_DEFS = [
+  { key: 'BLUE_CONSULT', slug: 'blue-consult' },
+  { key: 'TOKENIZA', slug: 'tokeniza' },
+  { key: 'TOKENIZA_ACADEMY', slug: 'tokeniza-academy' },
+  { key: 'MYCHEL_MENDES', slug: 'mychel-mendes' },
+];
+
+export async function ensureDefaultCompanies(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+
+  for (const def of SYSTEM_COMPANY_DEFS) {
+    const config = (COMPANIES as any)[def.key];
+    if (!config) {
+      logger.warn(`[Companies] Config not found for key ${def.key}`);
+      continue;
+    }
+
+    // já existe empresa com esse slug?
+    const existing = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.slug, def.slug))
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(companies).values({
+        name: config.name,
+        slug: def.slug,
+        description: config.description,
+        active: true,
+      });
+      logger.info(`[Companies] Created default company: ${config.name} (${def.slug})`);
+    }
+  }
 }
 
 // Integrations
