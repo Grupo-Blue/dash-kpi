@@ -1403,6 +1403,18 @@ export const appRouter = router({
             const { getFinanceModule } = await import('./dashboard/modules/finance');
             return getFinanceModule(input);
           }
+          case "marketing": {
+            const { getMarketingModule } = await import('./dashboard/modules/marketing');
+            return getMarketingModule(input);
+          }
+          case "social": {
+            const { getSocialModule } = await import('./dashboard/modules/social');
+            return getSocialModule(input);
+          }
+          case "youtube": {
+            const { getYoutubeModule } = await import('./dashboard/modules/youtube');
+            return getYoutubeModule(input);
+          }
           default:
             throw new Error(`Module ${input.moduleId} not implemented`);
         }
