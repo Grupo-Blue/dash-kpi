@@ -1,9 +1,0 @@
-{
-  "query": "INSERT INTO users (email, password, name, role, loginMethod, createdAt, updatedAt, lastSignedIn)\nVALUES ('admin@grupoblue.com.br', '$2b$10$S3yrekwejlyUzMXJUSUHhODC8LKabFH/jARxCypw9fzSQXycSVUde', 'Administrador', 'admin', 'local', NOW(), NOW(), NOW())\nON DUPLICATE KEY UPDATE password = '$2b$10$S3yrekwejlyUzMXJUSUHhODC8LKabFH/jARxCypw9fzSQXycSVUde';",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute INSERT INTO users (email, password, name, role, loginMethod, createdAt, updatedAt, lastSignedIn)\nVALUES ('admin@grupoblue.com.br', '$2b$10$S3yrekwejlyUzMXJUSUHhODC8LKabFH/jARxCypw9fzSQXycSVUde', 'Administrador', 'admin', 'local', NOW(), NOW(), NOW())\nON DUPLICATE KEY UPDATE password = '$2b$10$S3yrekwejlyUzMXJUSUHhODC8LKabFH/jARxCypw9fzSQXycSVUde';",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 139
-}

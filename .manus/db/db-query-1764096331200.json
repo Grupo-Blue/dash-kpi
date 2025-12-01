@@ -1,9 +1,0 @@
-{
-  "query": "SELECT email, LENGTH(mauticData) as mautic_size, mauticData LIKE '%acquisition%' as has_acquisition, cachedAt FROM leadJourneyCache ORDER BY cachedAt DESC LIMIT 10;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute SELECT email, LENGTH(mauticData) as mautic_size, mauticData LIKE '%acquisition%' as has_acquisition, cachedAt FROM leadJourneyCache ORDER BY cachedAt DESC LIMIT 10;",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 123
-}

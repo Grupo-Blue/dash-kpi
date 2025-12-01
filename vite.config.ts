@@ -1,5 +1,6 @@
 import { defineConfig, loadEnv, Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -25,7 +26,11 @@ function htmlEnvPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), htmlEnvPlugin()],
+  plugins: [
+    tailwindcss(),    // ✅ Tailwind v4
+    react(),
+    htmlEnvPlugin(),
+  ],
   root: 'client',
   build: {
     outDir: '../dist/client',

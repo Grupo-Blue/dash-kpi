@@ -1,8 +1,0 @@
-{
-  "query": "ALTER TABLE integrations \n  DROP COLUMN IF EXISTS userId,\n  DROP COLUMN IF EXISTS apiKey,\n  DROP COLUMN IF EXISTS active,\n  ADD COLUMN IF NOT EXISTS credentials JSON NOT NULL DEFAULT '{}',\n  ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT false;",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute ALTER TABLE integrations \n  DROP COLUMN IF EXISTS userId,\n  DROP COLUMN IF EXISTS apiKey,\n  DROP COLUMN IF EXISTS active,\n  ADD COLUMN IF NOT EXISTS credentials JSON NOT NULL DEFAULT '{}',\n  ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT false;",
-  "returncode": 1,
-  "logs": [
-    "ERROR 1101 (42000) at line 1: BLOB/TEXT/JSON column 'credentials' can't have a default value"
-  ]
-}

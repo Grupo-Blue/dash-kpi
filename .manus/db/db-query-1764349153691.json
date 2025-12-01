@@ -1,9 +1,0 @@
-{
-  "query": "CREATE TABLE IF NOT EXISTS discordMetricsSnapshots (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  guildId VARCHAR(100) NOT NULL,\n  totalMembers INT DEFAULT 0 NOT NULL,\n  onlineMembers INT DEFAULT 0 NOT NULL,\n  newMembers7days INT DEFAULT 0 NOT NULL,\n  newMembers30days INT DEFAULT 0 NOT NULL,\n  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute CREATE TABLE IF NOT EXISTS discordMetricsSnapshots (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  guildId VARCHAR(100) NOT NULL,\n  totalMembers INT DEFAULT 0 NOT NULL,\n  onlineMembers INT DEFAULT 0 NOT NULL,\n  newMembers7days INT DEFAULT 0 NOT NULL,\n  newMembers30days INT DEFAULT 0 NOT NULL,\n  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 57
-}

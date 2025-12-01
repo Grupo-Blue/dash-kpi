@@ -10,8 +10,6 @@ process.env.LOG_LEVEL = 'error'; // Only show errors during tests
 // Mock environment variables for testing
 process.env.DATABASE_URL = 'mysql://test:test@localhost:3306/test_db';
 process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
-process.env.OAUTH_SERVER_URL = 'https://test-oauth.example.com';
-process.env.VITE_APP_ID = 'test-app-id';
 
 // Mock console to reduce noise in tests
 global.console = {

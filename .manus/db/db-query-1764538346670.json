@@ -1,9 +1,0 @@
-{
-  "query": "UPDATE users SET openId = 'local_admin_grupoblue' WHERE email = 'admin@grupoblue.com.br';",
-  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute UPDATE users SET openId = 'local_admin_grupoblue' WHERE email = 'admin@grupoblue.com.br';",
-  "rows": [],
-  "messages": [],
-  "stdout": "",
-  "stderr": "",
-  "execution_time_ms": 61
-}
