@@ -34,7 +34,6 @@ const menuItems = [
   { icon: GraduationCap, label: "Tokeniza Academy", path: "/tokeniza-academy" },
   { icon: User, label: "Mychel Mendes", path: "/mychel-mendes" },
   { icon: Search, label: "Análise de Leads", path: "/lead-analysis" },
-  { icon: Settings, label: "Integrações", path: "/integrations", adminOnly: true },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";

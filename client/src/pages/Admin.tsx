@@ -4,6 +4,7 @@ import { Database, ListChecks, Settings as SettingsIcon } from "lucide-react";
 import { ManualDataHistory } from "@/components/admin/ManualDataHistory";
 import { ApiStatus } from "@/components/admin/ApiStatus";
 import { ManageCompanies } from "@/components/admin/ManageCompanies";
+import Integrations from "@/pages/Integrations";
 
 export default function Admin() {
   return (
@@ -17,7 +18,7 @@ export default function Admin() {
         </div>
 
         <Tabs defaultValue="history" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[800px]">
             <TabsTrigger value="history" className="flex items-center gap-2">
               <ListChecks className="h-4 w-4" />
               <span>Histórico de Registros</span>
@@ -29,6 +30,10 @@ export default function Admin() {
             <TabsTrigger value="companies" className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4" />
               <span>Gerenciar Empresas</span>
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2">
+              <SettingsIcon className="h-4 w-4" />
+              <span>Integrações</span>
             </TabsTrigger>
           </TabsList>
 
@@ -42,6 +47,10 @@ export default function Admin() {
 
           <TabsContent value="companies" className="space-y-4">
             <ManageCompanies />
+          </TabsContent>
+
+          <TabsContent value="integrations" className="space-y-4">
+            <Integrations />
           </TabsContent>
         </Tabs>
       </div>
