@@ -118,7 +118,7 @@ export default function Integrations() {
   const [formState, setFormState] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  const { data: companies } = trpc.admin.companies.list.useQuery();
+  const { data: companies } = trpc.companies.list.useQuery();
   const { data: integrations, isLoading, error, refetch } = trpc.adminIntegrations.getAll.useQuery();
   const updateMutation = trpc.adminIntegrations.updateCredentials.useMutation();
   const deleteMutation = trpc.adminIntegrations.deleteCredentials.useMutation();
