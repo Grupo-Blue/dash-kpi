@@ -282,3 +282,13 @@ export async function getYouTubeServiceForCompany(companySlug: string) {
 export async function getYouTubeServiceForUser(userId?: number) {
   return getYouTubeServiceForCompany('blue-consult');
 }
+
+/**
+ * Get Academy service (Tokeniza Academy or Cademi) for a company
+ * Tries Tokeniza Academy first, falls back to Cademi if available
+ */
+export async function getAcademyServiceForCompany(companySlug: string) {
+  // Por enquanto, apenas Tokeniza Academy está implementado
+  // No futuro, adicionar lógica para detectar qual serviço usar
+  return getTokenizaAcademyServiceForCompany(companySlug);
+}

@@ -1415,6 +1415,14 @@ export const appRouter = router({
             const { getYoutubeModule } = await import('./dashboard/modules/youtube');
             return getYoutubeModule(input);
           }
+          case "community": {
+            const { getCommunityModule } = await import('./dashboard/modules/community');
+            return getCommunityModule(input);
+          }
+          case "academy": {
+            const { getAcademyModule } = await import('./dashboard/modules/academy');
+            return getAcademyModule(input);
+          }
           default:
             throw new Error(`Module ${input.moduleId} not implemented`);
         }
