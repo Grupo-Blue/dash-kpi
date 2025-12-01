@@ -27,6 +27,7 @@ import { authenticateUser, createLocalUser } from './services/localAuth';
 import { sdk } from './_core/sdk';
 import { logger } from './utils/logger';
 import { adminRouter } from './routers/adminRouter';
+import { configSchema } from './services/integrationConfigSchema';
 import { getCompanyByBlogId } from './config/companies';
 import { getYouTubeServiceForCompany } from './services/integrationHelpers';
 import { DASHBOARD_MODULES } from './dashboard/registry';
@@ -174,7 +175,7 @@ export const appRouter = router({
       .input(z.object({
         serviceName: z.string(),
         apiKey: z.string(),
-        config: z.record(z.string(), z.any()).optional(),
+        config: configSchema,
         active: z.boolean().default(true),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -1487,7 +1488,7 @@ export const appRouter = router({
         ]),
         companySlug: z.string(), // Required: which company this integration belongs to
         apiKey: z.string().optional(),
-        config: z.record(z.any()).optional(), // vai carregar { credentials: {...} }
+        config: configSchema, // vai carregar { credentials: {...} }
         active: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {

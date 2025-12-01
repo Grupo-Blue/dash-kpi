@@ -2,6 +2,7 @@ import { z } from "zod";
 import { adminProcedure, router } from "../_core/trpc";
 import * as integrationDb from "../db/integrations";
 import { IntegrationStatusChecker } from "../services/integrationStatus";
+import { configSchema } from "../services/integrationConfigSchema";
 
 /**
  * Admin router for managing integrations and system settings
@@ -60,7 +61,7 @@ export const adminRouter = router({
     .input(z.object({
       serviceName: z.string(),
       credentials: z.record(z.string(), z.string()),
-      config: z.record(z.any()).optional(),
+      config: configSchema,
       enabled: z.boolean().optional(),
     }))
     .mutation(async ({ input }) => {

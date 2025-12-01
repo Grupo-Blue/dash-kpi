@@ -1181,7 +1181,7 @@ export class IntegrationFactory {
   static createService(
     serviceName: string,
     apiKey: string | null,
-    config: Record<string, any> | null
+    config: { credentials?: Record<string, unknown>; [key: string]: unknown } | null
   ): IntegrationService {
     switch (serviceName) {
       case 'pipedrive': {
