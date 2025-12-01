@@ -1423,6 +1423,14 @@ export const appRouter = router({
             const { getAcademyModule } = await import('./dashboard/modules/academy');
             return getAcademyModule(input);
           }
+          case "investments": {
+            const { getInvestmentsModule } = await import('./dashboard/modules/investments');
+            return getInvestmentsModule(input);
+          }
+          case "manual-kpis": {
+            const { getManualKpisModule } = await import('./dashboard/modules/manualKpis');
+            return getManualKpisModule(input);
+          }
           default:
             throw new Error(`Module ${input.moduleId} not implemented`);
         }
