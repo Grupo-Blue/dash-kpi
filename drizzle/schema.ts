@@ -37,18 +37,18 @@ export type InsertCompany = typeof companies.$inferInsert;
 
 /**
  * Integration configurations for external services
+ * Stores credentials and config for: Pipedrive, Discord, Metricool, Cademi, Nibo, Mautic
  */
 export const integrations = mysqlTable("integrations", {
   id: int("id").autoincrement().primaryKey(),
-  userId: int("userId").notNull(),
-  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, nibo, mautic, metricool, discord, tokeniza, tokeniza-academy, cademi
-  apiKey: text("apiKey"), // encrypted API key
+  serviceName: varchar("serviceName", { length: 100 }).notNull().unique(), // pipedrive, discord, metricool, cademi, nibo, mautic
+  credentials: json("credentials").$type<Record<string, string>>(), // { apiKey: "...", clientId: "...", etc }
   config: json("config").$type<Record<string, any>>(), // additional configuration as JSON
-  lastSync: timestamp("lastSync"),
+  enabled: boolean("enabled").default(false).notNull(), // whether this integration is active
   lastTested: timestamp("lastTested"), // last time connection was tested
-  testStatus: varchar("testStatus", { length: 50 }), // success, failed, pending
+  testStatus: varchar("testStatus", { length: 50 }), // success, failed, pending, not_tested
   testMessage: text("testMessage"), // result message from last test
-  active: boolean("active").default(true).notNull(),
+  lastSync: timestamp("lastSync"), // last successful data sync
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

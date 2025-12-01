@@ -1790,3 +1790,30 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Documentar DATABASE_URL do servidor de produção
 - [x] Criar script de deploy automático
 - [x] Criar documentação DEPLOY.md
+
+
+---
+
+## 🔧 Configuração Dinâmica de Integrações
+
+### Tornar Integrações Opcionais
+- [x] Remover PIPEDRIVE, DISCORD, METRICOOL, CADEMI, NIBO, MAUTIC de validateEnv
+- [ ] Ajustar código para verificar se credenciais existem antes de usar
+- [x] Sistema deve iniciar sem nenhuma integração configurada
+
+### Schema de Banco para Credenciais
+- [x] Criar tabela integrationCredentials
+- [x] Campos: id, serviceName, credentials (JSON), enabled, testStatus
+- [x] Migrar schema com drizzle
+
+### Endpoints tRPC para Gerenciar Credenciais
+- [x] Endpoint admin.getIntegrationCredentials
+- [x] Endpoint admin.updateIntegrationCredential
+- [x] Endpoint admin.testIntegrationConnection
+- [x] Proteger com adminProcedure
+
+### Página Admin de Configurações
+- [x] Criar /admin/settings
+- [x] Formulários para cada integração
+- [x] Botão "Testar Conexão" para cada integração
+- [x] Salvar credenciais no banco

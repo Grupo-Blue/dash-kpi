@@ -29,23 +29,26 @@ export const ENV = {
  * Throws error if critical variables are missing
  */
 export function validateEnv() {
+  // Only core variables are required
+  // All external integrations are now optional and can be configured via admin panel
   const required = [
     'JWT_SECRET',
     'DATABASE_URL',
-    // OAuth Manus variables are now optional (custom login system)
-    // 'VITE_APP_ID',
-    // 'OAUTH_SERVER_URL',
-    // 'OWNER_OPEN_ID',
-    'PIPEDRIVE_API_TOKEN',
-    'DISCORD_BOT_TOKEN',
-    'DISCORD_GUILD_ID',
-    'METRICOOL_API_TOKEN',
-    'METRICOOL_USER_ID',
-    'CADEMI_API_KEY',
-    'NIBO_API_TOKEN',
-    'MAUTIC_CLIENT_ID',
-    'MAUTIC_CLIENT_SECRET',
   ];
+  
+  // Optional variables (OAuth Manus, external integrations)
+  // 'VITE_APP_ID',
+  // 'OAUTH_SERVER_URL',
+  // 'OWNER_OPEN_ID',
+  // 'PIPEDRIVE_API_TOKEN',
+  // 'DISCORD_BOT_TOKEN',
+  // 'DISCORD_GUILD_ID',
+  // 'METRICOOL_API_TOKEN',
+  // 'METRICOOL_USER_ID',
+  // 'CADEMI_API_KEY',
+  // 'NIBO_API_TOKEN',
+  // 'MAUTIC_CLIENT_ID',
+  // 'MAUTIC_CLIENT_SECRET',
   
   const missing = required.filter(key => !process.env[key]);
   

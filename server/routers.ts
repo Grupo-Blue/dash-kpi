@@ -25,8 +25,11 @@ import { leadJourneyAI } from './services/leadJourneyAI';
 import { authenticateUser, createLocalUser } from './services/localAuth';
 import { sdk } from './_core/sdk';
 import { logger } from './utils/logger';
+import { adminRouter } from './routers/adminRouter';
+
 export const appRouter = router({
   system: systemRouter,
+  admin: adminRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

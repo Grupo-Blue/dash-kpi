@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE integrations \n  DROP COLUMN IF EXISTS userId,\n  DROP COLUMN IF EXISTS apiKey,\n  DROP COLUMN IF EXISTS active,\n  ADD COLUMN IF NOT EXISTS credentials JSON,\n  ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT false;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2Qbe3HsW4wtpjFA.78925f660202 --database CEz8GocwtDf6VgA5y5NN9x --execute ALTER TABLE integrations \n  DROP COLUMN IF EXISTS userId,\n  DROP COLUMN IF EXISTS apiKey,\n  DROP COLUMN IF EXISTS active,\n  ADD COLUMN IF NOT EXISTS credentials JSON,\n  ADD COLUMN IF NOT EXISTS enabled BOOLEAN NOT NULL DEFAULT false;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1506
+}

@@ -8,6 +8,20 @@
       "when": 1764349055256,
       "tag": "0000_graceful_wilson_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1764554918882,
+      "tag": "0001_unknown_tyrannus",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764555217115,
+      "tag": "0002_silky_stryfe",
+      "breakpoints": true
     }
   ]
 }
