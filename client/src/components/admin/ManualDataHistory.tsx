@@ -48,7 +48,7 @@ export function ManualDataHistory() {
   // Fetch all manual data records
   const { data: tiktokData, isLoading: loadingTikTok, error: errorTikTok, refetch: refetchTikTok } = trpc.tiktokMetrics.getAll.useQuery();
   const { data: socialData, isLoading: loadingSocial, error: errorSocial, refetch: refetchSocial } = trpc.socialMediaMetrics.getAll.useQuery();
-  const { data: companies, isLoading: loadingCompanies } = trpc.companies.getAll.useQuery();
+  const { data: companies, isLoading: loadingCompanies } = trpc.companies.list.useQuery();
 
   // Extract data from paginated response
   const tiktokRecords = tiktokData?.data || [];
