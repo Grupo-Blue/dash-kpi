@@ -5,6 +5,7 @@ import { Route, Switch, Redirect } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import CompanyDashboard from "./pages/CompanyDashboard";
 import BlueConsult from "./pages/BlueConsult";
 import Tokeniza from "./pages/Tokeniza";
 import TokenizaAcademy from "./pages/TokenizaAcademy";
@@ -33,15 +34,19 @@ function Router() {
   if (!isAuthenticated) {
     return <Login />;
   }
-
   // Se autenticado, mostrar rotas normais
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/blue-consult"} component={BlueConsult} />
-      <Route path={"/tokeniza"} component={Tokeniza} />
-      <Route path={"/tokeniza-academy"} component={TokenizaAcademy} />
-      <Route path={"/mychel-mendes"} component={MychelMendes} />
+      <Route path="/:companySlug">
+        {(params) => {
+          const validSlugs = ['blue-consult', 'tokeniza', 'tokeniza-academy', 'mychel-mendes'];
+          if (validSlugs.includes(params.companySlug)) {
+            return <CompanyDashboard />;
+          }
+          return null; // Deixa cair para outras rotas
+        }}
+      </Route>
       <Route path={"/admin"} component={Admin} />
       <Route path={"/admin/settings"} component={AdminSettings} />
       <Route path={"/integrations"}>

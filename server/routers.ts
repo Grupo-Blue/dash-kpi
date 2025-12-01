@@ -1380,6 +1380,25 @@ export const appRouter = router({
             title: mod.title,
           }));
       }),
+
+    // Get module data for a specific module
+    getModule: protectedProcedure
+      .input(z.object({
+        companySlug: z.string(),
+        moduleId: dashboardModuleIdEnum,
+        dateRange: dateRangeSchema,
+        compare: z.boolean().optional(),
+      }))
+      .query(async ({ input, ctx }) => {
+        const { getOverviewModule } = await import('./dashboard/modules/overview');
+        
+        switch (input.moduleId) {
+          case "overview":
+            return getOverviewModule(input);
+          default:
+            throw new Error(`Module ${input.moduleId} not implemented`);
+        }
+      }),
   }),
 
   // Admin - Integration Management
