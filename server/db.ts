@@ -582,13 +582,44 @@ export async function getAllIntegrations(): Promise<Integration[]> {
 }
 
 /**
- * Get integration credentials by service name
+ * Get all integrations for a specific company
  */
-export async function getIntegrationCredentials(serviceName: string): Promise<Integration | undefined> {
-  logger.info('[DB] getIntegrationCredentials called for service:', serviceName);
+export async function getCompanyIntegrations(companyId: number): Promise<Integration[]> {
+  logger.info('[DB] getCompanyIntegrations called for companyId:', companyId);
+  const db = await getDb();
+  if (!db) return [];
+  
+  const results = await db
+    .select()
+    .from(integrations)
+    .where(eq(integrations.companyId, companyId));
+  
+  return results;
+}
+
+/**
+ * Get integration credentials by service name and company
+ */
+export async function getIntegrationCredentials(serviceName: string, companyId?: number): Promise<Integration | undefined> {
+  logger.info('[DB] getIntegrationCredentials called for service:', serviceName, 'companyId:', companyId);
   const db = await getDb();
   if (!db) return undefined;
   
+  // If companyId is provided, search by company + service
+  if (companyId !== undefined) {
+    const result = await db
+      .select()
+      .from(integrations)
+      .where(and(
+        eq(integrations.companyId, companyId),
+        eq(integrations.serviceName, serviceName)
+      ))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  // Fallback: search without companyId (for backward compatibility)
   const result = await db
     .select()
     .from(integrations)
@@ -602,7 +633,7 @@ export async function getIntegrationCredentials(serviceName: string): Promise<In
  * Upsert integration credentials with test status
  */
 export async function upsertIntegrationCredentials(data: {
-  userId: number;
+  companyId: number;
   serviceName: string;
   apiKey?: string | null;
   config?: Record<string, any> | null;
@@ -611,25 +642,23 @@ export async function upsertIntegrationCredentials(data: {
   testStatus?: string | null;
   testMessage?: string | null;
 }): Promise<void> {
-  logger.info('[DB] upsertIntegrationCredentials called for service:', data.serviceName);
+  logger.info('[DB] upsertIntegrationCredentials called for service:', data.serviceName, 'companyId:', data.companyId);
   const db = await getDb();
   if (!db) return;
   
   const insertData: InsertIntegration = {
-    userId: data.userId,
+    companyId: data.companyId,
     serviceName: data.serviceName,
-    apiKey: data.apiKey,
     config: data.config,
-    active: data.active ?? true,
+    enabled: data.active ?? true,
   };
   
   const updateData: any = {
     updatedAt: new Date(),
   };
   
-  if (data.apiKey !== undefined) updateData.apiKey = data.apiKey;
   if (data.config !== undefined) updateData.config = data.config;
-  if (data.active !== undefined) updateData.active = data.active;
+  if (data.active !== undefined) updateData.enabled = data.active;
   if (data.lastTested !== undefined) updateData.lastTested = data.lastTested;
   if (data.testStatus !== undefined) updateData.testStatus = data.testStatus;
   if (data.testMessage !== undefined) updateData.testMessage = data.testMessage;
@@ -643,14 +672,17 @@ export async function upsertIntegrationCredentials(data: {
 /**
  * Delete integration credentials
  */
-export async function deleteIntegrationCredentials(serviceName: string): Promise<void> {
-  logger.info('[DB] deleteIntegrationCredentials called for service:', serviceName);
+export async function deleteIntegrationCredentials(serviceName: string, companyId: number): Promise<void> {
+  logger.info('[DB] deleteIntegrationCredentials called for service:', serviceName, 'companyId:', companyId);
   const db = await getDb();
   if (!db) return;
   
   await db
     .delete(integrations)
-    .where(eq(integrations.serviceName, serviceName));
+    .where(and(
+      eq(integrations.companyId, companyId),
+      eq(integrations.serviceName, serviceName)
+    ));
 }
 
 // ===== Discord Metrics Snapshots Functions =====

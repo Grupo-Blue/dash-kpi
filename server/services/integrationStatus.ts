@@ -1,8 +1,8 @@
 /**
  * Integration Status Checker
- * Verifica o status (Online/Offline) de cada integração
+ * Verifica o status (Online/Offline) de cada integração por empresa
  * 
- * Prioriza credenciais do banco de dados, com fallback para variáveis de ambiente
+ * Sprint I4: Refatorado para suportar integrações multi-empresa
  */
 
 import { IntegrationFactory } from './integrations';
@@ -12,64 +12,99 @@ import { logger } from '../utils/logger';
 
 export interface IntegrationStatus {
   name: string;
+  companyId: number;
+  companySlug?: string;
   status: 'online' | 'offline' | 'not_configured';
   lastChecked: Date;
   error?: string;
-  source?: 'database' | 'environment';
+  source?: 'database' | 'environment' | 'none';
 }
 
 export class IntegrationStatusChecker {
   /**
-   * Check a single integration status
+   * Check a single integration status for a specific company
    * Tries to load credentials from DB first, then falls back to ENV
    */
-  static async checkIntegration(serviceName: string): Promise<IntegrationStatus> {
+  static async checkIntegration(serviceName: string, companyId: number): Promise<IntegrationStatus> {
     try {
-      // Try to load credentials from database
+      // Try to load credentials from database for this company
       let apiKey: string | null = null;
       let config: Record<string, any> | null = null;
-      let source: 'database' | 'environment' = 'environment';
+      let source: 'database' | 'environment' | 'none' = 'none';
 
       try {
-        const integration = await db.getIntegrationCredentials(serviceName);
-        if (integration && integration.active !== false) {
-          apiKey = integration.apiKey ?? null;
-          config = integration.config ?? null;
-          source = 'database';
-          logger.info(`[IntegrationStatus] Using DB credentials for ${serviceName}`);
+        const integration = await db.getIntegrationCredentials(serviceName, companyId);
+        if (integration && integration.enabled !== false) {
+          // Extract credentials from config.credentials
+          const credentials = integration.config?.credentials as Record<string, string> | undefined;
+          if (credentials) {
+            config = integration.config;
+            source = 'database';
+            logger.info(`[IntegrationStatus] Using DB credentials for ${serviceName} (companyId: ${companyId})`);
+          }
         }
       } catch (dbError) {
-        logger.warn(`[IntegrationStatus] Failed to load DB credentials for ${serviceName}, falling back to ENV`);
+        logger.warn(`[IntegrationStatus] Failed to load DB credentials for ${serviceName} (companyId: ${companyId}), falling back to ENV`);
       }
 
       // If no DB credentials, try environment variables (fallback)
-      if (!apiKey && !config) {
+      if (!config && source === 'none') {
         switch (serviceName) {
           case 'pipedrive':
-            apiKey = ENV.pipedriveApiToken;
+            if (ENV.pipedriveApiToken) {
+              apiKey = ENV.pipedriveApiToken;
+              source = 'environment';
+            }
             break;
           case 'nibo':
-            apiKey = ENV.niboApiToken;
+            if (ENV.niboApiToken) {
+              apiKey = ENV.niboApiToken;
+              source = 'environment';
+            }
             break;
           case 'metricool':
-            apiKey = ENV.metricoolApiToken;
-            config = { credentials: { userId: ENV.metricoolUserId } };
+            if (ENV.metricoolApiToken) {
+              apiKey = ENV.metricoolApiToken;
+              config = { credentials: { userId: ENV.metricoolUserId } };
+              source = 'environment';
+            }
             break;
           case 'discord':
-            apiKey = ENV.discordBotToken;
-            config = { credentials: { guildId: ENV.discordGuildId } };
+            if (ENV.discordBotToken) {
+              apiKey = ENV.discordBotToken;
+              config = { credentials: { guildId: ENV.discordGuildId } };
+              source = 'environment';
+            }
             break;
           case 'mautic':
-            config = {
-              credentials: {
-                baseUrl: ENV.mauticBaseUrl,
-                clientId: ENV.mauticClientId,
-                clientSecret: ENV.mauticClientSecret,
-              }
-            };
+            if (ENV.mauticBaseUrl && ENV.mauticClientId && ENV.mauticClientSecret) {
+              config = {
+                credentials: {
+                  baseUrl: ENV.mauticBaseUrl,
+                  clientId: ENV.mauticClientId,
+                  clientSecret: ENV.mauticClientSecret,
+                }
+              };
+              source = 'environment';
+            }
             break;
           case 'cademi':
-            apiKey = ENV.cademiApiKey;
+            if (ENV.cademiApiKey) {
+              apiKey = ENV.cademiApiKey;
+              source = 'environment';
+            }
+            break;
+          case 'tokeniza':
+            if (ENV.tokenizaApiToken) {
+              apiKey = ENV.tokenizaApiToken;
+              source = 'environment';
+            }
+            break;
+          case 'tokeniza-academy':
+            if (ENV.tokenizaAcademyApiToken) {
+              apiKey = ENV.tokenizaAcademyApiToken;
+              source = 'environment';
+            }
             break;
         }
       }
@@ -78,9 +113,10 @@ export class IntegrationStatusChecker {
       if (!apiKey && !config) {
         return {
           name: serviceName,
+          companyId,
           status: 'not_configured',
           lastChecked: new Date(),
-          source,
+          source: 'none',
         };
       }
 
@@ -90,14 +126,16 @@ export class IntegrationStatusChecker {
 
       return {
         name: serviceName,
+        companyId,
         status: isOnline ? 'online' : 'offline',
         lastChecked: new Date(),
         source,
       };
     } catch (error) {
-      logger.error(`[IntegrationStatus] Error checking ${serviceName}:`, error);
+      logger.error(`[IntegrationStatus] Error checking ${serviceName} (companyId: ${companyId}):`, error);
       return {
         name: serviceName,
+        companyId,
         status: 'offline',
         lastChecked: new Date(),
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -106,56 +144,84 @@ export class IntegrationStatusChecker {
   }
 
   /**
-   * Check Pipedrive integration status
-   * @deprecated Use checkIntegration('pipedrive') instead
-   */
-  static async checkPipedrive(apiToken?: string): Promise<IntegrationStatus> {
-    return this.checkIntegration('pipedrive');
-  }
-
-  /**
-   * Check Discord integration status
-   * @deprecated Use checkIntegration('discord') instead
-   */
-  static async checkDiscord(botToken?: string, guildId?: string): Promise<IntegrationStatus> {
-    return this.checkIntegration('discord');
-  }
-
-  /**
-   * Check Nibo integration status
-   * @deprecated Use checkIntegration('nibo') instead
-   */
-  static async checkNibo(apiToken?: string): Promise<IntegrationStatus> {
-    return this.checkIntegration('nibo');
-  }
-
-  /**
-   * Check Metricool integration status
-   * @deprecated Use checkIntegration('metricool') instead
-   */
-  static async checkMetricool(apiToken?: string): Promise<IntegrationStatus> {
-    return this.checkIntegration('metricool');
-  }
-
-  /**
-   * Check all integrations status
+   * Check all integrations for all companies
+   * Returns a flat list of integration statuses with company info
    */
   static async checkAll(): Promise<IntegrationStatus[]> {
-    const services = [
-      'pipedrive',
-      'nibo',
-      'metricool',
-      'discord',
-      'mautic',
-      'tokeniza',
-      'tokeniza-academy',
-      'cademi',
-    ];
+    try {
+      // Get all integrations from database
+      const allIntegrations = await db.getAllIntegrations();
+      
+      // Check status for each integration
+      const results = await Promise.all(
+        allIntegrations.map(async (integration) => {
+          const status = await this.checkIntegration(integration.serviceName, integration.companyId);
+          
+          // Enrich with company slug
+          const company = await db.getCompanyById(integration.companyId);
+          return {
+            ...status,
+            companySlug: company?.slug || 'unknown',
+          };
+        })
+      );
 
-    const results = await Promise.all(
-      services.map(service => this.checkIntegration(service))
-    );
+      return results;
+    } catch (error) {
+      logger.error('[IntegrationStatus] Error checking all integrations:', error);
+      return [];
+    }
+  }
 
-    return results;
+  /**
+   * Check all integrations for a specific company
+   */
+  static async checkAllForCompany(companyId: number): Promise<IntegrationStatus[]> {
+    try {
+      const companyIntegrations = await db.getCompanyIntegrations(companyId);
+      
+      const results = await Promise.all(
+        companyIntegrations.map(integration => 
+          this.checkIntegration(integration.serviceName, companyId)
+        )
+      );
+
+      return results;
+    } catch (error) {
+      logger.error(`[IntegrationStatus] Error checking integrations for companyId ${companyId}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * @deprecated Use checkIntegration(serviceName, companyId) instead
+   */
+  static async checkPipedrive(apiToken?: string): Promise<IntegrationStatus> {
+    // Fallback to companyId 1 (Blue Consult) for backward compatibility
+    return this.checkIntegration('pipedrive', 1);
+  }
+
+  /**
+   * @deprecated Use checkIntegration(serviceName, companyId) instead
+   */
+  static async checkDiscord(botToken?: string, guildId?: string): Promise<IntegrationStatus> {
+    // Fallback to companyId 1 (Blue Consult) for backward compatibility
+    return this.checkIntegration('discord', 1);
+  }
+
+  /**
+   * @deprecated Use checkIntegration(serviceName, companyId) instead
+   */
+  static async checkNibo(apiToken?: string): Promise<IntegrationStatus> {
+    // Fallback to companyId 1 (Blue Consult) for backward compatibility
+    return this.checkIntegration('nibo', 1);
+  }
+
+  /**
+   * @deprecated Use checkIntegration(serviceName, companyId) instead
+   */
+  static async checkMetricool(apiToken?: string): Promise<IntegrationStatus> {
+    // Fallback to companyId 1 (Blue Consult) for backward compatibility
+    return this.checkIntegration('metricool', 1);
   }
 }

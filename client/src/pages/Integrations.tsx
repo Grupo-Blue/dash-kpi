@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, AlertCircle, Settings } from "lucide-react";
 import { ErrorMessage } from "@/components/ErrorMessage";
@@ -104,13 +105,22 @@ const AVAILABLE_INTEGRATIONS: IntegrationConfig[] = [
 
 export default function Integrations() {
   const { user } = useAuth();
+  const [selectedCompanySlug, setSelectedCompanySlug] = useState<string | null>(null);
   const [editingService, setEditingService] = useState<string | null>(null);
   const [formState, setFormState] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
 
+  const { data: companies } = trpc.admin.companies.list.useQuery();
   const { data: integrations, isLoading, error, refetch } = trpc.adminIntegrations.getAll.useQuery();
   const updateMutation = trpc.adminIntegrations.updateCredentials.useMutation();
   const deleteMutation = trpc.adminIntegrations.deleteCredentials.useMutation();
+
+  // Auto-select first company if none selected
+  React.useEffect(() => {
+    if (companies && companies.length > 0 && !selectedCompanySlug) {
+      setSelectedCompanySlug(companies[0].slug);
+    }
+  }, [companies, selectedCompanySlug]);
 
   if (!user || user.role !== "admin") {
     return (
@@ -127,8 +137,13 @@ export default function Integrations() {
     );
   }
 
+  // Filter integrations by selected company
+  const companyIntegrations = integrations?.filter(
+    (i) => i.companySlug === selectedCompanySlug
+  ) || [];
+
   const handleEdit = (serviceName: string) => {
-    const integration = integrations?.find((i) => i.serviceName === serviceName);
+    const integration = companyIntegrations.find((i) => i.serviceName === serviceName);
     const service = AVAILABLE_INTEGRATIONS.find((s) => s.name === serviceName);
     
     if (!service) return;
@@ -225,8 +240,14 @@ export default function Integrations() {
           break;
       }
 
+      if (!selectedCompanySlug) {
+        toast.error("Selecione uma empresa primeiro");
+        return;
+      }
+
       const result = await updateMutation.mutateAsync({
         serviceName,
+        companySlug: selectedCompanySlug,
         apiKey,
         config: { credentials },
         active: true,
@@ -258,8 +279,13 @@ export default function Integrations() {
       return;
     }
 
+    if (!selectedCompanySlug) {
+      toast.error("Selecione uma empresa primeiro");
+      return;
+    }
+
     try {
-      await deleteMutation.mutateAsync({ serviceName });
+      await deleteMutation.mutateAsync({ serviceName, companySlug: selectedCompanySlug });
       toast.success("Credenciais removidas com sucesso!");
       refetch();
     } catch (error: any) {
@@ -268,7 +294,7 @@ export default function Integrations() {
   };
 
   const getIntegrationStatus = (serviceName: string) => {
-    const integration = integrations?.find((i) => i.serviceName === serviceName);
+    const integration = companyIntegrations.find((i) => i.serviceName === serviceName);
     if (!integration) return { status: "not_configured", message: "Não configurado" };
     if (!integration.active) return { status: "inactive", message: "Inativo" };
     if (integration.testStatus === "success") return { status: "success", message: integration.testMessage || "Conectado" };
@@ -334,7 +360,44 @@ export default function Integrations() {
         </p>
       </div>
 
-      <div className="grid gap-4">
+      {/* Company Selector */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Selecione a Empresa</CardTitle>
+          <CardDescription>
+            As integrações são configuradas por empresa. Selecione a empresa para gerenciar suas integrações.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-md">
+            <Label htmlFor="company-select">Empresa</Label>
+            <Select
+              value={selectedCompanySlug || ""}
+              onValueChange={setSelectedCompanySlug}
+            >
+              <SelectTrigger id="company-select" className="mt-1">
+                <SelectValue placeholder="Selecione uma empresa" />
+              </SelectTrigger>
+              <SelectContent>
+                {companies?.map((company) => (
+                  <SelectItem key={company.slug} value={company.slug}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {!selectedCompanySlug ? (
+        <Card>
+          <CardContent className="py-8 text-center text-muted-foreground">
+            Selecione uma empresa para gerenciar as integrações
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
         {AVAILABLE_INTEGRATIONS.map((service) => {
           const integration = integrations?.find((i) => i.serviceName === service.name);
           const status = getIntegrationStatus(service.name);
@@ -444,7 +507,8 @@ export default function Integrations() {
             </Card>
           );
         })}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

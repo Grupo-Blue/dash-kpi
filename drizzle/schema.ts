@@ -1,4 +1,4 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json } from "drizzle-orm/mysql-core";
+import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, boolean, json, uniqueIndex } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -41,7 +41,8 @@ export type InsertCompany = typeof companies.$inferInsert;
  */
 export const integrations = mysqlTable("integrations", {
   id: int("id").autoincrement().primaryKey(),
-  serviceName: varchar("serviceName", { length: 100 }).notNull().unique(), // pipedrive, discord, metricool, cademi, nibo, mautic
+  companyId: int("companyId").notNull(), // Each integration belongs to a company
+  serviceName: varchar("serviceName", { length: 100 }).notNull(), // pipedrive, discord, metricool, cademi, nibo, mautic
   credentials: json("credentials").$type<Record<string, string>>(), // { apiKey: "...", clientId: "...", etc }
   config: json("config").$type<Record<string, any>>(), // additional configuration as JSON
   enabled: boolean("enabled").default(false).notNull(), // whether this integration is active
@@ -51,7 +52,10 @@ export const integrations = mysqlTable("integrations", {
   lastSync: timestamp("lastSync"), // last successful data sync
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
-});
+}, (table) => ({
+  // Unique constraint: one integration per service per company
+  companyServiceUnique: uniqueIndex("company_service_unique").on(table.companyId, table.serviceName),
+}));
 
 export type Integration = typeof integrations.$inferSelect;
 export type InsertIntegration = typeof integrations.$inferInsert;

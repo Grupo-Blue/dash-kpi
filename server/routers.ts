@@ -1325,12 +1325,25 @@ export const appRouter = router({
 
   // Admin - Integration Management
   adminIntegrations: router({
-    // Get all integrations
+    // Get all integrations with company info
     getAll: adminProcedure
       .query(async () => {
         const integrations = await db.getAllIntegrations();
-        logger.info('[adminIntegrations] Fetched all integrations:', integrations.length);
-        return integrations;
+        
+        // Enrich with company slug
+        const enriched = await Promise.all(
+          integrations.map(async (integration) => {
+            const company = await db.getCompanyById(integration.companyId);
+            return {
+              ...integration,
+              companySlug: company?.slug || 'unknown',
+              companyName: company?.name || 'Unknown',
+            };
+          })
+        );
+        
+        logger.info('[adminIntegrations] Fetched all integrations:', enriched.length);
+        return enriched;
       }),
 
     // Get credentials for a specific service
@@ -1357,6 +1370,7 @@ export const appRouter = router({
           'tokeniza',
           'tokeniza-academy',
         ]),
+        companySlug: z.string(), // Required: which company this integration belongs to
         apiKey: z.string().optional(),
         config: z.record(z.any()).optional(), // vai carregar { credentials: {...} }
         active: z.boolean().optional(),
@@ -1365,6 +1379,13 @@ export const appRouter = router({
         if (!ctx.user) {
           throw new Error('User not authenticated');
         }
+
+        // Resolve companySlug to companyId
+        const company = await db.getCompanyBySlug(input.companySlug);
+        if (!company) {
+          throw new Error(`Empresa não encontrada: ${input.companySlug}`);
+        }
+        const companyId = company.id;
 
         const { serviceName, apiKey, config } = input;
         const integrationConfig = config ?? {};
@@ -1385,7 +1406,7 @@ export const appRouter = router({
 
         // Save credentials
         await db.upsertIntegrationCredentials({
-          userId: ctx.user.id,
+          companyId,
           serviceName: input.serviceName,
           apiKey: input.apiKey,
           config: input.config,
@@ -1395,7 +1416,7 @@ export const appRouter = router({
           testMessage,
         });
 
-        logger.info('[adminIntegrations] Updated credentials for:', input.serviceName, 'status:', testStatus);
+        logger.info('[adminIntegrations] Updated credentials for:', input.serviceName, 'companyId:', companyId, 'status:', testStatus);
         
         return {
           success: testStatus === 'success',
@@ -1408,10 +1429,17 @@ export const appRouter = router({
     deleteCredentials: adminProcedure
       .input(z.object({
         serviceName: z.string(),
+        companySlug: z.string(),
       }))
       .mutation(async ({ input }) => {
-        await db.deleteIntegrationCredentials(input.serviceName);
-        logger.info('[adminIntegrations] Deleted credentials for:', input.serviceName);
+        // Resolve companySlug to companyId
+        const company = await db.getCompanyBySlug(input.companySlug);
+        if (!company) {
+          throw new Error(`Empresa não encontrada: ${input.companySlug}`);
+        }
+        
+        await db.deleteIntegrationCredentials(input.serviceName, company.id);
+        logger.info('[adminIntegrations] Deleted credentials for:', input.serviceName, 'companyId:', company.id);
         return { success: true };
       }),
   }),
