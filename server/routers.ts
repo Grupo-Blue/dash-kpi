@@ -193,14 +193,10 @@ export const appRouter = router({
       const company = await db.getCompanyBySlug('blue-consult');
       if (!company) throw new Error('Company not found');
 
-      const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
-      
-      if (!pipedriveToken) {
-        await ApiStatusTracker.recordFailure('pipedrive', 'kpis.blueConsult', 'API token not configured', company.id);
-        throw new Error('Pipedrive API não configurada. Configure a integração para visualizar dados reais.');
-      }
-
       try {
+        const { getPipedriveServiceForUser } = await import('./services/integrationHelpers');
+        const pipedriveService = await getPipedriveServiceForUser(userId);
+        const pipedriveToken = pipedriveService.apiToken;
         const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
         const kpis = {
           summary: await Promise.all([
@@ -778,9 +774,9 @@ export const appRouter = router({
             try {
               const company = await db.getCompanyBySlug('blue-consult');
               if (!company) throw new Error('Company not found');
-              const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
-              if (!pipedriveToken) throw new Error('Pipedrive token not configured');
-              
+              const { getPipedriveServiceForUser } = await import('./services/integrationHelpers');
+              const pipedriveService = await getPipedriveServiceForUser();
+              const pipedriveToken = pipedriveService.apiToken;
               const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
               const kpis = {
                 summary: await Promise.all([
@@ -1052,37 +1048,44 @@ export const appRouter = router({
 
           // Get latest KPIs based on company
           if (company.slug === 'blue-consult') {
-            const pipedriveToken = process.env.PIPEDRIVE_API_TOKEN;
-            if (pipedriveToken) {
-              const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
+            try {
+              const { getPipedriveServiceForUser } = await import('./services/integrationHelpers');
+              const pipedriveService = await getPipedriveServiceForUser();
+              const calculator = new BlueConsultKpiCalculatorRefined(pipedriveService.apiToken);
               const kpis = await calculator.calculateAll();
               context += `KPIs Comerciais (Pipedrive):\n`;
               context += `- Faturamento: ${kpis.summary.find(k => k.label === 'Faturamento')?.value || 'N/A'}\n`;
               context += `- Novos Clientes: ${kpis.summary.find(k => k.label === 'Novos Clientes')?.value || 'N/A'}\n`;
               context += `- Taxa de Conversão: ${kpis.summary.find(k => k.label === 'Taxa de Conversão')?.value || 'N/A'}\n\n`;
+            } catch (error) {
+              logger.warn('[leadJourneyAI] Pipedrive not configured, skipping');
             }
 
-            const niboToken = process.env.NIBO_API_TOKEN;
-        if (!niboToken) {
-          throw new Error('[P1-5] NIBO_API_TOKEN not configured in environment variables');
-        }
-            const niboCalculator = new NiboKpiCalculator(niboToken);
-            const accountsReceivable = await niboCalculator.calculateAccountsReceivable();
-            const accountsPayable = await niboCalculator.calculateAccountsPayable();
-            context += `KPIs Financeiros (Nibo):\n`;
-            context += `- Contas a Receber: ${accountsReceivable.value}\n`;
-            context += `- Contas a Pagar: ${accountsPayable.value}\n\n`;
+            try {
+              const { getNiboServiceForUser } = await import('./services/integrationHelpers');
+              const niboService = await getNiboServiceForUser();
+              const niboCalculator = new NiboKpiCalculator(niboService.apiToken);
+              const accountsReceivable = await niboCalculator.calculateAccountsReceivable();
+              const accountsPayable = await niboCalculator.calculateAccountsPayable();
+              context += `KPIs Financeiros (Nibo):\n`;
+              context += `- Contas a Receber: ${accountsReceivable.value}\n`;
+              context += `- Contas a Pagar: ${accountsPayable.value}\n\n`;
+            } catch (error) {
+              logger.warn('[leadJourneyAI] Nibo not configured, skipping');
+            }
           }
 
           if (company.slug === 'tokeniza-academy') {
-            const discordToken = process.env.DISCORD_BOT_TOKEN;
-            const guildId = process.env.DISCORD_GUILD_ID;
-            if (discordToken && guildId) {
-              const calculator = new TokenizaAcademyKpiCalculatorRefined(discordToken, guildId);
+            try {
+              const { getDiscordServiceForUser } = await import('./services/integrationHelpers');
+              const discordService = await getDiscordServiceForUser();
+              const calculator = new TokenizaAcademyKpiCalculatorRefined(discordService.config.credentials.botToken, discordService.config.credentials.guildId);
               const kpis = await calculator.calculateAll();
               context += `KPIs Discord:\n`;
               context += `- Total de Membros: ${kpis.summary.find(k => k.label === 'Total de Membros')?.value || 'N/A'}\n`;
               context += `- Mensagens (30 dias): ${kpis.summary.find(k => k.label === 'Mensagens (30 dias)')?.value || 'N/A'}\n\n`;
+            } catch (error) {
+              logger.warn('[leadJourneyAI] Discord not configured, skipping');
             }
           }
 

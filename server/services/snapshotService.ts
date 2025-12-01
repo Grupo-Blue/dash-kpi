@@ -39,12 +39,9 @@ export class SnapshotService {
    */
   static async snapshotBlueConsult(): Promise<boolean> {
     try {
-      const pipedriveApiKey = process.env.PIPEDRIVE_API_TOKEN;
-      if (!pipedriveApiKey) {
-        throw new Error('PIPEDRIVE_API_TOKEN not configured');
-      }
-      
-      const calculator = new BlueConsultKpiCalculatorRefined(pipedriveApiKey);
+      const { getPipedriveServiceForUser } = await import('./integrationHelpers');
+      const pipedriveService = await getPipedriveServiceForUser();
+      const calculator = new BlueConsultKpiCalculatorRefined(pipedriveService.apiToken);
       const kpis = await calculator.calculateAll();
       
       const snapshotDate = new Date();

@@ -17,6 +17,8 @@ export const ENV = {
   mauticBaseUrl: process.env.MAUTIC_BASE_URL ?? "https://mautic.grupoblue.com.br",
   mauticClientId: process.env.MAUTIC_CLIENT_ID ?? "",
   mauticClientSecret: process.env.MAUTIC_CLIENT_SECRET ?? "",
+  tokenizaApiToken: process.env.TOKENIZA_API_TOKEN ?? "",
+  tokenizaAcademyApiToken: process.env.TOKENIZA_ACADEMY_API_TOKEN ?? "",
 };
 
 /**

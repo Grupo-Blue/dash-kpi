@@ -97,17 +97,20 @@ interface CademiProductsResponse {
 /**
  * Faz requisição à API da Cademi
  */
-async function cademiRequest<T>(endpoint: string): Promise<T> {
-  if (!CADEMI_API_KEY) {
+async function cademiRequest<T>(endpoint: string, opts?: { apiKey?: string; baseUrl?: string }): Promise<T> {
+  const apiKey = opts?.apiKey || CADEMI_API_KEY;
+  const baseUrl = opts?.baseUrl || CADEMI_BASE_URL;
+  
+  if (!apiKey) {
     throw new Error('CADEMI_API_KEY not configured');
   }
 
-  const url = `${CADEMI_BASE_URL}${endpoint}`;
+  const url = `${baseUrl}${endpoint}`;
   
   try {
     const response = await fetch(url, {
       headers: {
-        'Authorization': CADEMI_API_KEY,
+        'Authorization': apiKey,
         'Accept': 'application/json',
       },
     });
@@ -237,4 +240,24 @@ export class CademiService {
   static async getAllProducts() {
     return getAllProducts();
   }
+}
+
+/**
+ * Get Cademi client with credentials from integrations table
+ * Falls back to ENV if not configured in DB
+ */
+export async function getCademiClientForUser(userId?: number) {
+  const { getIntegrationCredentials } = await import('../db');
+  const integration = await getIntegrationCredentials('cademi');
+  const creds = integration?.config?.credentials as { apiKey?: string; baseUrl?: string } | undefined;
+  
+  return {
+    request: <T>(endpoint: string) =>
+      cademiRequest<T>(endpoint, {
+        apiKey: creds?.apiKey,
+        baseUrl: creds?.baseUrl,
+      }),
+    getAllUsers: () => fetchAllUsers(),
+    getAllProducts: () => getAllProducts(),
+  };
 }
