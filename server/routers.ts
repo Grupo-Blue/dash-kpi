@@ -29,6 +29,8 @@ import { logger } from './utils/logger';
 import { adminRouter } from './routers/adminRouter';
 import { getCompanyByBlogId } from './config/companies';
 import { getYouTubeServiceForCompany } from './services/integrationHelpers';
+import { DASHBOARD_MODULES } from './dashboard/registry';
+import { dateRangeSchema, dashboardModuleIdEnum } from './dashboard/schemas';
 
 export const appRouter = router({
   system: systemRouter,
@@ -1347,6 +1349,36 @@ export const appRouter = router({
         });
 
         return { analysis };
+      }),
+  }),
+
+  // Dashboard - Module System
+  dashboard: router({ 
+    // Get available modules for a company based on active integrations
+    getModules: protectedProcedure
+      .input(z.object({ companySlug: z.string() }))
+      .query(async ({ input, ctx }) => {
+        const company = await db.getCompanyBySlug(input.companySlug);
+        if (!company) {
+          throw new Error(`Empresa não encontrada: ${input.companySlug}`);
+        }
+
+        const integrations = await db.getCompanyIntegrations(company.id);
+        const activeByService = new Set(
+          integrations
+            .filter(i => i.testStatus === "success")
+            .map(i => i.serviceName)
+        );
+
+        return DASHBOARD_MODULES
+          .filter(mod =>
+            mod.requiredIntegrations.length === 0 || 
+            mod.requiredIntegrations.some(svc => activeByService.has(svc))
+          )
+          .map(mod => ({
+            id: mod.id,
+            title: mod.title,
+          }));
       }),
   }),
 
