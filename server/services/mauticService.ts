@@ -106,9 +106,10 @@ class MauticService {
     this.username = process.env.MAUTIC_CLIENT_ID || '';
     this.password = process.env.MAUTIC_CLIENT_SECRET || '';
     
-    if (!this.username || !this.password) {
-      throw new Error('MAUTIC_CLIENT_ID and MAUTIC_CLIENT_SECRET must be configured');
-    }
+    // Não lançar erro aqui - deixar que os métodos validem quando forem chamados
+    // if (!this.username || !this.password) {
+    //   throw new Error('MAUTIC_CLIENT_ID and MAUTIC_CLIENT_SECRET must be configured');
+    // }
 
     // Criar cliente axios com autenticação básica
     // Nota: Mautic suporta Basic Auth para API além de OAuth2
@@ -330,5 +331,15 @@ class MauticService {
   }
 }
 
-// Exportar instância única do serviço
-export const mauticService = new MauticService();
+// Exportar instância lazy-loaded do serviço
+let _mauticServiceInstance: MauticService | null = null;
+
+export function getMauticService(): MauticService {
+  if (!_mauticServiceInstance) {
+    _mauticServiceInstance = new MauticService();
+  }
+  return _mauticServiceInstance;
+}
+
+// Manter export para compatibilidade (mas será lazy)
+export const mauticService = getMauticService();

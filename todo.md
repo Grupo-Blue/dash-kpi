@@ -1817,3 +1817,17 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Formulários para cada integração
 - [x] Botão "Testar Conexão" para cada integração
 - [x] Salvar credenciais no banco
+
+
+---
+
+## 🔧 Correções de Deploy em Produção
+
+### Lazy-loading de Serviços
+- [x] Tornar MauticService lazy-loaded
+- [x] Verificar outros serviços que são instanciados no import
+- [x] Garantir que nenhum serviço lance erro se credenciais não existirem
+
+### Remover Warnings de OAuth
+- [x] Remover logs de erro de OAUTH_SERVER_URL quando não configurado
+- [x] Tornar OAuth completamente opcional

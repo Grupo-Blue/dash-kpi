@@ -31,12 +31,11 @@ const GET_USER_INFO_WITH_JWT_PATH = `/webdev.v1.WebDevAuthPublicService/GetUserI
 
 class OAuthService {
   constructor(private client: ReturnType<typeof axios.create>) {
-    logger.info("[OAuth] Initialized with baseURL:", ENV.oAuthServerUrl);
-    if (!ENV.oAuthServerUrl) {
-      logger.error(
-        "[OAuth] ERROR: OAUTH_SERVER_URL is not configured! Set OAUTH_SERVER_URL environment variable."
-      );
+    // OAuth é opcional - apenas log em debug se não configurado
+    if (ENV.oAuthServerUrl) {
+      logger.info("[OAuth] Initialized with baseURL:", ENV.oAuthServerUrl);
     }
+    // Não logar erro se não configurado - OAuth é opcional
   }
 
   private decodeState(state: string): string {
