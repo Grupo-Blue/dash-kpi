@@ -1456,7 +1456,17 @@ export const appRouter = router({
     // Delete credentials
     deleteCredentials: adminProcedure
       .input(z.object({
-        serviceName: z.string(),
+        serviceName: z.enum([
+          'pipedrive',
+          'nibo',
+          'mautic',
+          'metricool',
+          'discord',
+          'cademi',
+          'tokeniza',
+          'tokeniza-academy',
+          'youtube',
+        ]),
         companySlug: z.string(),
       }))
       .mutation(async ({ input }) => {
