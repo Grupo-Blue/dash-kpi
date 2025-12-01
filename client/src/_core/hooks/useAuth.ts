@@ -1,7 +1,8 @@
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { TRPCClientError } from "@trpc/client";
 import { useCallback, useEffect, useMemo } from "react";
+
+const DEFAULT_LOGIN_PATH = "/login";
 
 type UseAuthOptions = {
   redirectOnUnauthenticated?: boolean;
@@ -9,7 +10,7 @@ type UseAuthOptions = {
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  const { redirectOnUnauthenticated = false, redirectPath = getLoginUrl() } =
+  const { redirectOnUnauthenticated = false, redirectPath = DEFAULT_LOGIN_PATH } =
     options ?? {};
   const utils = trpc.useUtils();
 
@@ -34,7 +35,7 @@ export function useAuth(options?: UseAuthOptions) {
       ) {
         // Já não autenticado, apenas redirecionar
         utils.auth.me.setData(undefined, null);
-        window.location.href = getLoginUrl();
+        window.location.href = DEFAULT_LOGIN_PATH;
         return;
       }
       throw error;
@@ -42,13 +43,13 @@ export function useAuth(options?: UseAuthOptions) {
       utils.auth.me.setData(undefined, null);
       await utils.auth.me.invalidate();
       // Redirecionar para página de login após logout
-      window.location.href = getLoginUrl();
+      window.location.href = DEFAULT_LOGIN_PATH;
     }
   }, [logoutMutation, utils]);
 
   const state = useMemo(() => {
     localStorage.setItem(
-      "manus-runtime-user-info",
+      "kpi-dashboard-user-info",
       JSON.stringify(meQuery.data)
     );
     return {

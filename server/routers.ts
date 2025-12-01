@@ -47,11 +47,11 @@ export const appRouter = router({
           throw new Error('Invalid credentials');
         }
 
-        // Criar JWT token compatível com o sistema de sessão do Manus
+        // Criar JWT token com sessão própria
         const token = await sdk.signSession(
           {
             openId: user.openId,
-            appId: ENV.appId,
+            appId: "dash-kpi",
             name: user.name || user.email || 'User',
           },
           { expiresInMs: 7 * 24 * 60 * 60 * 1000 } // 7 dias

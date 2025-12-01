@@ -29,7 +29,7 @@ Dashboard completo de KPIs integrando múltiplas fontes de dados (Pipedrive, Nib
 - **Frontend**: React 19 + Vite + Tailwind CSS 4 + shadcn/ui
 - **Backend**: Express 4 + tRPC 11
 - **Database**: MySQL 8 / TiDB (Drizzle ORM)
-- **Auth**: Manus OAuth
+- **Auth**: Sistema próprio com JWT (email/senha)
 - **IA**: LLM integration para análise de leads
 - **APIs**: Pipedrive, Nibo, Discord, Metricool, Mautic, Cademi
 
@@ -66,13 +66,6 @@ DATABASE_URL=mysql://user:password@host:port/database
 # JWT
 JWT_SECRET=sua-chave-secreta-jwt
 
-# Manus OAuth
-VITE_APP_ID=seu-app-id
-OAUTH_SERVER_URL=https://api.manus.im
-VITE_OAUTH_PORTAL_URL=https://auth.manus.im
-OWNER_OPEN_ID=seu-open-id
-OWNER_NAME=Seu Nome
-
 # App Config
 VITE_APP_TITLE=Dashboard de KPIs - Grupo Blue
 VITE_APP_LOGO=/logo.png
@@ -88,22 +81,19 @@ DISCORD_BOT_TOKEN=seu-token-discord
 DISCORD_GUILD_ID=seu-guild-id
 
 # Metricool
-# (configurado via OAuth no código)
+METRICOOL_API_TOKEN=seu-token-metricool
+METRICOOL_USER_ID=seu-user-id
 
 # Mautic
 MAUTIC_BASE_URL=https://mautic.grupoblue.com.br
 MAUTIC_CLIENT_ID=seu-client-id
 MAUTIC_CLIENT_SECRET=seu-client-secret
-MAUTIC_REDIRECT_URI=https://seu-dominio.com/
 
 # Cademi
 CADEMI_API_KEY=sua-api-key-cademi
 
-# Manus Built-in APIs
-BUILT_IN_FORGE_API_URL=https://api.manus.im
-BUILT_IN_FORGE_API_KEY=sua-chave-api
-VITE_FRONTEND_FORGE_API_KEY=sua-chave-frontend
-VITE_FRONTEND_FORGE_API_URL=https://api.manus.im
+# YouTube
+YOUTUBE_API_KEY=sua-api-key-youtube
 
 # Analytics (opcional)
 VITE_ANALYTICS_WEBSITE_ID=seu-website-id
@@ -117,13 +107,45 @@ VITE_ANALYTICS_ENDPOINT=https://analytics.exemplo.com
 pnpm db:push
 ```
 
-### 5. Rodar em desenvolvimento
+### 5. Criar primeiro usuário admin
+
+Após configurar o banco de dados, você precisa criar um usuário administrador diretamente no banco:
+
+```sql
+-- Substitua os valores conforme necessário
+INSERT INTO users (openId, email, name, password, role, lastSignedIn)
+VALUES (
+  'admin-001',
+  'admin@grupoblue.com.br',
+  'Admin',
+  '$2a$10$YourHashedPasswordHere',  -- Use bcrypt para gerar o hash
+  'admin',
+  NOW()
+);
+```
+
+Ou use o script auxiliar:
+
+```bash
+node scripts/create-admin.js
+```
+
+### 6. Rodar em desenvolvimento
 
 ```bash
 pnpm dev
 ```
 
 O servidor estará disponível em `http://localhost:3000`
+
+## 🔐 Autenticação
+
+O sistema usa autenticação própria baseada em email e senha:
+
+1. Acesse `/login` para fazer login
+2. Use as credenciais do usuário criado no passo 5
+3. O sistema gera um JWT que é armazenado em cookie
+4. Sessões duram 7 dias por padrão
 
 ## 🚀 Deploy em Produção
 
@@ -214,6 +236,7 @@ Veja instruções detalhadas em `IMPORTACAO_HISTORICO.md`
 - NUNCA commite o arquivo `.env` no repositório
 - Use JWT para autenticação de sessão
 - APIs externas são chamadas apenas do backend
+- Senhas são armazenadas com hash bcrypt
 
 ## 📈 Monitoramento
 

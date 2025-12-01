@@ -1,14 +1,9 @@
 export const ENV = {
   // Core
-  appId: process.env.VITE_APP_ID ?? "",
   cookieSecret: process.env.JWT_SECRET ?? "",
   jwtSecret: process.env.JWT_SECRET ?? "",
   databaseUrl: process.env.DATABASE_URL ?? "",
-  oAuthServerUrl: process.env.OAUTH_SERVER_URL ?? "",
-  ownerOpenId: process.env.OWNER_OPEN_ID ?? "",
   isProduction: process.env.NODE_ENV === "production",
-  forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
-  forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
   
   // Integrations
   pipedriveApiToken: process.env.PIPEDRIVE_API_TOKEN ?? "",
@@ -36,10 +31,7 @@ export function validateEnv() {
     'DATABASE_URL',
   ];
   
-  // Optional variables (OAuth Manus, external integrations)
-  // 'VITE_APP_ID',
-  // 'OAUTH_SERVER_URL',
-  // 'OWNER_OPEN_ID',
+  // Optional variables (external integrations)
   // 'PIPEDRIVE_API_TOKEN',
   // 'DISCORD_BOT_TOKEN',
   // 'DISCORD_GUILD_ID',
