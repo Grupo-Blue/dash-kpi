@@ -8,6 +8,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic } from "./static";
 import { initializeDailySnapshotJob } from "../jobs/dailySnapshot";
+import { validateEnv } from "./env";
 
 import { logger } from '../utils/logger';
 function isPortAvailable(port: number): Promise<boolean> {
@@ -30,6 +31,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Validate environment variables before starting
+  validateEnv();
+  
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads

@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger';
+import { withCache } from './cacheService';
 
 /**
  * Cademi API Service
@@ -21,7 +22,7 @@ interface CademiResponse<T> {
   };
 }
 
-interface CademiUser {
+export interface CademiUser {
   id: number;
   nome: string;
   email: string;
@@ -171,15 +172,32 @@ export async function getUserProgress(
 
 /**
  * Lista todos os produtos/cursos
+ * Cached for 60 minutes as products change infrequently
  */
 export async function getAllProducts(): Promise<CademiProductsResponse> {
-  return cademiRequest<CademiProductsResponse>('/produto');
+  return withCache(
+    'cademi:all-products',
+    60 * 60 * 1000, // 60 minutos
+    async () => cademiRequest<CademiProductsResponse>('/produto')
+  );
 }
 
 /**
  * Coleta todos os usuários (todas as páginas)
+ * Cached for 30 minutes to reduce API calls
  */
 export async function fetchAllUsers(): Promise<CademiUser[]> {
+  return withCache(
+    'cademi:all-users',
+    30 * 60 * 1000, // 30 minutos
+    async () => fetchAllUsersUncached()
+  );
+}
+
+/**
+ * Internal function to fetch all users without cache
+ */
+async function fetchAllUsersUncached(): Promise<CademiUser[]> {
   const allUsers: CademiUser[] = [];
   let cursor: string | null = null;
   let pageCount = 0;

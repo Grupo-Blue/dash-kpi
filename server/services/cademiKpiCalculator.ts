@@ -4,7 +4,7 @@
  * Processa dados da API Cademi e calcula KPIs para Tokeniza Academy
  */
 
-import { fetchAllUsers, type CademiUser } from './cademiService';
+import { fetchAllUsers, getAllProducts, type CademiUser } from './cademiService';
 
 import { logger } from '../utils/logger';
 export interface CademiKpis {

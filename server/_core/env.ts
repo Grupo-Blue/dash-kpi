@@ -33,6 +33,15 @@ export function validateEnv() {
     'JWT_SECRET',
     'DATABASE_URL',
     'VITE_APP_ID',
+    'PIPEDRIVE_API_TOKEN',
+    'DISCORD_BOT_TOKEN',
+    'DISCORD_GUILD_ID',
+    'METRICOOL_API_TOKEN',
+    'METRICOOL_USER_ID',
+    'CADEMI_API_KEY',
+    'NIBO_API_TOKEN',
+    'MAUTIC_CLIENT_ID',
+    'MAUTIC_CLIENT_SECRET',
   ];
   
   const missing = required.filter(key => !process.env[key]);

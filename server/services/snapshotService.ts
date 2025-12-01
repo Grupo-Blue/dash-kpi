@@ -7,6 +7,7 @@ import { CademiService } from "./cademiService";
 import { calculateCademiKpis } from "./cademiKpiCalculator";
 
 import { logger } from '../utils/logger';
+import { CacheService } from './cacheService';
 /**
  * Service responsible for creating daily snapshots of all KPIs
  * Stores data in database for historical queries
@@ -22,6 +23,10 @@ export class SnapshotService {
     try {
       await db.insert(kpiSnapshots).values(snapshot);
       logger.info(`[SnapshotService] Saved snapshot: ${snapshot.kpiType} for company ${snapshot.companyId || 'global'}`);
+      
+      // Invalidate cache after saving snapshot
+      CacheService.invalidatePattern('cademi');
+      
       return true;
     } catch (error) {
       logger.error(`[SnapshotService] Error saving snapshot:`, error);

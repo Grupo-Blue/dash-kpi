@@ -1703,3 +1703,73 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Calculadores retornam dados reais ou estão desativados explicitamente
 - [x] Status de integrações exibido corretamente sem falsos positivos
 - [x] Frontend reflete dados corretos sem IDs fixos codificados
+
+
+---
+
+## 🚀 SPRINT 1 – Correções Críticas e Segurança
+
+### S1-01 – Import ausente de getAllProducts
+- [x] Adicionar import de getAllProducts em cademiKpiCalculator.ts
+- [x] Verificar que projeto compila sem erros
+
+### S1-02 – validateEnv não cobre integrações críticas
+- [x] Adicionar tokens obrigatórios ao array required em env.ts
+- [x] Incluir: PIPEDRIVE, DISCORD, METRICOOL, CADEMI, NIBO, MAUTIC
+
+### S1-03 – validateEnv() não é chamado na inicialização
+- [x] Importar validateEnv em server/_core/index.ts
+- [x] Chamar validateEnv() no início de startServer()
+
+### S1-04 – Falta teste unitário para validação de tokens no SnapshotService
+- [x] Criar server/services/snapshotService.test.ts
+- [x] Testar comportamento quando tokens obrigatórios estão ausentes
+- [x] Assertar que retorna false ou lança erro esperado
+
+---
+
+## 🚀 SPRINT 2 – Funcionalidades Pendentes (Revisão)
+
+### S2-01 – Endpoint kpis.refresh (já implementado)
+- [x] Implementar lógica real de recalculação baseada em companySlug
+- [x] Registrar logs com userId, companySlug, tempo de execução
+
+### S2-02 – Fallback de Metricool (já corrigido)
+- [x] Remover fallback incorreto do token Nibo
+- [x] Retornar not_configured quando token Metricool ausente
+
+### S2-03 – companyId hard-coded (já corrigido)
+- [x] Parametrizar companyId via rota/contexto
+- [x] Remover valores fixos de BlueConsult.tsx e TokenizaAcademy.tsx
+
+### S2-04 – kpiCalculator.ts com mocks e TODOs
+- [ ] Avaliar se kpiCalculator.ts deve ser removido ou refatorado
+- [ ] Remover TODOs e mocks se arquivo ainda for usado
+- [ ] Marcar como legacy/dev-only se não for usado em produção
+
+---
+
+## 🚀 SPRINT 3 – Otimização e Resiliência
+
+### S3-01 – Pipeline de CI
+- [x] Criar .github/workflows/ci.yml
+- [x] Configurar steps: install, check, test, build
+- [x] Garantir execução a cada commit
+
+### S3-02 – Testes de integração para endpoints críticos
+- [x] Criar testes para kpis.refresh
+- [x] Criar testes para kpis.blueConsult
+- [x] Criar testes para kpis.tokenizaAcademy
+- [x] Criar testes para kpis.integrationStatus
+- [x] Cobrir cenários de sucesso e erro
+
+### S3-03 – Health-check não valida integrações externas
+- [x] Evoluir system.health para chamar IntegrationStatusChecker.checkAll()
+- [x] Retornar status agregado de todas as integrações
+- [x] Incluir: Pipedrive, Discord, Metricool, Cademi, Nibo
+
+### S3-04 – Cache/memoização
+- [x] Criar camada de cache para lista de estudantes Cademi
+- [x] Criar cache para produtos/cursos
+- [x] Configurar TTL (15-60 minutos)
+- [x] Invalidar cache quando snapshots são gerados
