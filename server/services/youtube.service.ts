@@ -18,6 +18,21 @@ export class YouTubeService {
   }
 
   /**
+   * Test connection to YouTube Data API v3
+   */
+  async testConnection(): Promise<boolean> {
+    try {
+      // Test with a simple API call to verify the key is valid
+      const url = `https://www.googleapis.com/youtube/v3/channels?part=id&mine=true&key=${this.apiKey}`;
+      const response = await fetch(url);
+      return response.ok;
+    } catch (error) {
+      logger.error('[YouTube] Connection test failed:', error);
+      return false;
+    }
+  }
+
+  /**
    * Get channel statistics from YouTube Data API v3
    */
   async getChannelStats(channelId: string): Promise<YouTubeChannelStats | null> {

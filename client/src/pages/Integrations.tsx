@@ -101,6 +101,14 @@ const AVAILABLE_INTEGRATIONS: IntegrationConfig[] = [
       { name: "baseUrl", label: "Base URL (opcional)", type: "text", placeholder: "https://academy.tokeniza.com.br/api/v1" },
     ],
   },
+  {
+    name: "youtube",
+    label: "YouTube",
+    description: "Métricas do canal do YouTube",
+    fields: [
+      { name: "apiKey", label: "API Key", type: "password", required: true, placeholder: "Cole a API Key do YouTube Data API v3" },
+    ],
+  },
 ];
 
 export default function Integrations() {
@@ -236,6 +244,11 @@ export default function Integrations() {
           credentials = {
             apiToken: fields.apiToken,
             baseUrl: fields.baseUrl || undefined,
+          };
+          break;
+        case "youtube":
+          credentials = {
+            apiKey: fields.apiKey,
           };
           break;
       }

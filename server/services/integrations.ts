@@ -1,5 +1,6 @@
 import { logger } from '../utils/logger';
 import { ENV } from '../_core/env';
+import { YouTubeService } from './youtube.service';
 import type {
   PipedriveCredentials,
   NiboCredentials,
@@ -9,6 +10,7 @@ import type {
   TokenizaCredentials,
   TokenizaAcademyCredentials,
   CademiCredentials,
+  YouTubeCredentials,
 } from './integrationTypes';
 
 /**
@@ -1251,6 +1253,13 @@ export class IntegrationFactory {
         if (!apiKeyResolved) throw new Error('Cademi API key não configurado');
         // CademiService será implementado quando necessário
         throw new Error('CademiService not implemented yet');
+      }
+
+      case 'youtube': {
+        const creds = config?.credentials as YouTubeCredentials | undefined;
+        const apiKeyResolved = creds?.apiKey || apiKey || ENV.youtubeApiKey;
+        if (!apiKeyResolved) throw new Error('YouTube API key não configurada');
+        return new YouTubeService(apiKeyResolved);
       }
 
       default:

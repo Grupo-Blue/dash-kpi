@@ -118,10 +118,25 @@ export class SnapshotService {
       // MetricoolKpiCalculator requires tokens and date range
       const metricoolToken = process.env.METRICOOL_API_TOKEN;
       const metricoolUserId = process.env.METRICOOL_USER_ID;
-      const youtubeApiKey = process.env.YOUTUBE_API_KEY;
       
       if (!metricoolToken || !metricoolUserId) {
         throw new Error('METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured');
+      }
+      
+      // Get YouTube service based on company
+      const companySlug = companyName.toLowerCase().replace(/ /g, '-');
+      let youtubeApiKey: string | undefined;
+      try {
+        const { getYouTubeServiceForCompany } = await import('./integrationHelpers');
+        const youtubeService = await getYouTubeServiceForCompany(companySlug);
+        youtubeApiKey = (youtubeService as any).apiKey;
+      } catch (error) {
+        logger.warn(`[snapshotMetricool] YouTube not configured for ${companyName}, using ENV fallback`);
+        youtubeApiKey = process.env.YOUTUBE_API_KEY;
+      }
+      
+      if (!youtubeApiKey) {
+        logger.warn(`[snapshotMetricool] YouTube API Key not configured for ${companyName}, skipping YouTube data`);
       }
       
       const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);

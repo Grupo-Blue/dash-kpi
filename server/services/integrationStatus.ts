@@ -106,6 +106,16 @@ export class IntegrationStatusChecker {
               source = 'environment';
             }
             break;
+          case 'youtube':
+            if (ENV.youtubeApiKey) {
+              config = {
+                credentials: {
+                  apiKey: ENV.youtubeApiKey,
+                }
+              };
+              source = 'environment';
+            }
+            break;
         }
       }
 

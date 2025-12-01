@@ -16,8 +16,10 @@ import type {
   DiscordCredentials,
   TokenizaCredentials,
   TokenizaAcademyCredentials,
-  MauticCredentials
+  MauticCredentials,
+  YouTubeCredentials
 } from './integrationTypes';
+import { YouTubeService } from './youtube.service';
 
 /**
  * Get Pipedrive service with credentials from DB or ENV
@@ -251,4 +253,32 @@ export async function getTokenizaAcademyServiceForUser(userId?: number) {
  */
 export async function getMauticServiceForUser(userId?: number) {
   return getMauticServiceForCompany('blue-consult');
+}
+
+/**
+ * Get YouTube service with credentials from DB or ENV
+ */
+export async function getYouTubeServiceForCompany(companySlug: string) {
+  const company = await getCompanyBySlug(companySlug);
+  if (!company) {
+    throw new Error(`Empresa não encontrada: ${companySlug}`);
+  }
+
+  const integration = await getIntegrationCredentials('youtube', company.id);
+  const apiKey = (integration?.config?.credentials as YouTubeCredentials)?.apiKey 
+    || ENV.youtubeApiKey;
+  
+  if (!apiKey) {
+    throw new Error(`YouTube não configurado para a empresa ${company.name}. Configure as credenciais na tela de Integrações.`);
+  }
+  
+  return new YouTubeService(apiKey);
+}
+
+/**
+ * @deprecated Use getYouTubeServiceForCompany(companySlug) instead
+ * Backward compatibility: defaults to 'blue-consult'
+ */
+export async function getYouTubeServiceForUser(userId?: number) {
+  return getYouTubeServiceForCompany('blue-consult');
 }

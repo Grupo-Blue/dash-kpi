@@ -27,6 +27,8 @@ import { authenticateUser, createLocalUser } from './services/localAuth';
 import { sdk } from './_core/sdk';
 import { logger } from './utils/logger';
 import { adminRouter } from './routers/adminRouter';
+import { getCompanyByBlogId } from './config/companies';
+import { getYouTubeServiceForCompany } from './services/integrationHelpers';
 
 export const appRouter = router({
   system: systemRouter,
@@ -472,9 +474,23 @@ export const appRouter = router({
           }
 
           logger.info('[metricoolSocialMedia] Creating calculator...');
-          const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+          
+          // Get YouTube service based on company
+          const companyConfig = getCompanyByBlogId(input.blogId);
+          const companySlug = companyConfig?.name.toLowerCase().replace(/ /g, '-') || 'blue-consult';
+          
+          let youtubeApiKey: string | undefined;
+          try {
+            const youtubeService = await getYouTubeServiceForCompany(companySlug);
+            // Extract API key from service (for backward compatibility with MetricoolKpiCalculator)
+            youtubeApiKey = (youtubeService as any).apiKey;
+          } catch (error) {
+            logger.warn('[metricoolSocialMedia] YouTube not configured for company, using ENV fallback:', error.message);
+            youtubeApiKey = process.env.YOUTUBE_API_KEY;
+          }
+          
           if (!youtubeApiKey) {
-            throw new Error('[P1-5] YOUTUBE_API_KEY not configured in environment variables');
+            throw new Error('[P1-5] YOUTUBE_API_KEY not configured. Configure na tela de Integrações.');
           }
           const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
           
@@ -889,10 +905,21 @@ export const appRouter = router({
               if (!metricoolToken || !metricoolUserId) {
                 throw new Error('[P1-5] METRICOOL_API_TOKEN or METRICOOL_USER_ID not configured in environment variables');
               }
-              const youtubeApiKey = process.env.YOUTUBE_API_KEY;
-          if (!youtubeApiKey) {
-            throw new Error('[P1-5] YOUTUBE_API_KEY not configured in environment variables');
-          }
+              
+              // Get YouTube service based on company
+              const companySlug = name.toLowerCase().replace(/ /g, '-');
+              let youtubeApiKey: string | undefined;
+              try {
+                const youtubeService = await getYouTubeServiceForCompany(companySlug);
+                youtubeApiKey = (youtubeService as any).apiKey;
+              } catch (error) {
+                logger.warn(`[consolidatedKpis] YouTube not configured for ${name}, using ENV fallback`);
+                youtubeApiKey = process.env.YOUTUBE_API_KEY;
+              }
+              
+              if (!youtubeApiKey) {
+                throw new Error(`[P1-5] YOUTUBE_API_KEY not configured for ${name}. Configure na tela de Integrações.`);
+              }
               
               const calculator = new MetricoolKpiCalculator(metricoolToken, metricoolUserId, youtubeApiKey);
               const kpis = await calculator.calculateSocialMediaKPIs(blogId, from, to);
@@ -1369,6 +1396,7 @@ export const appRouter = router({
           'cademi',
           'tokeniza',
           'tokeniza-academy',
+          'youtube',
         ]),
         companySlug: z.string(), // Required: which company this integration belongs to
         apiKey: z.string().optional(),
