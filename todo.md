@@ -1773,3 +1773,20 @@ Substituir OAuth do Manus por sistema de login/senha simples armazenado no banco
 - [x] Criar cache para produtos/cursos
 - [x] Configurar TTL (15-60 minutos)
 - [x] Invalidar cache quando snapshots são gerados
+
+
+---
+
+## 🔧 Ajustes de Deploy - Variáveis de Ambiente
+
+### Remover Dependências OAuth Manus
+- [x] Tornar OAUTH_SERVER_URL opcional
+- [x] Tornar VITE_APP_ID opcional
+- [x] Tornar OWNER_OPEN_ID opcional
+- [x] Ajustar validateEnv para não exigir essas variáveis
+
+### Configurar Variáveis Faltantes
+- [x] Gerar JWT_SECRET aleatório
+- [x] Documentar DATABASE_URL do servidor de produção
+- [x] Criar script de deploy automático
+- [x] Criar documentação DEPLOY.md

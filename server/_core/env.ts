@@ -32,7 +32,10 @@ export function validateEnv() {
   const required = [
     'JWT_SECRET',
     'DATABASE_URL',
-    'VITE_APP_ID',
+    // OAuth Manus variables are now optional (custom login system)
+    // 'VITE_APP_ID',
+    // 'OAUTH_SERVER_URL',
+    // 'OWNER_OPEN_ID',
     'PIPEDRIVE_API_TOKEN',
     'DISCORD_BOT_TOKEN',
     'DISCORD_GUILD_ID',
