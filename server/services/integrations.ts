@@ -1,4 +1,15 @@
 import { logger } from '../utils/logger';
+import { ENV } from '../_core/env';
+import type {
+  PipedriveCredentials,
+  NiboCredentials,
+  MetricoolCredentials,
+  DiscordCredentials,
+  MauticCredentials,
+  TokenizaCredentials,
+  TokenizaAcademyCredentials,
+  CademiCredentials,
+} from './integrationTypes';
 
 /**
  * Integration services for external APIs
@@ -1156,32 +1167,106 @@ export class TokenizaAcademyService implements IntegrationService {
   }
 }
 
-// Factory function to create service instances
+/**
+ * IntegrationFactory - Central factory for creating integration service instances
+ * 
+ * Handles credential resolution from multiple sources:
+ * 1. Explicit credentials from config
+ * 2. Legacy apiKey parameter
+ * 3. Environment variables as fallback
+ */
+export class IntegrationFactory {
+  static createService(
+    serviceName: string,
+    apiKey: string | null,
+    config: Record<string, any> | null
+  ): IntegrationService {
+    switch (serviceName) {
+      case 'pipedrive': {
+        const creds = config?.credentials as PipedriveCredentials | undefined;
+        const token = creds?.apiToken || apiKey || ENV.pipedriveApiToken;
+        if (!token) throw new Error('Pipedrive API token não configurado');
+        return new PipedriveService(token, config ?? {});
+      }
+
+      case 'nibo': {
+        const creds = config?.credentials as NiboCredentials | undefined;
+        const token = creds?.apiToken || apiKey || ENV.niboApiToken;
+        if (!token) throw new Error('Nibo API token não configurado');
+        return new NiboService(token, config ?? {});
+      }
+
+      case 'metricool': {
+        const creds = config?.credentials as MetricoolCredentials | undefined;
+        const apiKeyResolved = creds?.apiKey || apiKey || ENV.metricoolApiToken;
+        const userId = creds?.userId || ENV.metricoolUserId;
+        if (!apiKeyResolved || !userId) {
+          throw new Error('Metricool API key ou userId não configurados');
+        }
+        return new MetricoolService(apiKeyResolved, { userId, ...config });
+      }
+
+      case 'discord': {
+        const creds = config?.credentials as DiscordCredentials | undefined;
+        const botToken = creds?.botToken || apiKey || ENV.discordBotToken;
+        const guildId = creds?.guildId || ENV.discordGuildId;
+        if (!botToken || !guildId) {
+          throw new Error('Discord Bot Token ou Guild ID não configurados');
+        }
+        return new DiscordService(botToken, { guildId, ...config });
+      }
+
+      case 'tokeniza': {
+        const creds = config?.credentials as TokenizaCredentials | undefined;
+        const apiToken = creds?.apiToken || apiKey;
+        const baseUrl = creds?.baseUrl || process.env.TOKENIZA_API_URL;
+        if (!apiToken) throw new Error('Tokeniza API token não configurado');
+        return new TokenizaService(apiToken, { baseUrl, ...config });
+      }
+
+      case 'tokeniza-academy': {
+        const creds = config?.credentials as TokenizaAcademyCredentials | undefined;
+        const apiToken = creds?.apiToken || apiKey;
+        const baseUrl = creds?.baseUrl || process.env.TOKENIZA_ACADEMY_API_URL;
+        if (!apiToken) throw new Error('Tokeniza Academy API token não configurado');
+        return new TokenizaAcademyService(apiToken, { baseUrl, ...config });
+      }
+
+      case 'mautic': {
+        const creds = config?.credentials as MauticCredentials | undefined;
+        const resolved: MauticCredentials = {
+          baseUrl: creds?.baseUrl || ENV.mauticBaseUrl,
+          clientId: creds?.clientId || ENV.mauticClientId,
+          clientSecret: creds?.clientSecret || ENV.mauticClientSecret,
+          username: creds?.username,
+          password: creds?.password,
+          accessToken: creds?.accessToken,
+        };
+        return new MauticService(resolved, config ?? {});
+      }
+
+      case 'cademi': {
+        const creds = config?.credentials as CademiCredentials | undefined;
+        const apiKeyResolved = creds?.apiKey || apiKey || ENV.cademiApiKey;
+        if (!apiKeyResolved) throw new Error('Cademi API key não configurado');
+        // CademiService será implementado quando necessário
+        throw new Error('CademiService not implemented yet');
+      }
+
+      default:
+        throw new Error(`Unknown integration service: ${serviceName}`);
+    }
+  }
+}
+
+/**
+ * Legacy factory function for backward compatibility
+ * @deprecated Use IntegrationFactory.createService instead
+ */
 export function createIntegrationService(
   serviceName: string,
   apiKey: string,
   config?: Record<string, any>
 ): IntegrationService {
-  switch (serviceName) {
-    case 'pipedrive':
-      return new PipedriveService(apiKey, config);
-    case 'nibo':
-      return new NiboService(apiKey, config);
-    case 'mautic':
-      // MauticService expects credentials object as first parameter
-      return new MauticService(
-        typeof apiKey === 'string' ? { accessToken: apiKey } : apiKey,
-        config
-      );
-    case 'metricool':
-      return new MetricoolService(apiKey, config);
-    case 'discord':
-      return new DiscordService(apiKey, config);
-    case 'tokeniza':
-      return new TokenizaService(apiKey, config);
-    case 'tokeniza-academy':
-      return new TokenizaAcademyService(apiKey, config);
-    default:
-      throw new Error(`Unknown service: ${serviceName}`);
-  }
+  return IntegrationFactory.createService(serviceName, apiKey, config ?? null);
 }

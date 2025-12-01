@@ -12,6 +12,7 @@ import { BlueConsultKpiCalculatorReal, TokenizaAcademyKpiCalculatorReal } from '
 import { BlueConsultKpiCalculatorRefined } from './services/kpiCalculatorRefined';
 import { TokenizaAcademyKpiCalculatorRefined } from './services/kpiCalculatorDiscordRefined';
 import { IntegrationStatusChecker } from './services/integrationStatus';
+import { IntegrationFactory } from './services/integrations';
 import { NiboKpiCalculator } from './services/niboKpiCalculator';
 import { MetricoolKpiCalculator } from './services/metricoolKpiCalculator';
 import { calculateCademiKpis } from './services/cademiKpiCalculator';
@@ -1343,9 +1344,18 @@ export const appRouter = router({
     // Update credentials and test connection
     updateCredentials: adminProcedure
       .input(z.object({
-        serviceName: z.string(),
+        serviceName: z.enum([
+          'pipedrive',
+          'nibo',
+          'mautic',
+          'metricool',
+          'discord',
+          'cademi',
+          'tokeniza',
+          'tokeniza-academy',
+        ]),
         apiKey: z.string().optional(),
-        config: z.record(z.any()).optional(),
+        config: z.record(z.any()).optional(), // vai carregar { credentials: {...} }
         active: z.boolean().optional(),
       }))
       .mutation(async ({ input, ctx }) => {
@@ -1353,20 +1363,21 @@ export const appRouter = router({
           throw new Error('User not authenticated');
         }
 
+        const { serviceName, apiKey, config } = input;
+        const integrationConfig = config ?? {};
+
         // Test connection before saving
-        let testStatus = 'pending';
+        let testStatus: 'pending' | 'success' | 'failed' = 'pending';
         let testMessage = 'Connection not tested';
         
         try {
-          // TODO: Implement testConnection for each service
-          // For now, just mark as success if apiKey is provided
-          if (input.apiKey) {
-            testStatus = 'success';
-            testMessage = 'Credentials saved successfully. Connection test not implemented yet.';
-          }
+          const service = IntegrationFactory.createService(serviceName, apiKey ?? null, integrationConfig);
+          const ok = await service.testConnection();
+          testStatus = ok ? 'success' : 'failed';
+          testMessage = ok ? 'Conexão bem sucedida' : 'Conexão falhou (testConnection retornou false)';
         } catch (error: any) {
           testStatus = 'failed';
-          testMessage = error.message || 'Connection test failed';
+          testMessage = error.message || 'Erro ao testar conexão';
         }
 
         // Save credentials
