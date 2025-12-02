@@ -39,11 +39,9 @@ function Router() {
   // Se autenticado, mostrar rotas normais
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      
       {/* Rotas específicas primeiro */}
-      <Route path={"/admin"} component={Admin} />
       <Route path={"/admin/settings"} component={AdminSettings} />
+      <Route path={"/admin"} component={Admin} />
       <Route path={"/integrations"}>
         <Redirect to="/admin" />
       </Route>
@@ -59,6 +57,9 @@ function Router() {
           return <NotFound />;
         }}
       </Route>
+      
+      {/* Home DEPOIS das demais */}
+      <Route path={"/"} component={Home} />
       
       {/* Fallback final */}
       <Route path={"/404"} component={NotFound} />
