@@ -19,7 +19,9 @@ import { useAuth } from "./_core/hooks/useAuth";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 function Router() {
-  const { isAuthenticated, loading } = useAuth();
+  const auth = useAuth();
+  const { isAuthenticated, loading, user } = auth;
+  console.log('[Router] Auth state:', { isAuthenticated, loading, user: user?.email || null });
 
   // Mostrar loading enquanto verifica autenticação
   if (loading) {
@@ -38,21 +40,27 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path="/:companySlug">
-        {(params) => {
-          const validSlugs = ['blue-consult', 'tokeniza', 'tokeniza-academy', 'mychel-mendes'];
-          if (validSlugs.includes(params.companySlug)) {
-            return <CompanyDashboard />;
-          }
-          return null; // Deixa cair para outras rotas
-        }}
-      </Route>
+      
+      {/* Rotas específicas primeiro */}
       <Route path={"/admin"} component={Admin} />
       <Route path={"/admin/settings"} component={AdminSettings} />
       <Route path={"/integrations"}>
         <Redirect to="/admin" />
       </Route>
       <Route path={"/lead-analysis"} component={LeadAnalysis} />
+      
+      {/* Depois a rota dinâmica */}
+      <Route path="/:companySlug">
+        {(params) => {
+          const validSlugs = ['blue-consult', 'tokeniza', 'tokeniza-academy', 'mychel-mendes'];
+          if (validSlugs.includes(params.companySlug)) {
+            return <CompanyDashboard />;
+          }
+          return <NotFound />;
+        }}
+      </Route>
+      
+      {/* Fallback final */}
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
