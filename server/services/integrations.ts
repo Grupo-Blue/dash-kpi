@@ -202,9 +202,14 @@ export class MauticService implements IntegrationService {
         },
       });
       // 200 OK or 404 Not Found are both valid (means API is working)
-      return response.ok || response.status === 404;
+      const isValid = response.ok || response.status === 404;
+      if (!isValid) {
+        const text = await response.text();
+        logger.error(`[Mautic] Connection test failed: ${response.status} ${text}`);
+      }
+      return isValid;
     } catch (error) {
-      logger.error('Mautic connection test failed:', error);
+      logger.error('[Mautic] Connection test failed:', error);
       return false;
     }
   }
@@ -624,11 +629,19 @@ export class DiscordService implements IntegrationService {
 
   async testConnection(): Promise<boolean> {
     try {
+      if (!this.apiKey) {
+        logger.error('[Discord] Bot token not configured');
+        return false;
+      }
       const response = await fetch(`${this.baseUrl}/users/@me`, {
         headers: {
           'Authorization': `Bot ${this.apiKey}`,
         },
       });
+      if (!response.ok) {
+        const text = await response.text();
+        logger.error(`[Discord] Connection test failed: ${response.status} ${text}`);
+      }
       return response.ok;
     } catch (error) {
       logger.error('[Discord] Connection test failed:', error);
@@ -1169,6 +1182,37 @@ export class TokenizaAcademyService implements IntegrationService {
   }
 }
 
+// Cademi Service (Course platform)
+export class CademiServiceIntegration implements IntegrationService {
+  constructor(private apiKey: string, private config?: Record<string, any>) {}
+
+  async testConnection(): Promise<boolean> {
+    try {
+      const { cademiRequest } = await import('./cademiService');
+      await cademiRequest('/produto', { apiKey: this.apiKey });
+      return true;
+    } catch (error) {
+      logger.error('[Cademi] Connection test failed:', error);
+      return false;
+    }
+  }
+
+  async fetchData(params?: any): Promise<any> {
+    const { getAllUsers, getAllProducts } = await import('./cademiService');
+    
+    if (params?.endpoint === 'users') {
+      return getAllUsers();
+    }
+    
+    if (params?.endpoint === 'products') {
+      return getAllProducts();
+    }
+    
+    // Default: return products
+    return getAllProducts();
+  }
+}
+
 /**
  * IntegrationFactory - Central factory for creating integration service instances
  * 
@@ -1251,8 +1295,7 @@ export class IntegrationFactory {
         const creds = config?.credentials as CademiCredentials | undefined;
         const apiKeyResolved = creds?.apiKey || apiKey || ENV.cademiApiKey;
         if (!apiKeyResolved) throw new Error('Cademi API key não configurado');
-        // CademiService será implementado quando necessário
-        throw new Error('CademiService not implemented yet');
+        return new CademiServiceIntegration(apiKeyResolved, config ?? {});
       }
 
       case 'youtube': {

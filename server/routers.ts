@@ -200,7 +200,7 @@ export const appRouter = router({
 
       try {
         const { getPipedriveServiceForUser } = await import('./services/integrationHelpers');
-        const pipedriveService = await getPipedriveServiceForUser(userId);
+        const pipedriveService = await getPipedriveServiceForUser();
         const pipedriveToken = pipedriveService.apiToken;
         const calculator = new BlueConsultKpiCalculatorRefined(pipedriveToken);
         const kpis = {
